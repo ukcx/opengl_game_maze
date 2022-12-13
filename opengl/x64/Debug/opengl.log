@@ -1,0 +1,22 @@
+﻿  Mesh.cpp
+C:\Users\USER\source\repos\opengl\opengl\Mesh.cpp(35,21): warning C4305: '+=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+C:\Users\USER\source\repos\opengl\opengl\Mesh.cpp(40,21): warning C4305: '-=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+C:\Users\USER\source\repos\opengl\opengl\Mesh.cpp(45,21): warning C4305: '-=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+C:\Users\USER\source\repos\opengl\opengl\Mesh.cpp(50,21): warning C4305: '+=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+  opengl.vcxproj -> C:\Users\USER\source\repos\opengl\x64\Debug\opengl.exe
