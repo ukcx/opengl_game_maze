@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\USER\source\repos\opengl\x64\Debug\opengl.exe</FullPath>
+      <FullPath>D:\Projects\opengl_game\opengl_game_maze\x64\Debug\opengl.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
