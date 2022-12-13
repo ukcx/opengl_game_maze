@@ -52,7 +52,7 @@ void Mesh::Inputs_movement(GLFWwindow* window, glm::vec3& position)
 	}
 
 }
-void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLuint size_indices, GLFWwindow* window, glm::vec3& position) {
+void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLuint size_indices, GLFWwindow* window, glm::vec3& position, float rotation) {
 	shader.Activate();
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 	// Simple timer
@@ -64,7 +64,7 @@ void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLui
 	glm::mat4 view = glm::mat4(1.0f);
 
 	// Assigns different transformations to each matrix
-	model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 	Inputs_movement(window, position);
 	view = glm::translate(view, position);
 	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;

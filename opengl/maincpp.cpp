@@ -554,8 +554,10 @@ int main()
 		// Assigns different transformations to each matrix
 		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 		Inputs_movement(window, position);
-		view = glm::translate(view, position);
-		//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
+		view = glm::translate(view, position);*/
+		
+		rotation += 0.15f;
+		/*//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
 		proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
 		model =  view * model;
 		// Outputs the matrices into the Vertex Shader
@@ -572,9 +574,9 @@ int main()
 		// Draw primitives, number of indices, datatype of indices, index of indices
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);*/
 
-		obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position);
+		obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, rotation);
 		Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
-		object.moving_obj_draw(shaderProgram_obj, camera, brickTex, sizeof(inds), window, position);
+		object.moving_obj_draw(shaderProgram_obj, camera, brickTex, sizeof(inds), window, position, 0);
 		//Draw_array(shaderProgram_obj, camera, VAOs, boxTex);
 		/*
 		glm::mat4 modelBOX = glm::mat4(1.0f);
