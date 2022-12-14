@@ -3,11 +3,13 @@
 // Positions/Coordinates
 layout (location = 0) in vec3 apos;
 // Colors
-layout (location = 1) in vec3 aColor;
-// Texture Coordinates
+
+layout (location = 1) in vec3 anormal;
+layout (location = 2) in vec3 aColor;
 
 
-layout (location = 2) in vec3 anormal;
+
+
 layout (location = 3) in vec2 aTex;
 out vec3 vs_position;
 

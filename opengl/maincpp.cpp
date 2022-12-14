@@ -166,7 +166,7 @@ GLuint indices_not[] =
 };
 void obj_creation(GLfloat *vertices,GLuint *indices,VAO &VAO1) {
 	// Generates Vertex Array Object and binds it
-	std::cout << vertices << "\n";
+	//std::cout << vertices << "\n";
 	VAO1.Bind();
 
 	// Generates Vertex Buffer Object and links it to vertices
@@ -222,7 +222,34 @@ GLuint indices[] =
 	0, 2, 3
 };
 
+Vertex vertices_x[] =
+{ //               COORDINATES           /            COLORS          /           TexCoord         /       NORMALS         //
+	Vertex{glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec3(0.0f, -1.0f, 0.0f),glm::vec2(0.0f, 0.0f) },
+	Vertex{glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 5.0f)},
+	Vertex{glm::vec3(0.5f, 0.0f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(5.0f, 5.0f)},
+	Vertex{glm::vec3(0.5f, 0.0f,  0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(5.0f, 0.0f)},
 
+
+
+	Vertex{glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec3(-0.8f, 0.5f,  0.0f),glm::vec2(0.0f, 0.0f) },
+	Vertex{glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-0.8f, 0.5f,  0.0f), glm::vec2(5.0f, 0.0f)},
+	Vertex{glm::vec3(0.0f, 0.8f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-0.8f, 0.5f,  0.0f), glm::vec2(2.5f, 5.0f)},
+
+
+	Vertex{glm::vec3(-0.5f, 0.0f,  -0.5f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec3(0.0f, 0.5f, -0.8),glm::vec2(5.0f, 0.0f) },
+	Vertex{glm::vec3(0.5f, 0.0f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.5f, -0.8f), glm::vec2(0.0f, 0.0f)},
+	Vertex{glm::vec3(0.0f, 0.8f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.5f, -0.8f), glm::vec2(2.5f, 5.0f)},
+
+	Vertex{glm::vec3(0.5f, 0.0f,  -0.5f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec3(0.8f, 0.5f,  0.0f),glm::vec2(0.0f, 0.0f) },
+	Vertex{glm::vec3(0.5f, 0.0f,  0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.8f, 0.5f,  0.0f), glm::vec2(5.0f, 0.0f)},
+	Vertex{glm::vec3(0.0f, 0.8f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.8f, 0.5f,  0.0f), glm::vec2(2.5f, 5.0f)},
+
+	Vertex{glm::vec3(0.5f, 0.0f,  0.5f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec3(0.0f, 0.5f,  0.8f),glm::vec2(5.0f, 0.0f) },
+	Vertex{glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.5f,  0.8f), glm::vec2(0.0f, 0.0f)},
+	Vertex{glm::vec3(0.0f, 0.8f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.8f, 0.5f,  0.8f), glm::vec2(2.5f, 5.0f)}
+
+
+};
 
 GLfloat vertices_2d[] =
 { //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
@@ -287,29 +314,31 @@ GLuint lightIndices[] =
 	4, 6, 7
 };
 
-std::vector<Vertex> parseObject(const char* path) 
+std::vector<Vertex> parseObject(const char* path, std::vector < glm::vec3 >& out_vertices,
+	std::vector < glm::vec2 >& out_uvs,
+	std::vector < glm::vec3 >& out_normals)
 {
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
 	std::vector< glm::vec2 > temp_uvs;
 	std::vector< glm::vec3 > temp_normals;
 
-	std::cout << "a" << "\n";
+	
 	FILE* file;
 	fopen_s(&file, path, "r");
-	std::cout << "b" << "\n";
+
 	if (file == NULL) {
 		printf("Impossible to open the file !\n");
 		//return false;
 	}
-	std::cout << "c" << "\n";
+
 	while (1) {
 
 		char lineHeader[128];
 		// read the first word of the line
 
 		int res = fscanf(file, "%s", lineHeader);
-		std::cout << lineHeader << "\n";
+		
 		if (res == EOF)
 			break; // EOF = End Of File. Quit the loop.
 		if (strcmp(lineHeader, "v") == 0) {
@@ -367,10 +396,10 @@ std::vector<Vertex> parseObject(const char* path)
 	}
 
 	//DEBUG
-	std::cout << "Nr of vertices: " << vertices.size() << "\n";
+	
 
 	//Loaded success
-	std::cout << "OBJ file loaded!" << "\n";
+
 	return vertices;
 
 };
@@ -378,6 +407,7 @@ std::vector<Vertex> parseObject(const char* path)
 
 int main()
 {
+	
 	// Initialize GLFW
 	glfwInit();
 
@@ -418,29 +448,33 @@ int main()
 	
 	Mesh obj(verts, ind,width,height);
 	
-	for (int i = 0; i < ind.size(); i++) {
-		std::cout << i << "th index of ind: " << ind[i] << "\n";
-	}
+	
 
 
 	Shader shaderProgram_obj("model.vert", "model.frag");
-	const char* path = "s.obj";
-	std::vector<Vertex> x = parseObject(path);
+	const char* path = "donut_deneme.obj";
+	std::vector< glm::vec3 > vertices;
+	std::vector< glm::vec2 > uvs;
+	std::vector< glm::vec3 > normals;
+	std::vector<Vertex> x = parseObject(path, vertices, uvs, normals);
+	
+	//GLuint ind_de[35];
 
 	std::vector <GLuint> inds;
 	for (int i = 0; i < x.size(); i++) {
 		inds.push_back(i);
 	}
-	for (int i = 0; i < inds.size(); i++) {
-		std::cout << i << "th index: " << inds[i] << "\n";
-	}
-	for (int i = 0; i < x.size(); i++) {
-		std::cout << x.at(i).position.x << "\n";
-	}
+
+	
+	//std::vector <GLuint> ind_des(ind_de, ind_de + sizeof(ind_de) / sizeof(GLuint));
+	
 	Mesh object(x, inds, width, height);
-	Shader shaderProgram_box("default.vert", "default.frag");
-
-
+	
+	Shader shaderProgram_box("model.vert", "model.frag");
+	std::vector <Vertex> vert_pry(vertices_x, vertices_x + sizeof(vertices_x) / sizeof(Vertex));
+	std::vector <GLuint> ind_pry(indices_2d, indices_2d + sizeof(indices_2d) / sizeof(GLuint));
+	Mesh piramid(vert_pry, ind_pry, width, height);
+	/*
 	// Generates Vertex Array Object and binds it
 	VAO VAObox;
 	VAObox.Bind();
@@ -461,7 +495,7 @@ int main()
 	// Unbind all to prevent accidentally modifying them
 	VAObox.Unbind();
 	VBObox.Unbind();
-	EBObox.Unbind();
+	EBObox.Unbind();*/
 	Shader lightShader("light.vert", "light.frag");
 	VAO lightVAO;
 	lightVAO.Bind();
@@ -513,7 +547,7 @@ int main()
 	tex[0].Bind();
 
 
-
+	glEnable(GL_DEPTH_CLAMP);
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
 
@@ -556,7 +590,7 @@ int main()
 		Inputs_movement(window, position);
 		view = glm::translate(view, position);*/
 		
-		rotation += 0.15f;
+		rotation += 0.35f;
 		/*//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
 		proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
 		model =  view * model;
@@ -574,9 +608,10 @@ int main()
 		// Draw primitives, number of indices, datatype of indices, index of indices
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);*/
 
-		obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, rotation);
-		Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
-		object.moving_obj_draw(shaderProgram_obj, camera, brickTex, sizeof(inds), window, position, 0);
+		obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
+		piramid.moving_obj_draw(shaderProgram_box, camera, boxTex, sizeof(indices_2d), window, position, rotation);
+		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
+		object.moving_obj_draw(shaderProgram_obj, camera, brickTex, sizeof(inds), window, position,0);
 		//Draw_array(shaderProgram_obj, camera, VAOs, boxTex);
 		/*
 		glm::mat4 modelBOX = glm::mat4(1.0f);
@@ -596,6 +631,7 @@ int main()
 		camera.Matrix(lightShader, "camMatrix");
 		lightVAO.Bind();
 		glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
+		glBufferData(GL_ARRAY_BUFFER, x.size() * sizeof(glm::vec3), &x[0], GL_STATIC_DRAW);
 		glfwSwapBuffers(window);
 		// Take care of all GLFW events
 		glfwPollEvents();

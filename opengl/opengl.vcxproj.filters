@@ -133,5 +133,11 @@
     <Object Include="stall.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
+    <Object Include="donut_deneme_smooth.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="donut_deneme.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
   </ItemGroup>
 </Project>

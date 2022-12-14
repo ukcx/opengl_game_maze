@@ -1,2 +1,3 @@
-﻿  glad.c
-  opengl.vcxproj -> C:\Users\ugurkagan\source\repos\opengl_game_maze\x64\Debug\opengl.exe
+﻿  maincpp.cpp
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  opengl.vcxproj -> C:\Users\USER\source\repos\opengl_game_maze\x64\Debug\opengl.exe

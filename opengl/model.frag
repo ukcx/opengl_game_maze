@@ -5,10 +5,10 @@ out vec4 FragColor;
 
 in vec3 vs_position;
 // Inputs the color from the Vertex Shader
-in vec3 color;
+in vec3 normal;
 // Inputs the texture coordinates from the Vertex Shader
 in vec2 texCoord;
-in vec3 normal;
+in vec3 color;
 // Gets the Texture Unit from the main function
 uniform sampler2D tex0;
 uniform vec4 lightColor;
