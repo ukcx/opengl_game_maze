@@ -32,7 +32,7 @@ void Mesh::Inputs_movement(GLFWwindow* window, glm::vec3& position)
 	// Handles key inputs
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		position.z += 0.01;
+		position.z -= 0.01;
 		//view = glm::translate(view, position);
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
@@ -42,7 +42,7 @@ void Mesh::Inputs_movement(GLFWwindow* window, glm::vec3& position)
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		position.z -= 0.01;
+		position.z += 0.01;
 		//view = glm::translate(view, position);
 	}
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
@@ -52,7 +52,7 @@ void Mesh::Inputs_movement(GLFWwindow* window, glm::vec3& position)
 	}
 
 }
-void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLuint size_indices, GLFWwindow* window, glm::vec3& position, float rotation) {
+void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLuint size_indices, GLFWwindow* window, glm::vec3& position, float rotation,glm::vec3 trans) {
 	shader.Activate();
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 	// Simple timer
@@ -67,6 +67,7 @@ void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLui
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 	Inputs_movement(window, position);
 	view = glm::translate(view, position);
+	view = glm::translate(view, trans);
 	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
 	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
 	model = view * model;
@@ -84,7 +85,7 @@ void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLui
 	VAO1.Bind();
 	
 	// Draw primitives, number of indices, datatype of indices, index of indices
-	glDrawElements(GL_TRIANGLES, size_indices / sizeof(int), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, size_indices, GL_UNSIGNED_INT, 0);
 	//std::cout << "with" <<"\n";
 	
 

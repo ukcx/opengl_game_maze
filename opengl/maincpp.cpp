@@ -208,7 +208,7 @@ void obj_creation_main(std::vector <Vertex>& vertices, std::vector <GLuint>& ind
 
 }*/
 Vertex vertices[] =
-{ //               COORDINATES           /            COLORS          /           TexCoord         /       NORMALS         //
+{ //               COORDINATES           /            COLORS          /         NORMALS           /     TexCoord           //
 	Vertex{glm::vec3(-1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f),glm::vec2(0.0f, 0.0f) },
 	Vertex{glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
 	Vertex{glm::vec3(1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
@@ -223,7 +223,7 @@ GLuint indices[] =
 };
 
 Vertex vertices_x[] =
-{ //               COORDINATES           /            COLORS          /           TexCoord         /       NORMALS         //
+{ //               COORDINATES           /            COLORS          /           NORMALS         /       TexCoord         //
 	Vertex{glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec3(0.0f, -1.0f, 0.0f),glm::vec2(0.0f, 0.0f) },
 	Vertex{glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 5.0f)},
 	Vertex{glm::vec3(0.5f, 0.0f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(5.0f, 5.0f)},
@@ -452,7 +452,7 @@ int main()
 
 
 	Shader shaderProgram_obj("model.vert", "model.frag");
-	const char* path = "donut_deneme.obj";
+	const char* path = "stall.obj";
 	std::vector< glm::vec3 > vertices;
 	std::vector< glm::vec2 > uvs;
 	std::vector< glm::vec3 > normals;
@@ -461,7 +461,7 @@ int main()
 	//GLuint ind_de[35];
 
 	std::vector <GLuint> inds;
-	for (int i = 0; i < x.size(); i++) {
+	for (unsigned int i = 0; i < x.size(); i++) {
 		inds.push_back(i);
 	}
 
@@ -469,6 +469,22 @@ int main()
 	//std::vector <GLuint> ind_des(ind_de, ind_de + sizeof(ind_de) / sizeof(GLuint));
 	
 	Mesh object(x, inds, width, height);
+
+
+	const char* path2 = "sphere.obj";
+	std::vector< glm::vec3 > vertices2;
+	std::vector< glm::vec2 > uvs2;
+	std::vector< glm::vec3 > normals2;
+	std::vector<Vertex> x2 = parseObject(path2, vertices2, uvs2, normals2);
+
+	//GLuint ind_de[35];
+
+	std::vector <GLuint> inds2;
+	for (unsigned int i = 0; i < x2.size(); i++) {
+		inds2.push_back(i);
+	}
+	//std::cout << inds2.
+	Mesh object2(x2, inds2, width, height);
 	
 	Shader shaderProgram_box("model.vert", "model.frag");
 	std::vector <Vertex> vert_pry(vertices_x, vertices_x + sizeof(vertices_x) / sizeof(Vertex));
@@ -496,7 +512,7 @@ int main()
 	VAObox.Unbind();
 	VBObox.Unbind();
 	EBObox.Unbind();*/
-	Material mat_pry(0.0f, 0.2f, 0.1f);
+	Material mat_pry(0.5f, 0.8f, 0.7f);
 	mat_pry.sendToShader(shaderProgram_box);
 	mat_pry.sendToShader(shaderProgram);
 	mat_pry.sendToShader(shaderProgram_obj);
@@ -613,9 +629,12 @@ int main()
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);*/
 
 		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
-		piramid.moving_obj_draw(shaderProgram_box, camera, boxTex, sizeof(indices_2d), window, position, rotation);
+		piramid.Draw(shaderProgram_box, camera, boxTex, (unsigned int) sizeof(indices_2d));
 		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
-		//object.moving_obj_draw(shaderProgram_obj, camera, brickTex, sizeof(inds), window, position,0);
+		glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
+		glm::vec3 translate2 = glm::vec3(0.5f, 0.0f, 0.0f);
+		object.moving_obj_draw(shaderProgram_obj, camera, brickTex, (unsigned int) (1000 * sizeof(inds)) , window, position, rotation, translate);
+		object2.moving_obj_draw(shaderProgram_obj, camera, brickTex, (unsigned int) (1000 * sizeof(inds2)) , window, position, 0, translate2);
 		//Draw_array(shaderProgram_obj, camera, VAOs, boxTex);
 		/*
 		glm::mat4 modelBOX = glm::mat4(1.0f);

@@ -20,6 +20,8 @@ public:
 	glm::vec3 Up;
 	glm::mat4 cameraMatrix = glm::mat4(1.f);
 
+	bool godMode = false;
+
 	// Prevents the camera from jumping around when first clicking left click
 	bool firstClick = true;
 
