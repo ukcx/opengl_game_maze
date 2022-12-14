@@ -13,7 +13,7 @@
 #include"EBO.h"
 #include"Mesh.h"
 #include"Camera.h"
-
+#include"Material.h"
 const unsigned int width = 1600;
 const unsigned int height = 1600;
 /*
@@ -496,6 +496,10 @@ int main()
 	VAObox.Unbind();
 	VBObox.Unbind();
 	EBObox.Unbind();*/
+	Material mat_pry(0.0f, 0.2f, 0.1f);
+	mat_pry.sendToShader(shaderProgram_box);
+	mat_pry.sendToShader(shaderProgram);
+	mat_pry.sendToShader(shaderProgram_obj);
 	Shader lightShader("light.vert", "light.frag");
 	VAO lightVAO;
 	lightVAO.Bind();
@@ -608,10 +612,10 @@ int main()
 		// Draw primitives, number of indices, datatype of indices, index of indices
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);*/
 
-		obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
+		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
 		piramid.moving_obj_draw(shaderProgram_box, camera, boxTex, sizeof(indices_2d), window, position, rotation);
 		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
-		object.moving_obj_draw(shaderProgram_obj, camera, brickTex, sizeof(inds), window, position,0);
+		//object.moving_obj_draw(shaderProgram_obj, camera, brickTex, sizeof(inds), window, position,0);
 		//Draw_array(shaderProgram_obj, camera, VAOs, boxTex);
 		/*
 		glm::mat4 modelBOX = glm::mat4(1.0f);
