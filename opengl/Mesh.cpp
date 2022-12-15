@@ -52,7 +52,7 @@ void Mesh::Inputs_movement(GLFWwindow* window, glm::vec3& position)
 	}
 
 }
-void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLuint size_indices, GLFWwindow* window, glm::vec3& position, float rotation,glm::vec3 trans) {
+void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLFWwindow* window, glm::vec3& position, float rotation,glm::vec3 trans) {
 	shader.Activate();
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 	// Simple timer
@@ -85,13 +85,13 @@ void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLui
 	VAO1.Bind();
 	
 	// Draw primitives, number of indices, datatype of indices, index of indices
-	glDrawElements(GL_TRIANGLES, size_indices, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	//std::cout << "with" <<"\n";
 	
 
 
 }
-void Mesh::Draw(Shader shader, Camera camera, Texture& brickTex, GLuint size_indices) {
+void Mesh::Draw(Shader shader, Camera camera, Texture& brickTex, float rotation,glm::vec3 trans) {
 	shader.Activate();
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 	// Simple timer
@@ -103,9 +103,9 @@ void Mesh::Draw(Shader shader, Camera camera, Texture& brickTex, GLuint size_ind
 	glm::mat4 view = glm::mat4(1.0f);
 
 	// Assigns different transformations to each matrix
-	model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 	//Inputs_movement(window, position);
-	//view = glm::translate(view, position);
+	view = glm::translate(view, trans);
 	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
 	proj = glm::perspective(glm::radians(45.0f), (float)width /height, 0.1f, 100.0f);
 	model = view * model;
@@ -122,6 +122,6 @@ void Mesh::Draw(Shader shader, Camera camera, Texture& brickTex, GLuint size_ind
 	// Bind the VAO so OpenGL knows to use it
 	VAO1.Bind();
 	// Draw primitives, number of indices, datatype of indices, index of indices
-	glDrawElements(GL_TRIANGLES, size_indices / sizeof(int), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	// Swap the back buffer with the front buffer
 }

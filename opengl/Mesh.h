@@ -23,8 +23,8 @@ public:
 	
 	// Initializes the mesh
 	Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, unsigned int width,unsigned int height);
-	void Draw(Shader shader, Camera camera,Texture& Texture, GLuint size_indices);
+	void Draw(Shader shader, Camera camera,Texture& Texture,float rotation, glm::vec3 trans);
 	// Draws the mesh
-	void moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLuint size_indices, GLFWwindow* window, glm::vec3& position, float rotation,glm::vec3 trans);
+	void moving_obj_draw(Shader shader, Camera camera, Texture& brickTex,GLFWwindow* window, glm::vec3& position, float rotation,glm::vec3 trans);
 };
 #endif

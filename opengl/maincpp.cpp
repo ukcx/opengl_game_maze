@@ -471,7 +471,7 @@ int main()
 	Mesh object(x, inds, width, height);
 
 
-	const char* path2 = "sphere.obj";
+	const char* path2 = "Sphere_mit.obj";
 	std::vector< glm::vec3 > vertices2;
 	std::vector< glm::vec2 > uvs2;
 	std::vector< glm::vec3 > normals2;
@@ -512,7 +512,7 @@ int main()
 	VAObox.Unbind();
 	VBObox.Unbind();
 	EBObox.Unbind();*/
-	Material mat_pry(0.5f, 0.8f, 0.7f);
+	Material mat_pry(0.9f, 0.8f, 0.8f);
 	mat_pry.sendToShader(shaderProgram_box);
 	mat_pry.sendToShader(shaderProgram);
 	mat_pry.sendToShader(shaderProgram_obj);
@@ -567,9 +567,10 @@ int main()
 	tex[0].Bind();
 
 
-	glEnable(GL_DEPTH_CLAMP);
+	//glEnable(GL_DEPTH_CLAMP);
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
 
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
@@ -629,12 +630,12 @@ int main()
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);*/
 
 		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
-		piramid.Draw(shaderProgram_box, camera, boxTex, (unsigned int) sizeof(indices_2d));
+		piramid.Draw(shaderProgram_box, camera, boxTex,0.0f, glm::vec3(0.0f));
 		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
 		glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
-		glm::vec3 translate2 = glm::vec3(0.5f, 0.0f, 0.0f);
-		object.moving_obj_draw(shaderProgram_obj, camera, brickTex, (unsigned int) (1000 * sizeof(inds)) , window, position, rotation, translate);
-		object2.moving_obj_draw(shaderProgram_obj, camera, brickTex, (unsigned int) (1000 * sizeof(inds2)) , window, position, 0, translate2);
+		glm::vec3 translate2 = glm::vec3(-1.5f, 0.3f, 0.0f);
+		object.Draw(shaderProgram, camera, brickTex ,  rotation,translate2);
+		object2.moving_obj_draw(shaderProgram_obj, camera, brickTex, window, position, 0, translate2);
 		//Draw_array(shaderProgram_obj, camera, VAOs, boxTex);
 		/*
 		glm::mat4 modelBOX = glm::mat4(1.0f);

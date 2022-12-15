@@ -136,10 +136,8 @@
     <Object Include="stall.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
-    <Object Include="donut_deneme_smooth.obj">
-      <Filter>Resource Files\Object</Filter>
-    </Object>
-    <Object Include="donut_deneme.obj">
+    <Object Include="sphere.obj" />
+    <Object Include="Sphere_mit.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
   </ItemGroup>
