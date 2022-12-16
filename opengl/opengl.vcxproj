@@ -136,6 +136,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="maincpp.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="model.cpp" />
@@ -156,7 +157,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="common.h" />
     <ClInclude Include="EBO.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="model.h" />
@@ -167,12 +170,12 @@
     <ClInclude Include="VBO.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="DIFFERENTS.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="..\..\..\..\Desktop\brick.png" />
     <Image Include="..\..\..\..\Desktop\odin.png" />
     <Image Include="..\..\..\..\Desktop\x.png" />
+    <Image Include="q.png" />
+    <Image Include="s.png" />
+    <Image Include="truebrick.png" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="s.obj">
@@ -191,6 +194,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="deletelater.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -60,6 +60,9 @@
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.vert">
@@ -112,11 +115,12 @@
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="DIFFERENTS.txt">
-      <Filter>Source Files</Filter>
-    </Text>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Desktop\odin.png">
@@ -126,6 +130,15 @@
       <Filter>Resource Files\Texttures</Filter>
     </Image>
     <Image Include="..\..\..\..\Desktop\brick.png">
+      <Filter>Resource Files\Texttures</Filter>
+    </Image>
+    <Image Include="truebrick.png">
+      <Filter>Resource Files\Texttures</Filter>
+    </Image>
+    <Image Include="s.png">
+      <Filter>Resource Files\Texttures</Filter>
+    </Image>
+    <Image Include="q.png">
       <Filter>Resource Files\Texttures</Filter>
     </Image>
   </ItemGroup>
@@ -140,5 +153,10 @@
     <Object Include="Sphere_mit.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="deletelater.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

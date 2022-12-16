@@ -50,6 +50,20 @@ void Mesh::Inputs_movement(GLFWwindow* window, glm::vec3& position)
 		position.x += 0.01;
 		//view = glm::translate(view, position);
 	}
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+	{
+		position.y += 0.1;
+		
+
+		//view = glm::translate(view, position);
+	}
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+	{
+		position.y -= 0.1;
+
+
+		//view = glm::translate(view, position);
+	}
 
 }
 void Mesh::moving_obj_draw(Shader shader, Camera camera, Texture& brickTex, GLFWwindow* window, glm::vec3& position, float rotation,glm::vec3 trans) {
@@ -123,5 +137,5 @@ void Mesh::Draw(Shader shader, Camera camera, Texture& brickTex, float rotation,
 	VAO1.Bind();
 	// Draw primitives, number of indices, datatype of indices, index of indices
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	// Swap the back buffer with the front buffer
+
 }
