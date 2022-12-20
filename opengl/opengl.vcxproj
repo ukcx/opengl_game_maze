@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\Libraries;$(SolutionDir)\Libraries\include;$(SolutionDir)\Libraries\glm-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,6 +123,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\Libraries;$(SolutionDir)\Libraries\include;$(SolutionDir)\Libraries\glm-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,8 +140,12 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="maincpp.cpp" />
+    <ClCompile Include="MazeGenerator.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="model.cpp" />
+    <ClCompile Include="model.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="shaderClass.cpp" />
     <ClCompile Include="Somefuncs.cpp" />
     <ClCompile Include="stbcpp.cpp" />
@@ -161,6 +167,7 @@
     <ClInclude Include="EBO.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="MazeGenerator.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="shaderClass.h" />
@@ -170,9 +177,19 @@
     <ClInclude Include="VBO.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Desktop\brick.png" />
-    <Image Include="..\..\..\..\Desktop\odin.png" />
-    <Image Include="..\..\..\..\Desktop\x.png" />
+    <Image Include="brick.png" />
+    <Image Include="brick2.png">
+      <DeploymentContent>false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </DeploymentContent>
+    </Image>
+    <Image Include="newBrick.png">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </Image>
+    <Image Include="odin.png" />
     <Image Include="q.png" />
     <Image Include="s.png" />
     <Image Include="truebrick.png" />

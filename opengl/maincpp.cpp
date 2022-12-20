@@ -6,6 +6,10 @@
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
 
+#include <fstream>
+#include <string>
+
+#include"MazeGenerator.h"
 #include"Texture.h"
 #include"shaderClass.h"
 #include"VAO.h"
@@ -182,11 +186,8 @@ GLuint lightIndices[] =
 	4, 6, 7
 };
 
-
-
 int main()
 {
-	
 	// Initialize GLFW
 	glfwInit();
 
@@ -217,15 +218,23 @@ int main()
 	glViewport(0, 0, width, height);
 
 
+	//maze parameters
+	int seeds[8] = { 42, 24, 68, 11, 52, 35, 76, 18 };
+	int mWidth = 20, mHeight = 20, scaleXZ = 10, scaleY = 16;
+	const char* path_2_ = "s.obj";
+
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("model.vert", "model.frag");
 	VAO VAO1;
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
 	
+	for (int i = 0; i < verts.size(); i++) {
+		verts[i].position.x *= scaleXZ*10;
+		verts[i].position.z *= scaleXZ*10;
+	}
 	
-	
-	Mesh obj(verts, ind,width,height);
+	Mesh object(verts, ind,width,height);
 	
 
 
@@ -253,7 +262,7 @@ int main()
 	mat_pry.sendToShader(shaderProgram_obj);
 	mat_3.sendToShader(shaderProgram_kup);
 	Shader lightShader("light.vert", "light.frag");
-	Model mylight(path___2,1);
+	Model mylight(path___2, 1);
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -266,13 +275,11 @@ int main()
 	only_light.light_conf(shaderProgram_obj, 1);
 	shaderProgram.Activate();
 
-
-
 	
 	Texture	textures[] = {Texture("odin.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE)};
 	std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
 
-	Texture brickTex("truebrick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	Texture brickTex("newBrick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	brickTex.texUnit(shaderProgram_obj, "tex0", 0);
 	brickTex.texUnit(shaderProgram_kup, "tex0", 0);
 	Texture boxTex("odin.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -286,18 +293,26 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 
+
+	
+	// Maze Generation
+	MazeGenerator maze(mHeight, mWidth, seeds[1], scaleXZ, scaleY);
+	maze.CreateModels(path_2_);
+	std::vector<Model> cubes = maze.getModels();
+	std::vector<glm::vec3> transfers = maze.getTranslates();
+	
 	// Creates camera object
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+	glm::vec3 translateCameraToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.5f, -0.4f * scaleXZ * (mHeight - 1));
+	Camera camera(width, height, translateCameraToEntrance);
 	float rotation = 0.0f;
 	double prevTime = glfwGetTime();
 	glm::vec3 position(0.f);
-	// Main while loop
-	
-	
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Specify the color of the background
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		glClearColor(0.529f, 0.808f, 0.922f, 0.08f);
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		camera.Inputs(window);
@@ -306,16 +321,24 @@ int main()
 		
 		rotation += 0.35f;
 		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
-		piramid.Draw(shaderProgram_box, camera, boxTex,0.0f, glm::vec3(3.0f));
+		piramid.Draw(shaderProgram_obj, camera, boxTex, 0.0f, glm::vec3(3.0f));
 		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
 		glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
-		glm::vec3 translate2 = glm::vec3(-1.5f, 0.3f, 0.0f);
+		glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
 		glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
-		kup.moving_obj_draw(shaderProgram_kup, camera, brickTex , window, position, 0, translate3);
-		//object.Draw(shaderProgram, camera, brickTex ,  rotation,translate2);
-		stall.Draw(shaderProgram, camera, brickTex, rotation, translate2);
-		sphere.moving_obj_draw(shaderProgram_obj, camera, brickTex, window, position, 0, translate2);
-		mylight.Draw(lightShader, camera);
+		
+		
+		for (int i = 0; i < cubes.size(); i++) {
+			glm::vec3 translate_L = transfers[i];
+			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
+		}
+
+		//kup.moving_obj_draw(shaderProgram_kup, camera, brickTex , window, position, 0, translate3);
+		object.Draw(shaderProgram, camera, boxTex , 0, translate2);
+		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.01f, -0.4f * scaleXZ * (mHeight - 1));
+		stall.Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
+		//sphere.moving_obj_draw(shaderProgram_obj, camera, brickTex, window, position, 0, translate2);
+		//mylight.Draw(lightShader, camera);
 		glfwSwapBuffers(window);
 		// Take care of all GLFW events
 		glfwPollEvents();

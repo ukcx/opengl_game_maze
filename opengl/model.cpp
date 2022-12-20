@@ -17,7 +17,26 @@ Model::Model(const char* path) {
 	VBO1.Unbind();
 	EBO1.Unbind();
 }
-Model::Model(const char* path,int ligth) {
+Model::Model(std::vector<Vertex> model_vertices, std::vector<GLuint> model_indices) {
+	VAO1.Bind();
+	vertices_model = model_vertices;
+	indices_model = model_indices;
+	// Generates Vertex Buffer Object and links it to vertices
+	VBO VBO1(vertices_model);
+	// Generates Element Buffer Object and links it to indices
+	EBO EBO1(indices_model);
+	// Links VBO attributes such as coordinates and colors to VAO
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
+	VAO1.LinkAttrib(VBO1, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
+	VAO1.LinkAttrib(VBO1, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
+
+	// Unbind all to prevent accidentally modifying them
+	VAO1.Unbind();
+	VBO1.Unbind();
+	EBO1.Unbind();
+}
+Model::Model(const char* path, int ligth) {
 	model_load(path);
 	VAO1.Bind();
 	// Generates Vertex Buffer Object and links it to vertices
@@ -197,6 +216,16 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 	glDrawElements(GL_TRIANGLES, indices_model.size(), GL_UNSIGNED_INT, 0);
 	//std::cout << "with" <<"\n";
 }
+Model Model::ScaleModel(float x_scale, float y_scale, float z_scale) {
+	std::vector<Vertex> vertices = (*this).vertices_model;
+	std::vector<GLuint> indices = (*this).indices_model;
+	for (int i = 0; i < vertices.size(); i++) {
+		vertices[i].position.x *= x_scale;
+		vertices[i].position.y *= y_scale;
+		vertices[i].position.z *= z_scale;
+	}
+	return Model(vertices, indices);
+}
 void Model::model_load(const char* path) {
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
@@ -209,7 +238,7 @@ void Model::model_load(const char* path) {
 
 	if (file == NULL) {
 		printf("Impossible to open the file !\n");
-		//return false;
+		return;
 	}
 
 	while (1) {

@@ -16,11 +16,11 @@
     <Filter Include="Resource Files\Shader">
       <UniqueIdentifier>{8b00f76f-7d15-41ef-9255-9f4fa70db6b5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Texttures">
-      <UniqueIdentifier>{5fa47e4e-fb9c-4e53-b3d0-9da63a81623d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Object">
       <UniqueIdentifier>{cf722a1a-00e4-4b22-9d46-d3d8acbf1814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Textures">
+      <UniqueIdentifier>{5fa47e4e-fb9c-4e53-b3d0-9da63a81623d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +61,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MazeGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -121,25 +124,31 @@
     <ClInclude Include="Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MazeGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Desktop\odin.png">
-      <Filter>Resource Files\Texttures</Filter>
-    </Image>
-    <Image Include="..\..\..\..\Desktop\x.png">
-      <Filter>Resource Files\Texttures</Filter>
-    </Image>
-    <Image Include="..\..\..\..\Desktop\brick.png">
-      <Filter>Resource Files\Texttures</Filter>
-    </Image>
     <Image Include="truebrick.png">
-      <Filter>Resource Files\Texttures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="s.png">
-      <Filter>Resource Files\Texttures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="q.png">
-      <Filter>Resource Files\Texttures</Filter>
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="brick.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="odin.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="brick2.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="newBrick.png">
+      <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
