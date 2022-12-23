@@ -308,6 +308,11 @@ int main()
 	double prevTime = glfwGetTime();
 	glm::vec3 position(0.f);
 
+	Texture hudTex("odin.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	Model hud2("heart.obj");
+
+	Shader shaderNew("model.vert", "model.frag");
+	only_light.light_conf(shaderNew, 1);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -322,6 +327,7 @@ int main()
 		rotation += 0.35f;
 		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
 		piramid.Draw(shaderProgram_obj, camera, boxTex, 0.0f, glm::vec3(3.0f));
+		hud2.Draw(shaderProgram_obj, camera, boxTex, 0.0f, glm::vec3(-3.0f));
 		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
 		glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 		glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
@@ -333,10 +339,29 @@ int main()
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 		}
 
-		//kup.moving_obj_draw(shaderProgram_kup, camera, brickTex , window, position, 0, translate3);
+		kup.moving_obj_draw(shaderProgram_kup, camera, brickTex , window, position, 0, translate3);
 		object.Draw(shaderProgram, camera, boxTex , 0, translate2);
 		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.01f, -0.4f * scaleXZ * (mHeight - 1));
 		stall.Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
+		
+
+		//glm::mat4 projection = glm::ortho(0.0f, 1600.0f, 0.0f, 1600.0f, 0.1f, 5000.0f);
+		//glm::mat4 ortow = glm::lookAt(glm::vec3(0), glm::vec3(0) + glm::vec3(0, 1, 0), glm::vec3(0) + glm::vec3(0, 0, 1));
+
+		glDisable(GL_DEPTH_TEST);
+		Camera camera2(width, height, glm::vec3(0.0f, 0.0f, 1.0f));
+		//camera2.updateMatrix(45.0f, 0.1f, 100.0f);
+		Model scaledHeart = hud2.ScaleModel(0.1f, 0.1f, 0.1f);
+
+		scaledHeart.Draw(shaderNew, camera2, hudTex, 0, glm::vec3(0.5f, 0.15f, 0.0f));
+		scaledHeart.Draw(shaderNew, camera2, hudTex, 0, glm::vec3(0.7f, 0.15f, 0.0f));
+		scaledHeart.Draw(shaderNew, camera2, hudTex, 0, glm::vec3(0.9f, 0.15f, 0.0f));
+		glEnable(GL_DEPTH_TEST);
+
+		//camera.updateDirectly(ortow, projection);
+		//camera.updateMatrix(45.0f, 0.1f, 100.0f);
+		//Model* hud = Hud();
+		//hud->Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
 		//sphere.moving_obj_draw(shaderProgram_obj, camera, brickTex, window, position, 0, translate2);
 		//mylight.Draw(lightShader, camera);
 		glfwSwapBuffers(window);

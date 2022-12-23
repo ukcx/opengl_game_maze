@@ -10,6 +10,15 @@ Camera::Camera(int width, int height, glm::vec3 position)
 	Up = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
+//void Camera::updateDirectly(glm::mat4 view, glm::mat4 perspective) {
+//	// Makes camera look in the right direction from the right position
+//	Position = glm::vec3(0, 0, -1);
+//	view = glm::lookAt(Position, Position + Orientation, Up);
+//	// Adds perspective to the scene
+//	// Sets new camera matrix
+//	cameraMatrix = perspective * view;
+//}
+
 void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 {
 	// Initializes matrices since otherwise they will be the null matrix
