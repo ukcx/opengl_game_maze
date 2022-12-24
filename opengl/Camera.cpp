@@ -10,14 +10,9 @@ Camera::Camera(int width, int height, glm::vec3 position)
 	Up = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
-//void Camera::updateDirectly(glm::mat4 view, glm::mat4 perspective) {
-//	// Makes camera look in the right direction from the right position
-//	Position = glm::vec3(0, 0, -1);
-//	view = glm::lookAt(Position, Position + Orientation, Up);
-//	// Adds perspective to the scene
-//	// Sets new camera matrix
-//	cameraMatrix = perspective * view;
-//}
+void Camera::updateDirectly(glm::mat4 view, glm::mat4 perspective) {
+	cameraMatrix = perspective * view;
+}
 
 void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 {
@@ -120,12 +115,12 @@ void Camera::Inputs(GLFWwindow* window)
 				std::cout << "after press: " << Position.x << " " << Position.y << " " << Position.z << "\n";
 				*/
 				
-				if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
-					Position += Orientation * 3.f;
-				}
-				else{
-					Position -= Orientation * 3.f;
-				}
+				//if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+				//	Position += Orientation * 3.f;
+				//}
+				//else{
+				//	Position -= Orientation * 3.f;
+				//}
 				glfwSetCursorPos(window, (width / 2), (height / 2));
 				// += Orientation * 5.f;
 				firstClick = false;

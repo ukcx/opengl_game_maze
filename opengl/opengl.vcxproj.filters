@@ -162,6 +162,9 @@
     <Object Include="Sphere_mit.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
+    <Object Include="heart.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
   </ItemGroup>
   <ItemGroup>
     <Text Include="deletelater.txt">

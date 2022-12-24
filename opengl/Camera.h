@@ -16,7 +16,7 @@ class Camera
 public:
 	// Stores the main vectors of the camera
 	glm::vec3 Position;
-	glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 Orientation = glm::vec3(1.0f, 0.0f, 0.0f);
 	glm::vec3 Up;
 	glm::mat4 cameraMatrix = glm::mat4(1.f);
 
@@ -36,6 +36,7 @@ public:
 	// Camera constructor to set up initial values
 	//void updateDirectly(glm::mat4 view, glm::mat4 perspective);
 	Camera(int width, int height, glm::vec3 position);
+	void updateDirectly(glm::mat4 view, glm::mat4 perspective);
 	// Updates the camera matrix to the Vertex Shader
 	void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
 	// Exports the camera matrix to a shader

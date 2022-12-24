@@ -255,9 +255,10 @@ int main()
 	std::vector <GLuint> ind_pry(indices_2d, indices_2d + sizeof(indices_2d) / sizeof(GLuint));
 	Mesh piramid(vert_pry, ind_pry, width, height);
 	Material mat_pry(0.9f, 0.8f, 0.8f);
+	Material mat_maze(0.5f, 0.5f, 0.5f);
 	Material mat_2(0.1f, 0.1f, 0.1f);
 	Material mat_3(0.9f, 0.9f, 0.9f);
-	mat_pry.sendToShader(shaderProgram_box);
+	mat_maze.sendToShader(shaderProgram_box);
 	mat_2.sendToShader(shaderProgram);
 	mat_pry.sendToShader(shaderProgram_obj);
 	mat_3.sendToShader(shaderProgram_kup);
@@ -345,17 +346,17 @@ int main()
 		stall.Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
 		
 
-		//glm::mat4 projection = glm::ortho(0.0f, 1600.0f, 0.0f, 1600.0f, 0.1f, 5000.0f);
-		//glm::mat4 ortow = glm::lookAt(glm::vec3(0), glm::vec3(0) + glm::vec3(0, 1, 0), glm::vec3(0) + glm::vec3(0, 0, 1));
+		glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 100.0f);
+		glm::mat4 view = glm::lookAt(glm::vec3(0), glm::vec3(0) + glm::vec3(0, 0, 1), glm::vec3(0) + glm::vec3(0, 1, 0));
+
+		camera.updateDirectly(view, projection);
 
 		glDisable(GL_DEPTH_TEST);
-		Camera camera2(width, height, glm::vec3(0.0f, 0.0f, 1.0f));
-		//camera2.updateMatrix(45.0f, 0.1f, 100.0f);
 		Model scaledHeart = hud2.ScaleModel(0.1f, 0.1f, 0.1f);
 
-		scaledHeart.Draw(shaderNew, camera2, hudTex, 0, glm::vec3(0.5f, 0.15f, 0.0f));
-		scaledHeart.Draw(shaderNew, camera2, hudTex, 0, glm::vec3(0.7f, 0.15f, 0.0f));
-		scaledHeart.Draw(shaderNew, camera2, hudTex, 0, glm::vec3(0.9f, 0.15f, 0.0f));
+		scaledHeart.Draw(shaderProgram_kup, camera, hudTex, 0, glm::vec3(-0.4f, 0.2f, 0.0f));
+		scaledHeart.Draw(shaderProgram_kup, camera, hudTex, 0, glm::vec3(-0.62f, 0.2f, 0.0f));
+		scaledHeart.Draw(shaderProgram_kup, camera, hudTex, 0, glm::vec3(-0.84f, 0.2f, 0.0f));
 		glEnable(GL_DEPTH_TEST);
 
 		//camera.updateDirectly(ortow, projection);
