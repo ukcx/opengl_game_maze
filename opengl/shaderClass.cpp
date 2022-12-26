@@ -1,4 +1,5 @@
 #include "shaderClass.h"
+
 // Reads a text file and outputs a string with everything in the text file
 std::string get_file_contents(const char* filename)
 {
@@ -95,4 +96,62 @@ void Shader::compileErrors(unsigned int shader, const char* type)
 			std::cout << "SHADER_LINKING_ERROR for:" << type << "\n" << infoLog << std::endl;
 		}
 	}
+}
+void Shader::SetMatrix4(const char* name, glm::mat4 sended_thing) {
+	
+	this->Activate();
+	glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, false, glm::value_ptr(sended_thing));
+}
+void Shader::SetFloat(const char* name, float value)
+{
+	
+	this->Activate();
+	glUniform1f(glGetUniformLocation(this->ID, name), value);
+}
+void Shader::SetInteger(const char* name, int value)
+{
+	
+	this->Activate();
+	glUniform1i(glGetUniformLocation(this->ID, name), value);
+}
+void Shader::SetVector2f(const char* name, float x, float y)
+{
+	
+	this->Activate();
+	glUniform2f(glGetUniformLocation(this->ID, name), x, y);
+}
+void Shader::SetVector2f(const char* name, const glm::vec2& value)
+{
+	this->Activate();
+	
+		
+	glUniform2f(glGetUniformLocation(this->ID, name), value.x, value.y);
+}
+void Shader::SetVector3f(const char* name, float x, float y, float z)
+{
+	this->Activate();
+	
+		
+	glUniform3f(glGetUniformLocation(this->ID, name), x, y, z);
+}
+void Shader::SetVector3f(const char* name, const glm::vec3& value)
+{
+	this->Activate();
+	
+		
+	glUniform3f(glGetUniformLocation(this->ID, name), value.x, value.y, value.z);
+}
+void Shader::SetVector4f(const char* name, float x, float y, float z, float w)
+{
+	this->Activate();
+	
+		
+	glUniform4f(glGetUniformLocation(this->ID, name), x, y, z, w);
+}
+void Shader::SetVector4f(const char* name, const glm::vec4& value)
+{
+	this->Activate();
+	
+		
+	glUniform4f(glGetUniformLocation(this->ID, name), value.x, value.y, value.z, value.w);
 }

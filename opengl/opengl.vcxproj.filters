@@ -22,6 +22,9 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{5fa47e4e-fb9c-4e53-b3d0-9da63a81623d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Fonts">
+      <UniqueIdentifier>{1696bf07-6395-4152-8a0a-3ed504c42e87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="maincpp.cpp">
@@ -66,6 +69,9 @@
     <ClCompile Include="MazeGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.vert">
@@ -84,6 +90,12 @@
       <Filter>Resource Files\Shader</Filter>
     </None>
     <None Include="model.vert">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
+    <None Include="text_2d.vs">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
+    <None Include="text_2d.fs">
       <Filter>Resource Files\Shader</Filter>
     </None>
   </ItemGroup>
@@ -125,6 +137,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MazeGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -170,5 +185,10 @@
     <Text Include="deletelater.txt">
       <Filter>Source Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="arial.ttf">
+      <Filter>Resource Files\Fonts</Filter>
+    </Font>
   </ItemGroup>
 </Project>

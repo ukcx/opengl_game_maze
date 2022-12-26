@@ -7,8 +7,7 @@
 #include<glm/gtc/type_ptr.hpp>
 
 #include <fstream>
-#include <string>
-
+#include <string> 
 #include"MazeGenerator.h"
 #include"Texture.h"
 #include"shaderClass.h"
@@ -20,6 +19,7 @@
 #include"Material.h"
 #include"model.h"
 #include"Light.h"
+#include"TextRenderer.h"
 const unsigned int width = 1600;
 const unsigned int height = 1600;
 GLfloat vertices_not[] =
@@ -314,7 +314,9 @@ int main()
 
 	Shader shaderNew("model.vert", "model.frag");
 	only_light.light_conf(shaderNew, 1);
-
+	TextRenderer Text(width, height);
+	Text.Load("arial.ttf", 80);
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		// Specify the color of the background
@@ -323,8 +325,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		camera.Inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
-		camera.updateMatrix(45.0f, 0.1f, 100.0f);
-		
+		camera.updateMatrix(45.0f, 0.1f, 5000.0f);
+		//Text.RenderText("Remaing time \n 4:36", 50.0f, 600.0f, 1.0f);
+
 		rotation += 0.35f;
 		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
 		piramid.Draw(shaderProgram_obj, camera, boxTex, 0.0f, glm::vec3(3.0f));
@@ -352,6 +355,10 @@ int main()
 		camera.updateDirectly(view, projection);
 
 		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		Text.RenderText("Remaining time: 4:36", 50.0f, 600.0f, 1.0f);
+		glDisable(GL_BLEND);
 		Model scaledHeart = hud2.ScaleModel(0.1f, 0.1f, 0.1f);
 
 		scaledHeart.Draw(shaderProgram_kup, camera, hudTex, 0, glm::vec3(-0.4f, 0.2f, 0.0f));
@@ -359,8 +366,11 @@ int main()
 		scaledHeart.Draw(shaderProgram_kup, camera, hudTex, 0, glm::vec3(-0.84f, 0.2f, 0.0f));
 		glEnable(GL_DEPTH_TEST);
 
-		//camera.updateDirectly(ortow, projection);
-		//camera.updateMatrix(45.0f, 0.1f, 100.0f);
+		//camera.updateDirectly(
+		// w, projection);
+		//camera.updateMatrix(45.0f, 0.1f, 
+		// 
+		// .0f);
 		//Model* hud = Hud();
 		//hud->Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
 		//sphere.moving_obj_draw(shaderProgram_obj, camera, brickTex, window, position, 0, translate2);
