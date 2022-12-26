@@ -186,6 +186,19 @@ GLuint lightIndices[] =
 	4, 6, 7
 };
 
+std::vector<Vertex> vertices_square =
+{ //               COORDINATES           /            COLORS          /           NORMALS         /       TexCoord         //
+	Vertex{glm::vec3(-0.5f, -0.5f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),glm::vec2(0.0f, 0.0f) },
+	Vertex{glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 5.0f)},
+	Vertex{glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(5.0f, 5.0f)},
+	Vertex{glm::vec3(0.5f, 0.5f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(5.0f, 0.0f)},
+};
+
+std::vector<GLuint> indicesSquare = {
+	0, 1, 2,
+	1, 2, 3
+};
+
 int main()
 {
 	// Initialize GLFW
@@ -316,6 +329,26 @@ int main()
 	only_light.light_conf(shaderNew, 1);
 	TextRenderer Text(width, height);
 	Text.Load("arial.ttf", 80);
+
+	Model square(vertices_square, indicesSquare);
+	Texture whiteTex("white.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	whiteTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture blackTex("black.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	blackTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture redTex("red.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	blackTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture blueTex("blue.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	blueTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture grayTex("darkgray.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	grayTex.texUnit(shaderProgram_obj, "tex0", 0);
+
+	Model sphere2 = sphere.ScaleModel(1.0f, 1.0f, 1.0f);
+
+	std::vector<std::string> visitedCoords;
+	for (int i = 0; i < (2 * mHeight + 1); i++) {
+		std::string line((mWidth * 2 + 1), 'O');
+		visitedCoords.push_back(line);
+	}
 	
 	while (!glfwWindowShouldClose(window))
 	{
@@ -350,20 +383,62 @@ int main()
 		
 
 		glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 100.0f);
-		glm::mat4 view = glm::lookAt(glm::vec3(0), glm::vec3(0) + glm::vec3(0, 0, 1), glm::vec3(0) + glm::vec3(0, 1, 0));
+		glm::mat4 view = glm::lookAt(glm::vec3(0), glm::vec3(0) + glm::vec3(0, 0, -1), glm::vec3(0) + glm::vec3(0, 1, 0));
 
 		camera.updateDirectly(view, projection);
 
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Text.RenderText("Remaining time: 4:36", 50.0f, 600.0f, 1.0f);
+		Text.RenderText("Remaining time: 4:36", 50.0f, 650.0f, 1.0f);
 		glDisable(GL_BLEND);
 		Model scaledHeart = hud2.ScaleModel(0.1f, 0.1f, 0.1f);
+		Model scaledSquare = square.ScaleModel(0.5f, 0.5f, 0.5f);
 
-		scaledHeart.Draw(shaderProgram_kup, camera, hudTex, 0, glm::vec3(-0.4f, 0.2f, 0.0f));
-		scaledHeart.Draw(shaderProgram_kup, camera, hudTex, 0, glm::vec3(-0.62f, 0.2f, 0.0f));
-		scaledHeart.Draw(shaderProgram_kup, camera, hudTex, 0, glm::vec3(-0.84f, 0.2f, 0.0f));
+		scaledHeart.Draw(shaderProgram_kup, camera, redTex, 0, glm::vec3(0.4f, 0.12f, 0.0f));
+		scaledHeart.Draw(shaderProgram_kup, camera, redTex, 0, glm::vec3(0.62f, 0.12f, 0.0f));
+		scaledHeart.Draw(shaderProgram_kup, camera, redTex, 0, glm::vec3(0.84f, 0.12f, 0.0f));
+
+		float widthOfSquare = 0.2f / mWidth;
+		float heightOfSquare = 0.2f / mHeight;
+		glm::vec3 centerOfMap = glm::vec3(-0.8f + (widthOfSquare / 2), -0.8f + (heightOfSquare / 2), 0.0f);
+		Model littleSquare = scaledSquare.ScaleModel(1.0f / (2 * mWidth + 1), 1.0f / (2 * mHeight + 1), 1.0f);
+		glm::vec2 coords = maze.GetMyCoordinate(camera.Position);
+		int xCoord = coords.x, yCoord = coords.y;
+		if (xCoord >= 0 && yCoord >= 0)
+			visitedCoords[xCoord][yCoord] = 'X';
+		if (xCoord >= 1 && yCoord >= 0)
+			visitedCoords[xCoord - 1][yCoord] = 'X';
+		if (xCoord >= -1 && yCoord >= 0)
+			visitedCoords[xCoord + 1][yCoord] = 'X';
+		if (xCoord >= 0 && yCoord >= 1)
+			visitedCoords[xCoord][yCoord - 1] = 'X';
+		if (xCoord >= 0 && yCoord >= -1)
+			visitedCoords[xCoord][yCoord + 1] = 'X';
+
+		for (int i = 0; i < maze.maze.size(); i++) {
+			std::string line = maze.maze[i];
+			for (int j = 0; j < line.length(); j++) {
+				glm::vec3 transSquare = glm::vec3(1.0f * (i - mHeight) * heightOfSquare, 1.0f * (j - mWidth) * widthOfSquare, 0.0f);
+				if (i == yCoord && j == xCoord) {
+					littleSquare.Draw(shaderProgram_obj, camera, redTex, 0, centerOfMap + transSquare);
+				}
+				else {
+					if (visitedCoords[j][i] == 'X') {
+						if (line[j] == '#') {
+							littleSquare.Draw(shaderProgram_obj, camera, blueTex, 0, centerOfMap + transSquare);
+						}
+						else {
+							littleSquare.Draw(shaderProgram_obj, camera, whiteTex, 0, centerOfMap + transSquare);
+						}
+					}
+					else {
+						littleSquare.Draw(shaderProgram_obj, camera, grayTex, 0, centerOfMap + transSquare);
+					}
+				}
+			}
+		}
+
 		glEnable(GL_DEPTH_TEST);
 
 		//camera.updateDirectly(

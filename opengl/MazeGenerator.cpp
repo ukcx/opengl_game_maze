@@ -28,6 +28,24 @@ MazeGenerator::MazeGenerator(int h, int w, int seed, int _scale, int _scale_y) {
 		std::cout << "Could not open file! Check file path!\n";
 	}	
 }
+glm::vec2 MazeGenerator::GetMyCoordinate(glm::vec3 pos) {
+
+	//std::cout << pos.x << "\n";
+	//float x_lower = (pos.x - (0.2f * scale_xz)) / (0.4 * scale_xz);
+	//float x_upper = (pos.x + (0.2f * scale_xz)) / (0.4 * scale_xz);
+	//int x = (x_lower + x_upper) / 2;
+	float x_raw = (pos.x) / (0.4 * scale_xz);
+	int incrementX = (x_raw < 0.0f) ? -1 : 1;
+	int x = abs(x_raw - (int)x_raw) < 0.5 ? (int)x_raw : (int)x_raw + incrementX;
+
+	float z_raw = (pos.z) / (0.4 * scale_xz);
+	int incrementZ = (z_raw < 0.0f) ? -1 : 1;
+	int z = abs(z_raw - (int)z_raw) < 0.5 ? (int)z_raw : (int)z_raw + incrementZ;
+	//float z_lower = (pos.z - (0.2f * scale_xz)) / (0.4 * scale_xz);
+	//float z_upper = (pos.z + (0.2f * scale_xz)) / (0.4 * scale_xz);
+	//int z = (z_lower + z_upper) / 2;
+	return glm::vec2(mWidth + x, mHeight + z);
+}
 void MazeGenerator::CreateModels(const char* objPath) {
 	Model model(objPath);
 

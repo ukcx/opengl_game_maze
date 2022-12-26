@@ -13,6 +13,7 @@ public:
 	std::vector<Model> getModels();
 	std::vector<glm::vec3> getTranslates();
 	std::vector<std::string> maze;
+	glm::vec2 GetMyCoordinate(glm::vec3 pos);
 private:
 	int mWidth;
 	int mHeight;

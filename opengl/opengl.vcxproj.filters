@@ -165,6 +165,24 @@
     <Image Include="newBrick.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+    <Image Include="black.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="blue.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="darkgray.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="gray.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="red.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="white.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Object Include="s.obj">

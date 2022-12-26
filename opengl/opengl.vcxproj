@@ -181,6 +181,8 @@
     <ClInclude Include="VBO.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="black.png" />
+    <Image Include="blue.png" />
     <Image Include="brick.png" />
     <Image Include="brick2.png">
       <DeploymentContent>false</DeploymentContent>
@@ -189,14 +191,18 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </DeploymentContent>
     </Image>
+    <Image Include="darkgray.png" />
+    <Image Include="gray.png" />
     <Image Include="newBrick.png">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </Image>
     <Image Include="odin.png" />
     <Image Include="q.png" />
+    <Image Include="red.png" />
     <Image Include="s.png" />
     <Image Include="truebrick.png" />
+    <Image Include="white.png" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="heart.obj">
