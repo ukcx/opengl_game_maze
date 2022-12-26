@@ -243,8 +243,8 @@ int main()
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
 	
 	for (int i = 0; i < verts.size(); i++) {
-		verts[i].position.x *= scaleXZ*10;
-		verts[i].position.z *= scaleXZ*10;
+		verts[i].position.x *= 1000;// scaleXZ * 10;
+		verts[i].position.z *= 1000;// scaleXZ*10;
 	}
 	
 	Mesh object(verts, ind,width,height);
@@ -405,15 +405,15 @@ int main()
 		Model littleSquare = scaledSquare.ScaleModel(1.0f / (2 * mWidth + 1), 1.0f / (2 * mHeight + 1), 1.0f);
 		glm::vec2 coords = maze.GetMyCoordinate(camera.Position);
 		int xCoord = coords.x, yCoord = coords.y;
-		if (xCoord >= 0 && yCoord >= 0)
+		if (xCoord >= 0 && yCoord >= 0 && xCoord < mWidth * 2 + 1 && yCoord < mHeight * 2 + 1)
 			visitedCoords[xCoord][yCoord] = 'X';
-		if (xCoord >= 1 && yCoord >= 0)
+		if (xCoord >= 1 && yCoord >= 0 && xCoord < mWidth * 2 + 2 && yCoord < mHeight * 2 + 1)
 			visitedCoords[xCoord - 1][yCoord] = 'X';
-		if (xCoord >= -1 && yCoord >= 0)
+		if (xCoord >= -1 && yCoord >= 0 && xCoord < mWidth * 2 && yCoord < mHeight * 2 + 1)
 			visitedCoords[xCoord + 1][yCoord] = 'X';
-		if (xCoord >= 0 && yCoord >= 1)
+		if (xCoord >= 0 && yCoord >= 1 && xCoord < mWidth * 2 + 1 && yCoord < mHeight * 2 + 2)
 			visitedCoords[xCoord][yCoord - 1] = 'X';
-		if (xCoord >= 0 && yCoord >= -1)
+		if (xCoord >= 0 && yCoord >= -1 && xCoord < mWidth * 2 + 1 && yCoord < mHeight * 2)
 			visitedCoords[xCoord][yCoord + 1] = 'X';
 
 		for (int i = 0; i < maze.maze.size(); i++) {
