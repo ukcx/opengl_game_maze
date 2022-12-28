@@ -19,11 +19,11 @@
     <Filter Include="Resource Files\Object">
       <UniqueIdentifier>{cf722a1a-00e4-4b22-9d46-d3d8acbf1814}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Textures">
-      <UniqueIdentifier>{5fa47e4e-fb9c-4e53-b3d0-9da63a81623d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Fonts">
       <UniqueIdentifier>{1696bf07-6395-4152-8a0a-3ed504c42e87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shader\Textures">
+      <UniqueIdentifier>{5fa47e4e-fb9c-4e53-b3d0-9da63a81623d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +98,12 @@
     <None Include="text_2d.fs">
       <Filter>Resource Files\Shader</Filter>
     </None>
+    <None Include="minimap.frag">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
+    <None Include="minimap.vert">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaderClass.h">
@@ -145,43 +151,43 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="truebrick.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="s.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="q.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="brick.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="odin.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="brick2.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="newBrick.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="black.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="blue.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="darkgray.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="gray.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="red.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
     <Image Include="white.png">
-      <Filter>Resource Files\Textures</Filter>
+      <Filter>Resource Files\Shader\Textures</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -202,6 +208,9 @@
   <ItemGroup>
     <Text Include="deletelater.txt">
       <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="leaders.txt">
+      <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

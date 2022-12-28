@@ -1,193 +1,288 @@
-#include<iostream>
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
-#include"stb_image.h"
-#include<glm/glm.hpp>
-#include<glm/gtc/matrix_transform.hpp>
-#include<glm/gtc/type_ptr.hpp>
+const float MINIMAP_SIZE = 100.0f; // size of the minimap in world units
+glm::mat4 minimapProjection = glm::ortho(-MINIMAP_SIZE / 2, MINIMAP_SIZE / 2,
+	-MINIMAP_SIZE / 2, MINIMAP_SIZE / 2,
+	0.1f, 1000.0f);
 
-#include"Texture.h"
-#include"shaderClass.h"
-#include"VAO.h"
-#include"VBO.h"
-#include"EBO.h"
-#include"Mesh.h"
-#include"Camera.h"
-#include"Material.h"
-#include"model.h"
-const unsigned int width = 1600;
-const unsigned int height = 1600;
-/*
-void moving_obj_draw(Shader shader, Camera camera, VAO& VAO1, Texture& brickTex, GLuint size_indices,GLFWwindow* window, glm::vec3& position) {
-	shader.Activate();
-	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-	// Simple timer
-
-	// Initializes matrices so they are not the null matrix
-
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 proj = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
-
-	// Assigns different transformations to each matrix
-	model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.0f, 1.0f, 0.0f));
-	Inputs_movement(window, position);
-	view = glm::translate(view, position);
-	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
-	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-	model = view * model;
-	// Outputs the matrices into the Vertex Shader
-	int modelLoc = glGetUniformLocation(shader.ID, "model");
-
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-
-	camera.Matrix(shader, "camMatrix");
-
-	// Binds texture so that is appears in rendering
-	brickTex.Bind();
-	// Bind the VAO so OpenGL knows to use it
-	VAO1.Bind();
-	// Draw primitives, number of indices, datatype of indices, index of indices
-	glDrawElements(GL_TRIANGLES, size_indices / sizeof(int), GL_UNSIGNED_INT, 0);
-	// Swap the back buffer with the front buffer
-
-
-}*/
-/*
-void Draw(Shader shader, Camera camera, VAO& VAO1, Texture& brickTex, GLuint size_indices) {
-	shader.Activate();
-	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-	// Simple timer
-
-	// Initializes matrices so they are not the null matrix
-
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 proj = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
-
-	// Assigns different transformations to each matrix
-	model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//Inputs_movement(window, position);
-	//view = glm::translate(view, position);
-	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
-	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-	model = view * model;
-	// Outputs the matrices into the Vertex Shader
-	int modelLoc = glGetUniformLocation(shader.ID, "model");
-
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-
-	camera.Matrix(shader, "camMatrix");
-
-	// Binds texture so that is appears in rendering
-	brickTex.Bind();
-	// Bind the VAO so OpenGL knows to use it
-	VAO1.Bind();
-	// Draw primitives, number of indices, datatype of indices, index of indices
-	glDrawElements(GL_TRIANGLES, size_indices / sizeof(int), GL_UNSIGNED_INT, 0);
-	// Swap the back buffer with the front buffer
-}
-void Draw_array(Shader shader, Camera camera, VAO& VAO1, Texture& brickTex) {
-	shader.Activate();
-	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-	// Simple timer
-
-	// Initializes matrices so they are not the null matrix
-
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 proj = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
-
-	// Assigns different transformations to each matrix
-	model = glm::rotate(model, glm::radians(0.f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//Inputs_movement(window, position);
-	//view = glm::translate(view, position);
-	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
-	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-	model = view * model;
-	// Outputs the matrices into the Vertex Shader
-	int modelLoc = glGetUniformLocation(shader.ID, "model");
-
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-
-	camera.Matrix(shader, "camMatrix");
-
-	// Binds texture so that is appears in rendering
-	brickTex.Bind();
-	// Bind the VAO so OpenGL knows to use it
-	VAO1.Bind();
-	// Draw primitives, number of indices, datatype of indices, index of indices
-	glDrawArrays(GL_TRIANGLES,0,36);
-	// Swap the back buffer with the front buffer
-}
-*/
-/*
-void Inputs_movement(GLFWwindow* window, glm::vec3 &position)
+// Set up the minimap view matrix
+const float MINIMAP_ALTITUDE = 500.0f; // altitude of the camera in world units
+glm::mat4 minimapView = glm::lookAt(glm::vec3(0.0f, MINIMAP_ALTITUDE, 0.0f), // camera position
+	glm::vec3(0.0f, 0.0f, 0.0f), // camera target
+	glm::vec3(0.0f, 0.0f, -1.0f)); // camera up vector
+unsigned int fbo, rbo;
+GLuint minimapTexture;
+//void createMinimapTexture()
+//{
+//	
+//	// Create the FBO and RBO
+//	glGenFramebuffers(1, &fbo);
+//	glGenRenderbuffers(1, &rbo);
+//
+//	// Bind the FBO and RBO
+//	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+//	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+//
+//	// Set the renderbuffer storage to a texture
+//	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, MINIMAP_SIZE, MINIMAP_SIZE);
+//	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
+//
+//	// Create the minimap texture
+//	
+//	glGenTextures(1, &minimapTexture);
+//	glBindTexture(GL_TEXTURE_2D, minimapTexture);
+//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, MINIMAP_SIZE, MINIMAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//	// Attach the texture to the FBO
+//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, minimapTexture, 0);
+//}
+void createMinimapTexture()
 {
-	glm::mat4 view = glm::mat4(1.0f);
-	// Handles key inputs
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	{
-		position.z += 0.01;
-		//view = glm::translate(view, position);
-	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		position.x -= 0.01;
-		//view = glm::translate(view, position);
-	}
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		position.z -= 0.01;
-		//view = glm::translate(view, position);
-	}
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		position.x += 0.01;
-		//view = glm::translate(view, position);
-	}
 
-}*/
-GLfloat vertices_not[] =
-{ //     COORDINATES     /        COLORS            /       NORMALS  /    TexCoord   //
-	-1.0f, 0.0f,  1.0f,		0.83f, 0.0f, 0.0f,	0.0f, 1.0f, 0.0f   , 0.0f, 0.0f,
-	-1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,	0.0f, 1.0f, 0.0f    ,0.0f, 1.0f,
-	 1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,	0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
-	 1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,	0.0f, 1.0f, 0.0f, 1.0f, 0.0f
-};
+	// Create the FBO and RBO
+	glGenFramebuffers(1, &fbo);
+	glGenRenderbuffers(1, &rbo);
 
-// Indices for vertices order
-GLuint indices_not[] =
+	// Bind the FBO and RBO
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+
+	// Set the renderbuffer storage to a texture
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, MINIMAP_SIZE, MINIMAP_SIZE);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
+
+	// Create the minimap texture
+
+	glGenTextures(1, &minimapTexture);
+	glBindTexture(GL_TEXTURE_2D, minimapTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, MINIMAP_SIZE, MINIMAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Attach the texture to the FBO
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, minimapTexture, 0);
+}
+void renderMinimap_2()
 {
-	0, 1, 2,
-	0, 2, 3
-};
-void obj_creation(GLfloat *vertices,GLuint *indices,VAO &VAO1) {
-	// Generates Vertex Array Object and binds it
-	//std::cout << vertices << "\n";
-	VAO1.Bind();
+	// Set the projection and view matrices for the minimap
+	/*glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(minimapProjection));
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(glm::value_ptr(minimapView));*/
 
-	// Generates Vertex Buffer Object and links it to vertices
-	VBO VBO1(vertices, sizeof(vertices));
+	// Bind the FBO and RBO
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 
-	// Generates Element Buffer Object and links it to indices
-	EBO EBO1(indices, sizeof(indices));
+	// Set the viewport to the size of the minimap texture
+	glViewport(0, 0, MINIMAP_SIZE, MINIMAP_SIZE);
 
-	// Links VBO attributes such as coordinates and colors to VAO
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-	VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+	// Clear the FBO
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// Render the 3D world to the FBO
+	//renderWorld();
 
-	// Unbind all to prevent accidentally modifying them
-	VAO1.Unbind();
-	VBO1.Unbind();
-	EBO1.Unbind();
+	// Unbind the FBO and RBO
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
+	// Set the viewport to the window dimensions
+	int windowWidth, windowHeight;
+	glViewport(0, 0, 1600, 1600);
+
+	// Draw the minimap texture on the screen using a quad or other primitive
+	//GLuint minimapTexture;
+	glBindTexture(GL_TEXTURE_2D, minimapTexture);
+	//drawQuad();
+}
+// Vertex array object and vertex buffer objects for the minimap quad
+GLuint minimapVAO, minimapVBO, minimapEBO;
+
+// Vertex buffer object for the player location
+GLuint playerVBO;
+
+// Minimap scale factor (used to convert world coordinates to minimap coordinates)
+float minimapScale = 0.1f;
+void InitMinimap()
+{
+	// Create the minimap quad vertices
+	float minimapVertices[] = {
+	  -1.0f, 1.0f, 0.0f, // Top left
+	  -1.0f, -1.0f, 0.0f, // Bottom left
+	  1.0f, -1.0f, 0.0f, // Bottom right
+	  1.0f, 1.0f, 0.0f // Top right
+	};
+
+	// Create the minimap quad indices
+	unsigned int minimapIndices[] = {
+	  0, 1, 3, // First triangle
+	  1, 2, 3 // Second triangle
+	};
+
+	// Create the player location vertices
+	float playerVertices[] = {
+	  0.0f, 0.0f, 0.0f // Center of the player location quad
+	};
+	VAO X, y, z;
+	// Generate a VAO and a VBO for the minimap quad
+	glGenVertexArrays(1, &minimapVAO);
+	glGenBuffers(1, &minimapVBO);
+	glGenBuffers(1, &minimapEBO);
+
+	// Bind the VAO and VBO, and upload the minimap quad data
+	glBindVertexArray(minimapVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, minimapVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(minimapVertices), minimapVertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, minimapEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(minimapIndices), minimapIndices, GL_STATIC_DRAW);
+
+	// Set up vertex attributes for the minimap quad
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Generate a VBO for the player location
+	glGenBuffers(1, &playerVBO);
+
+	// Bind the VBO and upload the player location data
+	glBindBuffer(GL_ARRAY_BUFFER, playerVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(playerVertices), playerVertices, GL_DYNAMIC_DRAW);
+
+	// Set up a vertex attribute for the player location
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+}
+void RenderMinimap(Shader shader, Camera camera)
+{
+	float minimapX = 1.0f; 
+	float minimapY = 1.0f;
+	float minimapWidth = 10.0f, minimapHeight = 10.0f;
+
+	// Set up the vertex data for the minimap quad
+	float vertices[] = {
+		minimapX, minimapY, 0.0f, 0.0f,
+		minimapX + minimapWidth, minimapY, 1.0f, 0.0f,
+		minimapX + minimapWidth, minimapY + minimapHeight, 1.0f, 1.0f,
+		minimapX, minimapY + minimapHeight, 0.0f, 1.0f
+	};
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+	unsigned int VBO, VAO, EBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glActiveTexture(GL_TEXTURE0);
+	
+	//glm::mat4 projection = glm::ortho(-1.0f, 1200.0f, -1.0f, 10.0f, -1.0f, 100.0f);
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 3) + glm::vec3(0, 0, -1), glm::vec3(0) + glm::vec3(0, 1, 0));
+	//camera.updateDirectly(view, projection);
+	/*unsigned int fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);*/
+	//Texture mini_texture("white.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	//mini_texture.Bind();
+	//unsigned int FBO, texture;
+	//glGenFramebuffers(1, &FBO);
+	//glGenTextures(1, &texture);
+
+	//// Bind the FBO and set the viewport to the size of the camera view
+	//glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	//glViewport(0, 0, 1600, 1600);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1600, 1600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+	//// Unbind the FBO and restore the default framebuffer
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//unsigned int framebuffer;
+	//glGenFramebuffers(1, &framebuffer);
+	//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	//// generate texture
+	//unsigned int textureColorbuffer;
+	//glGenTextures(1, &textureColorbuffer);
+	//glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1600, 1600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+
+	//// attach it to currently bound framebuffer object
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+	//unsigned int rbo;
+	//glGenRenderbuffers(1, &rbo);
+	//glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+	//glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	//	std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	shader.Activate();
+	shader.SetVector2f("mapSize", glm::vec2(1600.0f, 1600.0f));
+	shader.SetVector2f("minimapSize", glm::vec2(10.0f, 10.0f));
+	shader.SetVector2f("minimapPosition", glm::vec2(10.0f, 10.0f));
+	shader.SetVector2f("playerPosition", glm::vec2(camera.Position.x, camera.Position.z));
+	glUniform1i(glGetUniformLocation(shader.ID, "mapTexture"), 0);
+	// Set up an orthographic projection
+	createMinimapTexture();
+	glm::mat4 projection = glm::ortho(0.0f, (float)minimapWidth, 0.0f, (float)minimapHeight);
+	unsigned int projectionLoc = glGetUniformLocation(shader.ID, "projection");
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+	// Bind the VAO and use a drawing command to draw the minimap quad
+	//glBindVertexArray(minimapVAO);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	//// Bind the VBO and use a drawing command to draw the player location
+	//glBindBuffer(GL_ARRAY_BUFFER, playerVBO);
+	//glDrawArrays(GL_POINTS, 0, 1);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+
+	// Set the viewport to the size of the minimap texture
+	glViewport(0, 0, MINIMAP_SIZE, MINIMAP_SIZE);
+
+	// Clear the FBO
+
+	// Render the 3D world to the FBO
+	//renderWorld();
+
+	// Unbind the FBO and RBO
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// Set the viewport to the window dimensions
+	int windowWidth, windowHeight;
+	glViewport(0, 0, 1600, 1600);
+
+	// Draw the minimap texture on the screen using a quad or other primitive
+	//GLuint minimapTexture;
+	glBindTexture(GL_TEXTURE_2D, minimapTexture);
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	
 }
 /*
 void obj_creation_main(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, VAO& VAO) {
@@ -315,397 +410,15 @@ GLuint lightIndices[] =
 	4, 6, 7
 };
 
-std::vector<Vertex> parseObject(const char* path, std::vector < glm::vec3 >& out_vertices,
-	std::vector < glm::vec2 >& out_uvs,
-	std::vector < glm::vec3 >& out_normals)
-{
-	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
-	std::vector< glm::vec3 > temp_vertices;
-	std::vector< glm::vec2 > temp_uvs;
-	std::vector< glm::vec3 > temp_normals;
-
-	
-	FILE* file;
-	fopen_s(&file, path, "r");
-
-	if (file == NULL) {
-		printf("Impossible to open the file !\n");
-		//return false;
-	}
-
-	while (1) {
-
-		char lineHeader[128];
-		// read the first word of the line
-
-		int res = fscanf(file, "%s", lineHeader);
-		
-		if (res == EOF)
-			break; // EOF = End Of File. Quit the loop.
-		if (strcmp(lineHeader, "v") == 0) {
-			glm::vec3 vertex;
-			fscanf_s(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-			temp_vertices.push_back(vertex);
-
-		}
-		else if (strcmp(lineHeader, "vt") == 0) {
-			glm::vec2 uv;
-			fscanf_s(file, "%f %f\n", &uv.x, &uv.y);
-			temp_uvs.push_back(uv);
-		}
-		else if (strcmp(lineHeader, "vn") == 0) {
-			glm::vec3 normal;
-			fscanf_s(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			temp_normals.push_back(normal);
-		}
-		else if (strcmp(lineHeader, "vn") == 0) {
-			glm::vec3 normal;
-			fscanf_s(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			temp_normals.push_back(normal);
-			// else : parse lineHeader
-		}
-		else if (strcmp(lineHeader, "f") == 0) {
-			std::string vertex1, vertex2, vertex3;
-			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-			int matches = fscanf_s(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-			if (matches != 9) {
-				printf("File can't be read by our simple parser : ( Try exporting with other options\n");
-				//return false;
-			}
-			vertexIndices.push_back(vertexIndex[0]);
-			vertexIndices.push_back(vertexIndex[1]);
-			vertexIndices.push_back(vertexIndex[2]);
-			uvIndices.push_back(uvIndex[0]);
-			uvIndices.push_back(uvIndex[1]);
-			uvIndices.push_back(uvIndex[2]);
-			normalIndices.push_back(normalIndex[0]);
-			normalIndices.push_back(normalIndex[1]);
-			normalIndices.push_back(normalIndex[2]);
-		}
-	}
-
-	std::vector<Vertex> vertices;
-	vertices.resize(vertexIndices.size(), Vertex());
-
-	for (size_t i = 0; i < vertices.size(); ++i)
-	{
-		vertices[i].position = temp_vertices[vertexIndices[i] - 1];
-		vertices[i].color = glm::vec3(1.f, 1.f, 1.f);
-		vertices[i].normal = temp_normals[normalIndices[i] - 1];
-		vertices[i].texUV = temp_uvs[uvIndices[i] - 1];
-		
-	}
-
-	//DEBUG
-	
-
-	//Loaded success
-
-	return vertices;
-
+std::vector<Vertex> vertices_square =
+{ //               COORDINATES           /            COLORS          /           NORMALS         /       TexCoord         //
+	Vertex{glm::vec3(-0.5f, -0.5f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),glm::vec2(0.0f, 0.0f) },
+	Vertex{glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 5.0f)},
+	Vertex{glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(5.0f, 5.0f)},
+	Vertex{glm::vec3(0.5f, 0.5f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(5.0f, 0.0f)},
 };
 
-
-int main()
-{
-	
-	// Initialize GLFW
-	glfwInit();
-
-	// Tell GLFW what version of OpenGL we are using 
-	// In this case we are using OpenGL 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	// Tell GLFW we are using the CORE profile
-	// So that means we only have the modern functions
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	// Create a GLFWwindow object of 800 by 800 pixels, naming it "YoutubeOpenGL"
-	GLFWwindow* window = glfwCreateWindow(width, height, "OpenGL", NULL, NULL);
-	// Error check if the window fails to create
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	// Introduce the window into the current context
-	glfwMakeContextCurrent(window);
-
-	//Load GLAD so it configures OpenGL
-	gladLoadGL();
-	// Specify the viewport of OpenGL in the Window
-	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
-	glViewport(0, 0, width, height);
-
-
-	// Generates Shader object using shaders default.vert and default.frag
-	Shader shaderProgram("model.vert", "model.frag");
-	VAO VAO1;
-	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
-	
-	
-	
-	Mesh obj(verts, ind,width,height);
-	
-
-
-	Shader shaderProgram_obj("model.vert", "model.frag");
-	/*
-	const char* path = "stall.obj";
-	std::vector< glm::vec3 > vertices;
-	std::vector< glm::vec2 > uvs;
-	std::vector< glm::vec3 > normals;
-	std::vector<Vertex> x = parseObject(path, vertices, uvs, normals);
-	
-	//GLuint ind_de[35];
-
-	std::vector <GLuint> inds;
-	for (unsigned int i = 0; i < x.size(); i++) {
-		inds.push_back(i);
-	}
-
-	
-	//std::vector <GLuint> ind_des(ind_de, ind_de + sizeof(ind_de) / sizeof(GLuint));
-	
-	Mesh object(x, inds, width, height);*/
-	const char* path = "stall.obj";
-	Model stall(path);
-
-
-	Shader shaderProgram_kup("model.vert", "model.frag");
-	const char* path___2 = "s.obj";
-	std::vector< glm::vec3 > vertices;
-	std::vector< glm::vec2 > uvs;
-	std::vector< glm::vec3 > normals;
-	std::vector<Vertex> x = parseObject(path, vertices, uvs, normals);
-	std::vector<Vertex> x_2 = parseObject(path___2, vertices, uvs, normals);
-
-	//GLuint ind_de[35];
-
-	std::vector <GLuint> inds_2;
-	for (unsigned int i = 0; i < x_2.size(); i++) {
-		inds_2.push_back(i);
-	}
-
-
-	//std::vector <GLuint> ind_des(ind_de, ind_de + sizeof(ind_de) / sizeof(GLuint));
-
-	Mesh object_kup(x_2, inds_2, width, height);
-
-	const char* path2 = "Sphere_mit.obj";
-	std::vector< glm::vec3 > vertices2;
-	std::vector< glm::vec2 > uvs2;
-	std::vector< glm::vec3 > normals2;
-	std::vector<Vertex> x2 = parseObject(path2, vertices2, uvs2, normals2);
-
-	//GLuint ind_de[35];
-
-	std::vector <GLuint> inds2;
-	for (unsigned int i = 0; i < x2.size(); i++) {
-		inds2.push_back(i);
-	}
-	//std::cout << inds2.
-	Mesh object2(x2, inds2, width, height);
-	
-	Shader shaderProgram_box("model.vert", "model.frag");
-	std::vector <Vertex> vert_pry(vertices_x, vertices_x + sizeof(vertices_x) / sizeof(Vertex));
-	std::vector <GLuint> ind_pry(indices_2d, indices_2d + sizeof(indices_2d) / sizeof(GLuint));
-	Mesh piramid(vert_pry, ind_pry, width, height);
-	/*
-	// Generates Vertex Array Object and binds it
-	VAO VAObox;
-	VAObox.Bind();
-
-	// Generates Vertex Buffer Object and links it to vertices
-	VBO VBObox(vertices_2d, sizeof(vertices_2d));
-
-	// Generates Element Buffer Object and links it to indices
-	EBO EBObox(indices_2d, sizeof(indices_2d));
-
-	// Links VBO attributes such as coordinates and colors to VAO
-	VAObox.LinkAttrib(VBObox, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
-	VAObox.LinkAttrib(VBObox, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-	VAObox.LinkAttrib(VBObox, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-	VAObox.LinkAttrib(VBObox, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-
-
-	// Unbind all to prevent accidentally modifying them
-	VAObox.Unbind();
-	VBObox.Unbind();
-	EBObox.Unbind();*/
-	Material mat_pry(0.9f, 0.8f, 0.8f);
-	Material mat_2(0.1f, 0.1f, 0.1f);
-	Material mat_3(0.9f, 0.9f, 0.9f);
-	mat_pry.sendToShader(shaderProgram_box);
-	mat_2.sendToShader(shaderProgram);
-	mat_pry.sendToShader(shaderProgram_obj);
-	mat_3.sendToShader(shaderProgram_kup);
-	Shader lightShader("light.vert", "light.frag");
-	VAO lightVAO;
-	lightVAO.Bind();
-	VBO lightVBO(lightVertices, sizeof(lightVertices));
-	EBO lightEBO(lightIndices, sizeof(lightIndices));
-	lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
-	lightVAO.Unbind();
-	lightVBO.Unbind();
-	lightEBO.Unbind();
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
-	glm::mat4 lightModel = glm::mat4(1.0f);
-	lightModel = glm::translate(lightModel, lightPos);
-	glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::mat4 pyramidModel = glm::mat4(1.0f);
-	pyramidModel = glm::translate(pyramidModel, pyramidPos);
-	lightShader.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	shaderProgram.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
-	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	shaderProgram_obj.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram_obj.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
-	glUniform4f(glGetUniformLocation(shaderProgram_obj.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(shaderProgram_obj.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	shaderProgram_box.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram_box.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
-	glUniform4f(glGetUniformLocation(shaderProgram_box.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(shaderProgram_box.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	shaderProgram_kup.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram_box.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
-	glUniform4f(glGetUniformLocation(shaderProgram_box.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(shaderProgram_box.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	/*
-	* I'm doing this relative path thing in order to centralize all the resources into one folder and not
-	* duplicate them between tutorial folders. You can just copy paste the resources from the 'Resources'
-	* folder and then give a relative path from this folder to whatever resource you want to get to.
-	* Also note that this requires C++17, so go to Project Properties, C/C++, Language, and select C++17
-	*/
-
-
-	
-	Texture	textures[] = {Texture("odin.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE)};
-	std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
-
-	Texture brickTex("truebrick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	brickTex.texUnit(shaderProgram_obj, "tex0", 0);
-	brickTex.texUnit(shaderProgram_kup, "tex0", 0);
-	Texture boxTex("odin.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	boxTex.texUnit(shaderProgram_box, "tex0", 0);
-	tex[0].texUnit(shaderProgram_box, "tex0", 0);
-	tex[0].Bind();
-
-
-	//glEnable(GL_DEPTH_CLAMP);
-	// Enables the Depth Buffer
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
-
-	// Creates camera object
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
-	float rotation = 0.0f;
-	double prevTime = glfwGetTime();
-	glm::vec3 position(0.f);
-	// Main while loop
-	
-	
-	while (!glfwWindowShouldClose(window))
-	{
-		// Specify the color of the background
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-		// Clean the back buffer and depth buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		camera.Inputs(window);
-		// Updates and exports the camera matrix to the Vertex Shader
-		camera.updateMatrix(45.0f, 0.1f, 100.0f);
-		// Tell OpenGL which Shader Program we want to use
-		/*shaderProgram.Activate();
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-		// Simple timer
-		double crntTime = glfwGetTime();
-		if (crntTime - prevTime >= 1 / 60)
-		{
-			//rotation += 0.05f;
-			prevTime = crntTime;
-		}
-
-		// Initializes matrices so they are not the null matrix
-		
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 proj = glm::mat4(1.0f);
-		glm::mat4 view = glm::mat4(1.0f);
-
-		// Assigns different transformations to each matrix
-		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-		Inputs_movement(window, position);
-		view = glm::translate(view, position);*/
-		
-		rotation += 0.35f;
-		/*//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
-		proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-		model =  view * model;
-		// Outputs the matrices into the Vertex Shader
-		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	
-		camera.Matrix(shaderProgram, "camMatrix");
-
-		// Binds texture so that is appears in rendering
-		brickTex.Bind();
-		// Bind the VAO so OpenGL knows to use it
-		VAO1.Bind();
-		// Draw primitives, number of indices, datatype of indices, index of indices
-		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);*/
-
-		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
-		piramid.Draw(shaderProgram_box, camera, boxTex,0.0f, glm::vec3(0.0f));
-		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
-		glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
-		glm::vec3 translate2 = glm::vec3(-1.5f, 0.3f, 0.0f);
-		glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
-		object_kup.moving_obj_draw(shaderProgram_kup, camera, brickTex , window, position, 0, translate3);
-		//object.Draw(shaderProgram, camera, brickTex ,  rotation,translate2);
-		stall.Draw(shaderProgram, camera, brickTex, rotation, translate2);
-		object2.moving_obj_draw(shaderProgram_obj, camera, brickTex, window, position, 0, translate2);
-		//Draw_array(shaderProgram_obj, camera, VAOs, boxTex);
-		/*
-		glm::mat4 modelBOX = glm::mat4(1.0f);
-		
-		glUniform3f(glGetUniformLocation(shaderProgram_box.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-		int modelLO = glGetUniformLocation(shaderProgram_box.ID, "model");
-		glUniformMatrix4fv(modelLO, 1, GL_FALSE, glm::value_ptr(modelBOX));
-		
-		camera.Matrix(shaderProgram_box, "camMatrix");
-		boxTex.Bind();
-		VAObox.Bind();
-		glDrawElements(GL_TRIANGLES, sizeof(indices_2d) / sizeof(int), GL_UNSIGNED_INT, 0);
-		*/
-		
-		lightShader.Activate();
-		
-		camera.Matrix(lightShader, "camMatrix");
-		lightVAO.Bind();
-		glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(lightVertices) * sizeof(glm::vec3), &lightVertices, GL_STATIC_DRAW);
-		glfwSwapBuffers(window);
-		// Take care of all GLFW events
-		glfwPollEvents();
-	}
-
-
-
-	// Delete all the objects we've created
-	//VAO1.Delete();
-	//VBO1.Delete();
-	//EBO1.Delete();
-	brickTex.Delete();
-	shaderProgram.Delete();
-	// Delete window before ending the program
-	glfwDestroyWindow(window);
-	// Terminate GLFW before ending the program
-	glfwTerminate();
-	return 0;
-}
+std::vector<GLuint> indicesSquare = {
+	0, 1, 2,
+	1, 2, 3
+};

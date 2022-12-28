@@ -159,6 +159,8 @@
     <None Include="default.vert" />
     <None Include="light.frag" />
     <None Include="light.vert" />
+    <None Include="minimap.frag" />
+    <None Include="minimap.vert" />
     <None Include="model.frag" />
     <None Include="model.vert" />
     <None Include="text_2d.fs" />
@@ -228,6 +230,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="deletelater.txt" />
+    <Text Include="leaders.txt" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="arial.ttf" />

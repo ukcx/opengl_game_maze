@@ -34,6 +34,8 @@ public:
 	void Draw(Shader shader, Camera camera);
 	void moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFWwindow* window, glm::vec3& position, float rotation, glm::vec3 trans);
 	void moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFWwindow* window, glm::vec3& position);
+	void Draw(Shader shader, Camera camera, float rotation, glm::vec3 trans);
+
 };
 #endif
 

@@ -5,9 +5,13 @@
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
-
+#include<gl/GL.h>
 #include <fstream>
 #include <string> 
+#include <iostream>
+#include <chrono>
+#include<GLFW/glfw3native.h>
+
 #include"MazeGenerator.h"
 #include"Texture.h"
 #include"shaderClass.h"
@@ -20,6 +24,81 @@
 #include"model.h"
 #include"Light.h"
 #include"TextRenderer.h"
+const float MINIMAP_SIZE = 100.0f; // size of the minimap in world units
+glm::mat4 minimapProjection = glm::ortho(-MINIMAP_SIZE / 2, MINIMAP_SIZE / 2,
+	-MINIMAP_SIZE / 2, MINIMAP_SIZE / 2,
+	10.1f, 1000.0f);
+
+// Set up the minimap view matrix
+const float MINIMAP_ALTITUDE = 500.0f; // altitude of the camera in world units
+glm::mat4 minimapView = glm::lookAt(glm::vec3(0.0f, MINIMAP_ALTITUDE, 0.0f), // camera position
+	glm::vec3(0.0f, 0.0f, 0.0f), // camera target
+	glm::vec3(0.0f, 0.0f, -1.0f)); // camera up vector
+unsigned int fbo, rbo;
+GLuint minimapTexture;
+void createMinimapTexture()
+{
+	
+	// Create the FBO and RBO
+	glGenFramebuffers(1, &fbo);
+	glGenRenderbuffers(1, &rbo);
+
+	// Bind the FBO and RBO
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+
+	// Set the renderbuffer storage to a texture
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, MINIMAP_SIZE, MINIMAP_SIZE);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
+
+	// Create the minimap texture
+	
+	glGenTextures(1, &minimapTexture);
+	glBindTexture(GL_TEXTURE_2D, minimapTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, MINIMAP_SIZE, MINIMAP_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Attach the texture to the FBO
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, minimapTexture, 0);
+}
+void renderMinimap_2()
+{
+	// Set the projection and view matrices for the minimap
+	/*glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(minimapProjection));
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(glm::value_ptr(minimapView));*/
+
+	// Bind the FBO and RBO
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	//glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+
+	// Set the viewport to the size of the minimap texture
+	glViewport(0, 0, MINIMAP_SIZE, MINIMAP_SIZE);
+
+	// Clear the FBO
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Render the 3D world to the FBO
+	//renderWorld();
+
+	// Unbind the FBO and RBO
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// Set the viewport to the window dimensions
+	int windowWidth, windowHeight;
+	glViewport(0, 0, 1600, 1600);
+
+	// Draw the minimap texture on the screen using a quad or other primitive
+	//GLuint minimapTexture;
+	glBindTexture(GL_TEXTURE_2D, minimapTexture);
+	//drawQuad();
+}
+// Set up the FBO and RBO for rendering the 3D world to a texture
+
 const unsigned int width = 1600;
 const unsigned int height = 1600;
 GLfloat vertices_not[] =
@@ -59,6 +138,219 @@ void obj_creation(GLfloat *vertices,GLuint *indices,VAO &VAO1) {
 	VBO1.Unbind();
 	EBO1.Unbind();
 
+}
+// Vertex array object and vertex buffer objects for the minimap quad
+GLuint minimapVAO, minimapVBO, minimapEBO;
+
+// Vertex buffer object for the player location
+GLuint playerVBO;
+
+// Minimap scale factor (used to convert world coordinates to minimap coordinates)
+float minimapScale = 0.1f;
+void InitMinimap()
+{
+	// Create the minimap quad vertices
+	float minimapVertices[] = {
+	  -1.0f, 1.0f, 0.0f, // Top left
+	  -1.0f, -1.0f, 0.0f, // Bottom left
+	  1.0f, -1.0f, 0.0f, // Bottom right
+	  1.0f, 1.0f, 0.0f // Top right
+	};
+
+	// Create the minimap quad indices
+	unsigned int minimapIndices[] = {
+	  0, 1, 3, // First triangle
+	  1, 2, 3 // Second triangle
+	};
+
+	// Create the player location vertices
+	float playerVertices[] = {
+	  0.0f, 0.0f, 0.0f // Center of the player location quad
+	};
+	VAO X, y, z;
+	// Generate a VAO and a VBO for the minimap quad
+	glGenVertexArrays(1, &minimapVAO);
+	glGenBuffers(1, &minimapVBO);
+	glGenBuffers(1, &minimapEBO);
+
+	// Bind the VAO and VBO, and upload the minimap quad data
+	glBindVertexArray(minimapVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, minimapVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(minimapVertices), minimapVertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, minimapEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(minimapIndices), minimapIndices, GL_STATIC_DRAW);
+
+	// Set up vertex attributes for the minimap quad
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Generate a VBO for the player location
+	glGenBuffers(1, &playerVBO);
+
+	// Bind the VBO and upload the player location data
+	glBindBuffer(GL_ARRAY_BUFFER, playerVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(playerVertices), playerVertices, GL_DYNAMIC_DRAW);
+
+	// Set up a vertex attribute for the player location
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+}
+void RenderMinimap(Shader shader, Camera camera)
+{
+	float minimapX =-0.0f; 
+	float minimapY = 0.3f;
+	float minimapWidth = 1.0f, minimapHeight = 1.0f;
+
+	// Set up the vertex data for the minimap quad
+	float vertices[] = {
+		minimapX, minimapY, 0.0f, 0.0f,
+		minimapX + minimapWidth*0.4f, minimapY, 1.0f, 0.0f,
+		minimapX + minimapWidth *0.4f, minimapY + minimapHeight * 0.2f, 1.0f, 1.0f,
+		minimapX, minimapY + minimapHeight * 0.2f, 0.0f, 1.0f
+	};
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+	unsigned int VBO, VAO, EBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glActiveTexture(GL_TEXTURE0);
+	
+	//glm::mat4 projection = glm::ortho(-1.0f, 1200.0f, -1.0f, 10.0f, -1.0f, 100.0f);
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 3) + glm::vec3(0, 0, -1), glm::vec3(0) + glm::vec3(0, 1, 0));
+	//camera.updateDirectly(view, projection);
+	/*unsigned int fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);*/
+	//Texture mini_texture("white.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	//mini_texture.Bind();
+	//unsigned int FBO, texture;
+	//glGenFramebuffers(1, &FBO);
+	//glGenTextures(1, &texture);
+
+	//// Bind the FBO and set the viewport to the size of the camera view
+	//glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	//glViewport(0, 0, 1600, 1600);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1600, 1600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+	//// Unbind the FBO and restore the default framebuffer
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//unsigned int framebuffer;
+	//glGenFramebuffers(1, &framebuffer);
+	//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	//// generate texture
+	//unsigned int textureColorbuffer;
+	//glGenTextures(1, &textureColorbuffer);
+	//glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1600, 1600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+
+	//// attach it to currently bound framebuffer object
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+	//unsigned int rbo;
+	//glGenRenderbuffers(1, &rbo);
+	//glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+	//glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	glm::mat4 map_View = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
+	shader.Activate();
+	shader.SetVector2f("mapSize", glm::vec2(1600.0f, 1600.0f));
+	shader.SetVector2f("minimapSize", glm::vec2(1.0f, 1.0f));
+	shader.SetVector2f("minimapPosition", glm::vec2(1.0f, 1.0f));
+	shader.SetVector2f("playerPosition", glm::vec2(camera.Position.x, camera.Position.z));
+	glUniform1i(glGetUniformLocation(shader.ID, "mapTexture"), 0);
+	// Set up an orthographic projection
+	createMinimapTexture();
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+
+	glm::mat4 projection = glm::ortho(0.0f, (float)minimapWidth, 0.0f, (float)minimapHeight);
+	unsigned int projectionLoc = glGetUniformLocation(shader.ID, "projection");
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	shader.SetMatrix4("view", map_View);
+
+	// Bind the VAO and use a drawing command to draw the minimap quad
+	//glBindVertexArray(minimapVAO);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	//// Bind the VBO and use a drawing command to draw the player location
+	//glBindBuffer(GL_ARRAY_BUFFER, playerVBO);
+	//glDrawArrays(GL_POINTS, 0, 1);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	//glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	//glPushAttrib(GL_VIEWPORT_BIT);
+	
+	// Set the viewport to the size of the minimap texture
+	glViewport(0, 0, MINIMAP_SIZE, MINIMAP_SIZE);
+	
+	// Clear the FBO
+
+	// Render the 3D world to the FBO
+	//renderWorld();
+
+	// Unbind the FBO and RBO
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// Set the viewport to the window dimensions
+	int windowWidth, windowHeight;
+
+	//glViewport(0, 0, 1600, 1600);
+
+	// Draw the minimap texture on the screen using a quad or other primitive
+	//GLuint minimapTexture;
+	glBindTexture(GL_TEXTURE_2D, minimapTexture);
+
+
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glGenTextures(1, &minimapTexture);
+	glBindTexture(GL_TEXTURE_2D, minimapTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, minimapWidth, minimapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); 
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+
+
+
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDeleteFramebuffers(1, &fbo);
+	glDeleteRenderbuffers(1, &rbo);
+	
 }
 /*
 void obj_creation_main(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, VAO& VAO) {
@@ -198,9 +490,10 @@ std::vector<GLuint> indicesSquare = {
 	0, 1, 2,
 	1, 2, 3
 };
-
+using namespace std;
 int main()
 {
+
 	// Initialize GLFW
 	glfwInit();
 
@@ -323,12 +616,12 @@ int main()
 	glm::vec3 position(0.f);
 
 	Texture hudTex("odin.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	Model hud2("heart.obj");
+	Model heart("heart.obj");
 
 	Shader shaderNew("model.vert", "model.frag");
 	only_light.light_conf(shaderNew, 1);
 	TextRenderer Text(width, height);
-	Text.Load("arial.ttf", 80);
+	Text.Load("arial.ttf", 60);
 
 	Model square(vertices_square, indicesSquare);
 	Texture whiteTex("white.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -349,13 +642,19 @@ int main()
 		std::string line((mWidth * 2 + 1), 'O');
 		visitedCoords.push_back(line);
 	}
-	
+	//InitMinimap();
+	chrono::steady_clock sc;   // create an object of `steady_clock` class
+	auto start = sc.now();
+	Shader shader_minimap("minimap.vert", "minimap.frag");
+
+	int frameCount = 0, incrmnt = 1;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Specify the color of the background
 		glClearColor(0.529f, 0.808f, 0.922f, 0.08f);
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//RenderMinimap(shader_minimap, camera);
 		camera.Inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 5000.0f);
@@ -364,7 +663,6 @@ int main()
 		rotation += 0.35f;
 		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
 		piramid.Draw(shaderProgram_obj, camera, boxTex, 0.0f, glm::vec3(3.0f));
-		hud2.Draw(shaderProgram_obj, camera, boxTex, 0.0f, glm::vec3(-3.0f));
 		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
 		glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 		glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
@@ -377,7 +675,7 @@ int main()
 		}
 
 		kup.moving_obj_draw(shaderProgram_kup, camera, brickTex , window, position, 0, translate3);
-		object.Draw(shaderProgram, camera, boxTex , 0, translate2);
+		object.Draw(shaderProgram_obj, camera, boxTex , 0, translate2);
 		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.01f, -0.4f * scaleXZ * (mHeight - 1));
 		stall.Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
 		
@@ -386,24 +684,111 @@ int main()
 		glm::mat4 view = glm::lookAt(glm::vec3(0), glm::vec3(0) + glm::vec3(0, 0, -1), glm::vec3(0) + glm::vec3(0, 1, 0));
 
 		camera.updateDirectly(view, projection);
-
+		
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Text.RenderText("Remaining time: 4:36", 50.0f, 650.0f, 1.0f);
+		auto end = sc.now();       
+		auto time_span = static_cast<chrono::duration<double>>(end - start);
+		if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+		{
+			
+
+
+			while (true)
+			{
+				TextRenderer Texts(width, height);
+				Texts.Load("arial.ttf", 50);
+				ifstream MyReadFile("leaders.txt");
+				string myText;
+				string name;
+				string time, score,sira;
+
+
+				glClearColor(0.2f, 0.2f, 0.9f, 0.08f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				Model scaledSquare_2 = square.ScaleModel(0.5f, 0.5f, 0.5f);
+				glm::vec3 centerOfTable = glm::vec3(-0.0f, -0.3f, 0.0f);
+				square.Draw(shaderProgram_obj, camera, redTex, 0, centerOfTable);
+				// Clean the back buffer and depth buffer
+				Texts.RenderText("LeaderBoard", 440.0f, 680.0f, 1.0f);
+				//Text.RenderText("Name       Time       SCORE", 480.0f, 740.0f, 1.0f);
+				float yInc = 60.0f;
+				float xInc = 250.0f;
+				Texts.RenderText("Name", 450.0f, 740.0f, 1.0f);
+				Texts.RenderText("Time", 450.0f + xInc, 740.0f, 1.0f);
+				Texts.RenderText("Score", 450.0f + xInc + xInc, 740.0f, 1.0f);
+
+				while (std::getline(MyReadFile, myText)) {
+					// Output the text from the file
+
+					stringstream ss(myText);
+
+					ss >> name >> time >> score>>sira;
+					Texts.RenderText(sira, 410.0f, 740.0f + yInc, 1.0f);
+					Texts.RenderText(name, 450.0f, 740.0f + yInc, 1.0f);
+					Texts.RenderText(time, 450.0f + xInc, 740.0f + yInc, 1.0f);
+					Texts.RenderText(score, 450.0f + xInc + xInc, 740.0f + yInc, 1.0f);
+					yInc += 60;
+					//Text.RenderText(name, centerOfTable.x +50.0f, centerOfTable.y+960.0f, 1.0f);
+				}
+
+				glfwSwapBuffers(window);
+				// Take care of all GLFW events
+				glfwPollEvents();
+				if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE) {
+					break;
+				}
+			}
+
+			
+			
+		}
+		if (int(time_span.count()) == 2) {
+			while (true) 
+			{
+				glClearColor(0.2f, 0.2f, 0.9f, 0.08f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				TextRenderer a_text(width, height);
+				a_text.Load("arial.ttf", 174);
+				a_text.RenderText("GAME OVER", 400.0f , 740.0f , 1.0f,glm::vec3(1.0,0,0));
+
+				glfwSwapBuffers(window);
+
+				// Take care of all GLFW events
+				glfwPollEvents();
+				if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
+					break;
+				}
+
+			}
+
+
+		}
+		Text.RenderText("Time: "+ to_string(int(time_span.count())/60)+"."+ to_string(int(time_span.count())%60), 50.0f, 650.0f, 1.0f);
+		Text.RenderText("Speed: " + to_string(int(camera.speed)), 50.0f, 570.0f, 1.0f,glm::vec3(0.1f, 0.1f, 0.9f));
 		glDisable(GL_BLEND);
-		Model scaledHeart = hud2.ScaleModel(0.1f, 0.1f, 0.1f);
+		float scale = (frameCount % 50) * 0.003 + 1;
+		Model scaledHeart = heart.ScaleModel(0.1f * scale, 0.1f * scale, 0.1f * scale);
 		Model scaledSquare = square.ScaleModel(0.5f, 0.5f, 0.5f);
 
-		scaledHeart.Draw(shaderProgram_kup, camera, redTex, 0, glm::vec3(0.4f, 0.12f, 0.0f));
+		scaledHeart.Draw(shaderProgram_kup, camera, boxTex, 0, glm::vec3(0.4f, 0.12f, 0.0f));
 		scaledHeart.Draw(shaderProgram_kup, camera, redTex, 0, glm::vec3(0.62f, 0.12f, 0.0f));
-		scaledHeart.Draw(shaderProgram_kup, camera, redTex, 0, glm::vec3(0.84f, 0.12f, 0.0f));
+		scaledHeart.Draw(shaderProgram_kup, camera, boxTex, 0, glm::vec3(0.84f, 0.12f, 0.0f));
+
+		if (frameCount == 49)
+			incrmnt = -1;
+		else if (frameCount == 0)
+			incrmnt = 1;
+		frameCount += incrmnt;
 
 		float widthOfSquare = 0.2f / mWidth;
 		float heightOfSquare = 0.2f / mHeight;
 		glm::vec3 centerOfMap = glm::vec3(-0.8f + (widthOfSquare / 2), -0.8f + (heightOfSquare / 2), 0.0f);
 		Model littleSquare = scaledSquare.ScaleModel(1.0f / (2 * mWidth + 1), 1.0f / (2 * mHeight + 1), 1.0f);
 		glm::vec2 coords = maze.GetMyCoordinate(camera.Position);
+		
 		int xCoord = coords.x, yCoord = coords.y;
 		if (xCoord >= 0 && yCoord >= 0 && xCoord < mWidth * 2 + 1 && yCoord < mHeight * 2 + 1)
 			visitedCoords[xCoord][yCoord] = 'X';
@@ -438,9 +823,10 @@ int main()
 				}
 			}
 		}
-
+		
+		
 		glEnable(GL_DEPTH_TEST);
-
+		
 		//camera.updateDirectly(
 		// w, projection);
 		//camera.updateMatrix(45.0f, 0.1f, 

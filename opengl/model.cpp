@@ -128,6 +128,39 @@ void Model::Draw(Shader shader, Camera camera, Texture& Texture, float rotation,
 	// Draw primitives, number of indices, datatype of indices, index of indices
 	glDrawElements(GL_TRIANGLES, indices_model.size(), GL_UNSIGNED_INT, 0);
 }
+void Model::Draw(Shader shader, Camera camera, float rotation, glm::vec3 trans) {
+	shader.Activate();
+	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+	// Simple timer
+
+	// Initializes matrices so they are not the null matrix
+
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 proj = glm::mat4(1.0f);
+	glm::mat4 view = glm::mat4(1.0f);
+
+	// Assigns different transformations to each matrix
+	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+	//Inputs_movement(window, position);
+	view = glm::translate(view, trans);
+	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
+	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+	model = view * model;
+	// Outputs the matrices into the Vertex Shader
+	int modelLoc = glGetUniformLocation(shader.ID, "model");
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+
+	camera.Matrix(shader, "camMatrix");
+
+	// Binds texture so that is appears in rendering
+	//Texture.Bind();
+	// Bind the VAO so OpenGL knows to use it
+	VAO1.Bind();
+	// Draw primitives, number of indices, datatype of indices, index of indices
+	glDrawElements(GL_TRIANGLES, indices_model.size(), GL_UNSIGNED_INT, 0);
+}
 void Model::Inputs_movement(GLFWwindow* window, glm::vec3& position)
 {
 	glm::mat4 view = glm::mat4(1.0f);
