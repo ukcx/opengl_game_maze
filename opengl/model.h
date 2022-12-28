@@ -11,7 +11,7 @@
 class Model
 {
 private:
-	void Inputs_movement(GLFWwindow* window, glm::vec3& position);
+	void Inputs_movement(GLFWwindow* window, glm::vec3& position, Camera camera);
 	
 public:
 	std::vector <Vertex> vertices_model;

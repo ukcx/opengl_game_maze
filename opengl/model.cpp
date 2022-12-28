@@ -161,29 +161,36 @@ void Model::Draw(Shader shader, Camera camera, float rotation, glm::vec3 trans) 
 	// Draw primitives, number of indices, datatype of indices, index of indices
 	glDrawElements(GL_TRIANGLES, indices_model.size(), GL_UNSIGNED_INT, 0);
 }
-void Model::Inputs_movement(GLFWwindow* window, glm::vec3& position)
+void Model::Inputs_movement(GLFWwindow* window, glm::vec3& position, Camera camera)
 {
 	glm::mat4 view = glm::mat4(1.0f);
-	// Handles key inputs
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	{
-		position.z -= 0.01;
-		//view = glm::translate(view, position);
-	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		position.x -= 0.01;
-		//view = glm::translate(view, position);
-	}
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		position.z += 0.01;
-		//view = glm::translate(view, position);
-	}
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		position.x += 0.01;
-		//view = glm::translate(view, position);
+	//// Handles key inputs
+	//if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	//{
+	//	position.z -= 0.01;
+	//	//view = glm::translate(view, position);
+	//}
+	//if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	//{
+	//	position.x -= 0.01;
+	//	//view = glm::translate(view, position);
+	//}
+	//if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	//{
+	//	position.z += 0.01;
+	//	//view = glm::translate(view, position);
+	//}
+	//if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	//{
+	//	position.x += 0.01;
+	//	//view = glm::translate(view, position);
+	//}
+
+	if (!camera.godMode) {
+		float posY = position.y;
+		// Handles key inputs
+		position = camera.Position + camera.Orientation * glm::vec3(2.0f, 2.0f, 2.0f);
+		position.y = posY;
 	}
 
 }
@@ -226,7 +233,7 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 
 	// Assigns different transformations to each matrix
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-	Inputs_movement(window, position);
+	Inputs_movement(window, position, camera);
 	view = glm::translate(view, position);
 	view = glm::translate(view, trans);
 	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;

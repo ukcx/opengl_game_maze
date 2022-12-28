@@ -526,7 +526,7 @@ int main()
 
 	//maze parameters
 	int seeds[8] = { 42, 24, 68, 11, 52, 35, 76, 18 };
-	int mWidth = 20, mHeight = 20, scaleXZ = 10, scaleY = 16;
+	int mWidth = 15, mHeight = 15, scaleXZ = 20, scaleY = 32;
 	const char* path_2_ = "s.obj";
 
 	// Generates Shader object using shaders default.vert and default.frag
@@ -572,7 +572,7 @@ int main()
 	Model mylight(path___2, 1);
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::vec3 lightPos = glm::vec3(0.0f, 20.0f, 0.0f);
 	Light only_light(lightColor, lightPos);
 	
 	only_light.light_conf(lightShader);
@@ -663,6 +663,8 @@ int main()
 		rotation += 0.35f;
 		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
 		piramid.Draw(shaderProgram_obj, camera, boxTex, 0.0f, glm::vec3(3.0f));
+		Model scaledLight = mylight.ScaleModel(10.0f, 10.0f, 10.0f);
+		scaledLight.Draw(lightShader, camera, boxTex, 0.0f, lightPos);
 		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
 		glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 		glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
@@ -673,11 +675,11 @@ int main()
 			glm::vec3 translate_L = transfers[i];
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 		}
-
-		kup.moving_obj_draw(shaderProgram_kup, camera, brickTex , window, position, 0, translate3);
-		object.Draw(shaderProgram_obj, camera, boxTex , 0, translate2);
 		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.01f, -0.4f * scaleXZ * (mHeight - 1));
-		stall.Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
+		sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, glm::vec3(0.0f, 0.42f, 0.0f));
+		object.Draw(shaderProgram, camera, boxTex, 0, translate2);
+
+		//stall.Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
 		
 
 		glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 100.0f);
@@ -745,7 +747,7 @@ int main()
 			
 			
 		}
-		if (int(time_span.count()) == 2) {
+		if (int(time_span.count()) == 60) {
 			while (true) 
 			{
 				glClearColor(0.2f, 0.2f, 0.9f, 0.08f);
