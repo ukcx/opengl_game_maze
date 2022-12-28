@@ -189,7 +189,7 @@ void Model::Inputs_movement(GLFWwindow* window, glm::vec3& position, Camera came
 	if (!camera.godMode) {
 		float posY = position.y;
 		// Handles key inputs
-		position = camera.Position + camera.Orientation * glm::vec3(2.0f, 2.0f, 2.0f);
+		position = camera.Position + camera.Orientation * glm::vec3(4.0f, 4.0f, 4.0f);
 		position.y = posY;
 	}
 

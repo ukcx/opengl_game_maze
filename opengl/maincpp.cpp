@@ -609,7 +609,7 @@ int main()
 	std::vector<glm::vec3> transfers = maze.getTranslates();
 	
 	// Creates camera object
-	glm::vec3 translateCameraToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.5f, -0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateCameraToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 2.5f, -0.4f * scaleXZ * (mHeight - 1));
 	Camera camera(width, height, translateCameraToEntrance);
 	float rotation = 0.0f;
 	double prevTime = glfwGetTime();
@@ -770,6 +770,7 @@ int main()
 		}
 		Text.RenderText("Time: "+ to_string(int(time_span.count())/60)+"."+ to_string(int(time_span.count())%60), 50.0f, 700.0f, 1.0f);
 		Text.RenderText("Speed: " + to_string(int(camera.speed)), 50.0f, 630.0f, 1.0f,glm::vec3(0.1f, 0.1f, 0.9f));
+		Text.RenderText("Points: 100", 450.0f, 630.0f, 1.0f, glm::vec3(0.5f, 0.5f, 0.0f));
 		glDisable(GL_BLEND);
 		float scale = (frameCount % 50) * 0.003 + 1;
 		Model scaledHeart = heart.ScaleModel(0.1f * scale, 0.1f * scale, 0.1f * scale);
