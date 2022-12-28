@@ -768,8 +768,8 @@ int main()
 
 
 		}
-		Text.RenderText("Time: "+ to_string(int(time_span.count())/60)+"."+ to_string(int(time_span.count())%60), 50.0f, 650.0f, 1.0f);
-		Text.RenderText("Speed: " + to_string(int(camera.speed)), 50.0f, 570.0f, 1.0f,glm::vec3(0.1f, 0.1f, 0.9f));
+		Text.RenderText("Time: "+ to_string(int(time_span.count())/60)+"."+ to_string(int(time_span.count())%60), 50.0f, 700.0f, 1.0f);
+		Text.RenderText("Speed: " + to_string(int(camera.speed)), 50.0f, 630.0f, 1.0f,glm::vec3(0.1f, 0.1f, 0.9f));
 		glDisable(GL_BLEND);
 		float scale = (frameCount % 50) * 0.003 + 1;
 		Model scaledHeart = heart.ScaleModel(0.1f * scale, 0.1f * scale, 0.1f * scale);
