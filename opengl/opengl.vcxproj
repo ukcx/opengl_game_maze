@@ -174,7 +174,10 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="MazeGenerator.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="model.h" />
+    <ClInclude Include="model.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="shaderClass.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="TextRenderer.h" />

@@ -1,6 +1,8 @@
 #ifndef CAMERA_CLASS_H
 #define CAMERA_CLASS_H
 
+
+
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
@@ -8,9 +10,10 @@
 #include<glm/gtc/type_ptr.hpp>
 #include<glm/gtx/rotate_vector.hpp>
 #include<glm/gtx/vector_angle.hpp>
+#include <vector>
 
 #include"shaderClass.h"
-
+//#include"model.h"
 class Camera
 {
 public:
@@ -19,9 +22,12 @@ public:
 	glm::vec3 Orientation = glm::vec3(1.0f, 0.0f, 0.0f);
 	glm::vec3 Up;
 	glm::mat4 cameraMatrix = glm::mat4(1.f);
-
 	glm::vec3 old_pos;
+	glm::vec3 position_if_collision;
+	glm::vec3 center_of_object;
+	float radius;
 
+	//Model player=NULL;
 	bool godMode = false;
 
 	// Prevents the camera from jumping around when first clicking left click
@@ -38,6 +44,7 @@ public:
 	// Camera constructor to set up initial values
 	//void updateDirectly(glm::mat4 view, glm::mat4 perspective);
 	Camera(int width, int height, glm::vec3 position);
+	//void assaign_collision(std::vector<Model> mazes, Model sphere);
 	void updateDirectly(glm::mat4 view, glm::mat4 perspective);
 	// Updates the camera matrix to the Vertex Shader
 	void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
@@ -46,5 +53,7 @@ public:
 	// Handles camera inputs
 	void Inputs(GLFWwindow* window);
 	void changepos(float increament);
+	void collision_pos();
+
 };
 #endif

@@ -9,8 +9,8 @@ Camera::Camera(int width, int height, glm::vec3 position)
 	Position = position;
 	Up = glm::vec3(0.0f, 1.0f, 0.0f);
 	old_pos = position;
+	position_if_collision = position;
 }
-
 void Camera::updateDirectly(glm::mat4 view, glm::mat4 perspective) {
 	cameraMatrix = perspective * view;
 }
@@ -41,23 +41,29 @@ void Camera::Inputs(GLFWwindow* window)
 {
 	// Handles key inputs
 	float posY = Position.y;
+	position_if_collision = Position;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
+		//position_if_collision = Position;
+		std::cout << "positio of olds is " << position_if_collision.x<<" " << position_if_collision.z << " " << "\n";
 		Position += speed * Orientation*slow;
 		Position.y = posY;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
+		//position_if_collision = Position;
 		Position += speed * -glm::normalize(glm::cross(Orientation, Up))*slow ;
 		Position.y = posY;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
+		//position_if_collision = Position;
 		Position += speed * -Orientation *slow;
 		Position.y = posY;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
+		//position_if_collision = Position;
 		Position += speed * glm::normalize(glm::cross(Orientation, Up))*slow;
 		Position.y = posY;
 	}
@@ -65,9 +71,18 @@ void Camera::Inputs(GLFWwindow* window)
 	{
 		godMode = !godMode;
 		if (!godMode)
+		{
 			Position = old_pos;
-		else
+			//position_if_collision = old_pos;
+		}
+			
+
+		else {
 			old_pos = Position;
+			
+		}
+			
+
 	}
 	
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && godMode)
@@ -156,6 +171,7 @@ void Camera::Inputs(GLFWwindow* window)
 		// Decides whether or not the next vertical Orientation is legal or not
 		if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
 		{
+
 			Orientation = newOrientation;
 		}
 
@@ -177,4 +193,7 @@ void Camera::Inputs(GLFWwindow* window)
 }
 void Camera::changepos(float increament) {
 	Position +=increament *Orientation;
+}
+void Camera::collision_pos() {
+	Position = position_if_collision;
 }
