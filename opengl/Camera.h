@@ -51,7 +51,7 @@ public:
 	// Exports the camera matrix to a shader
 	void Matrix(Shader& shader, const char* uniform);
 	// Handles camera inputs
-	void Inputs(GLFWwindow* window);
+	void Inputs(GLFWwindow* window, glm::vec3 playerPos); //player pos vermenin yolunu degistirebiliriz
 	void changepos(float increament);
 	void collision_pos();
 

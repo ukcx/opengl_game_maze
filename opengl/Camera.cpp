@@ -37,75 +37,80 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 }
 
 float slow = 0.01;
-void Camera::Inputs(GLFWwindow* window)
+void Camera::Inputs(GLFWwindow* window, glm::vec3 playerPos)
 {
 	// Handles key inputs
 	float posY = Position.y;
 	position_if_collision = Position;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	{
-		//position_if_collision = Position;
-		std::cout << "positio of olds is " << position_if_collision.x<<" " << position_if_collision.z << " " << "\n";
-		Position += speed * Orientation*slow;
-		Position.y = posY;
+
+	if (godMode) {
+
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			//position_if_collision = Position;
+			std::cout << "positio of olds is " << position_if_collision.x << " " << position_if_collision.z << " " << "\n";
+			Position += speed * Orientation * slow;
+			Position.y = posY;
+		}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			//position_if_collision = Position;
+			Position += speed * -glm::normalize(glm::cross(Orientation, Up)) * slow;
+			Position.y = posY;
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			//position_if_collision = Position;
+			Position += speed * -Orientation * slow;
+			Position.y = posY;
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			//position_if_collision = Position;
+			Position += speed * glm::normalize(glm::cross(Orientation, Up)) * slow;
+			Position.y = posY;
+		}
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && godMode)
+		{
+			Position += speed * Up * slow;
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && godMode)
+		{
+			Position += speed * -Up * slow;
+		}
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		{
+			Up = -Up;
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		{
+			speed = 30.0f;//4.4f;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+		{
+			speed = 10.0f;
+		}
 	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-	{
-		//position_if_collision = Position;
-		Position += speed * -glm::normalize(glm::cross(Orientation, Up))*slow ;
-		Position.y = posY;
+	else {
+		Position = playerPos + glm::vec3(0.0f, 2.0f, 0.0f) + Orientation * glm::vec3(-4.0f, 0.0f, -4.0f);
 	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-	{
-		//position_if_collision = Position;
-		Position += speed * -Orientation *slow;
-		Position.y = posY;
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		//position_if_collision = Position;
-		Position += speed * glm::normalize(glm::cross(Orientation, Up))*slow;
-		Position.y = posY;
-	}
+
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
 	{
 		godMode = !godMode;
-		if (!godMode)
-		{
-			Position = old_pos;
-			//position_if_collision = old_pos;
-		}
-			
+		//if (!godMode)
+		//{
+		//	Position = old_pos;
+		//	//position_if_collision = old_pos;
+		//}
+		//	
 
-		else {
-			old_pos = Position;
-			
-		}
-			
-
+		//else {
+		//	old_pos = Position;
+		//}
 	}
 	
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && godMode)
-	{
-		Position += speed * Up*slow ;
-	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && godMode)
-	{
-		Position += speed * -Up*slow ;
-	}
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-	{
-		Up = -Up;
 
-	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-	{
-		speed = 30.0f;//4.4f;
-	}
-	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-	{
-		speed = 10.0f;
-	}
 	
 
 	// Handles mouse inputs

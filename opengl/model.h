@@ -53,6 +53,7 @@ public:
 	void moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFWwindow* window, glm::vec3& position, float rotation, glm::vec3 trans);
 	void moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFWwindow* window, glm::vec3& position);
 	void Draw(Shader shader, Camera camera, float rotation, glm::vec3 trans);
+	void Draw(Shader shader, Camera camera, Texture& Texture, float rotation, glm::vec3 trans, glm::vec3 scale);
 	void sphere_bounding_box();
 	void sphere_bounding_box(glm::vec3 trans);
 	void box_bounding_box();

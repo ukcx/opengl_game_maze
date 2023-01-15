@@ -61,6 +61,45 @@ void MazeGenerator::CreateModels(const char* objPath) {
 		}
 	}
 }
+glm::vec2 MazeGenerator::GetRandomEmptyCoordinates(glm::vec2 lowerBound, glm::vec2 upperBound) {
+	srand(time(0));
+	int rangeX = upperBound.x - lowerBound.x;
+	int rangeY = upperBound.y - lowerBound.y;
+	int xVal, yVal;
+
+	do {
+		xVal = lowerBound.x + (rand() % rangeX);
+		yVal = lowerBound.y + (rand() % rangeY);
+	} while (maze[xVal][yVal] == '#');
+
+	return glm::vec2(xVal, yVal);
+}
+glm::vec3 MazeGenerator::MazeToWorldCoordinate(glm::vec2 mazeCoordinate) {
+	return glm::vec3(0.4f * scale_xz * (mazeCoordinate.x - mWidth), 0.4f, 0.4f * scale_xz * (mazeCoordinate.y - mHeight));
+}
+
+std::vector<glm::vec2> MazeGenerator::GetNeighbors(glm::vec2 currentPos) {
+	std::vector<glm::vec2> neighbours;
+
+	for (int x = -1; x <= 1; x++) {
+		for (int y = -1; y <= 1; y++) {
+			if ((x == 0 && y == 0) || (x == 1 && y == 1) || (x == -1 && y == -1) || (x == -1 && y == 1) || (x == 1 && y == -1))
+				continue;
+
+			int checkX = currentPos.x + x;
+			int checkY = currentPos.y + y;
+
+			if (checkX >= 0 && checkX < mWidth * 2 + 1 && checkY >= 0 && checkY < mHeight * 2 + 1) {
+				if (maze[checkY][checkX] == '#')
+					continue;
+				else
+					neighbours.push_back(glm::vec2(checkX, checkY));
+			}
+		}
+	}
+
+	return neighbours;
+}
 //void MazeGenerator::CreateModels(const char* objPath) {
 //	Model model(objPath);
 //

@@ -12,6 +12,7 @@
 #include <chrono>
 #include<GLFW/glfw3native.h>
 
+#include"AIObject.h"
 #include"MazeGenerator.h"
 #include"Texture.h"
 #include"shaderClass.h"
@@ -523,43 +524,51 @@ int main()
 	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
 	glViewport(0, 0, width, height);
 
-
+	srand(time(0));
 	//maze parameters
 	int seeds[8] = { 42, 24, 68, 11, 52, 35, 76, 18 };
-	int mWidth = 15, mHeight = 15, scaleXZ = 20, scaleY = 32;
+	int mWidth = 15, mHeight = 15, scaleXZ = 40, scaleY = 32, seedIndex = (rand() % 8);
+	
+	//Paths
 	const char* path_2_ = "s.obj";
+	const char* path___2 = "s.obj";
+	const char* path2 = "Sphere_mit.obj";
+	const char* path = "stall.obj";
 
-	// Generates Shader object using shaders default.vert and default.frag
-	Shader shaderProgram("model.vert", "model.frag");
-	VAO VAO1;
+	//Vertices and Indices
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
+	std::vector <Vertex> vert_pry(vertices_x, vertices_x + sizeof(vertices_x) / sizeof(Vertex));
+	std::vector <GLuint> ind_pry(indices_2d, indices_2d + sizeof(indices_2d) / sizeof(GLuint));
+
+	//Shaders
+	Shader shaderProgram("model.vert", "model.frag");
+	Shader shaderProgram_obj("model.vert", "model.frag");
+	Shader shaderProgram_kup("model.vert", "model.frag");
+	Shader shaderProgram_box("model.vert", "model.frag");
+	Shader lightShader("light.vert", "light.frag");
+	Shader shaderNew("model.vert", "model.frag");
+
 
 	for (int i = 0; i < verts.size(); i++) {
 		verts[i].position.x *= 1000;// scaleXZ * 10;
 		verts[i].position.z *= 1000;// scaleXZ*10;
 	}
 
+	//Models
 	Mesh object(verts, ind, width, height);
-
-
-
-	Shader shaderProgram_obj("model.vert", "model.frag");
-	const char* path = "stall.obj";
 	Model stall(path);
-
-
-	Shader shaderProgram_kup("model.vert", "model.frag");
-	const char* path___2 = "s.obj";
 	Model kup(path___2);
-
-	const char* path2 = "Sphere_mit.obj";
 	Model sphere(path2);
-
-	Shader shaderProgram_box("model.vert", "model.frag");
-	std::vector <Vertex> vert_pry(vertices_x, vertices_x + sizeof(vertices_x) / sizeof(Vertex));
-	std::vector <GLuint> ind_pry(indices_2d, indices_2d + sizeof(indices_2d) / sizeof(GLuint));
+	Model AIsphere(path2);
 	Mesh piramid(vert_pry, ind_pry, width, height);
+	Model heart("heart.obj");
+	Model sphere2 = sphere.ScaleModel(1.0f, 1.0f, 1.0f);
+	Model mylight(path___2, 1);
+	Model square(vertices_square, indicesSquare);
+
+
+	//Materials
 	Material mat_pry(0.9f, 0.8f, 0.8f);
 	Material mat_maze(0.5f, 0.5f, 0.5f);
 	Material mat_2(0.1f, 0.1f, 0.1f);
@@ -568,9 +577,9 @@ int main()
 	mat_2.sendToShader(shaderProgram);
 	mat_pry.sendToShader(shaderProgram_obj);
 	mat_3.sendToShader(shaderProgram_kup);
-	Shader lightShader("light.vert", "light.frag");
-	Model mylight(path___2, 1);
-
+	
+	
+	//Light
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.0f, 20.0f, 0.0f);
 	Light only_light(lightColor, lightPos);
@@ -580,9 +589,11 @@ int main()
 	only_light.light_conf(shaderProgram_box, 1);
 	only_light.light_conf(shaderProgram_kup, 1);
 	only_light.light_conf(shaderProgram_obj, 1);
+	only_light.light_conf(shaderNew, 1);
 	shaderProgram.Activate();
 
 
+	//Textures
 	Texture	textures[] = { Texture("odin.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE) };
 	std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
 
@@ -594,6 +605,18 @@ int main()
 	tex[0].texUnit(shaderProgram_box, "tex0", 0);
 	tex[0].Bind();
 
+	Texture whiteTex("white.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	whiteTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture blackTex("black.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	blackTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture redTex("red.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	blackTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture blueTex("blue.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	blueTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture grayTex("darkgray.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	grayTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture greenTex("green.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	greenTex.texUnit(shaderProgram_obj, "tex0", 0);
 
 	//glEnable(GL_DEPTH_CLAMP);
 	// Enables the Depth Buffer
@@ -603,7 +626,7 @@ int main()
 
 
 	// Maze Generation
-	MazeGenerator maze(mHeight, mWidth, seeds[1], scaleXZ, scaleY);
+	MazeGenerator maze(mHeight, mWidth, seeds[seedIndex], scaleXZ, scaleY);
 	maze.CreateModels(path_2_);
 	std::vector<Model> cubes = maze.getModels();
 	std::vector<glm::vec3> transfers = maze.getTranslates();
@@ -616,28 +639,25 @@ int main()
 	glm::vec3 position(0.f);
 	glm::vec3 position2(0.f);
 
-	Texture hudTex("odin.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	Model heart("heart.obj");
 
-	Shader shaderNew("model.vert", "model.frag");
-	only_light.light_conf(shaderNew, 1);
+	//Text Renderer
 	TextRenderer Text(width, height);
 	Text.Load("arial.ttf", 60);
 
-	Model square(vertices_square, indicesSquare);
-	Texture whiteTex("white.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	whiteTex.texUnit(shaderProgram_obj, "tex0", 0);
-	Texture blackTex("black.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	blackTex.texUnit(shaderProgram_obj, "tex0", 0);
-	Texture redTex("red.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	blackTex.texUnit(shaderProgram_obj, "tex0", 0);
-	Texture blueTex("blue.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	blueTex.texUnit(shaderProgram_obj, "tex0", 0);
-	Texture grayTex("darkgray.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	grayTex.texUnit(shaderProgram_obj, "tex0", 0);
+	//Translates
+	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.2f, -0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
+	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
+	glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
+	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
+	std::cout << "AI coordinates: (" << maze.GetMyCoordinate(translateAI).x << ", " << maze.GetMyCoordinate(translateAI).y << ")\n";
 
-	Model sphere2 = sphere.ScaleModel(1.0f, 1.0f, 1.0f);
+	//AI Objects
+	Object playerObject(&sphere, translateToEntrance, glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, true);
+	AIObject AI(&AIsphere, translateAI, glm::vec3(4.0f), 0.0f, true, &maze, &playerObject);
 
+
+	//Initialize visited coords matrix for the minimap
 	std::vector<std::string> visitedCoords;
 	for (int i = 0; i < (2 * mHeight + 1); i++) {
 		std::string line((mWidth * 2 + 1), 'O');
@@ -662,7 +682,7 @@ int main()
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//RenderMinimap(shader_minimap, camera);
-		camera.Inputs(window);
+		camera.Inputs(window, playerObject.position);
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 5000.0f);
 		//Text.RenderText("Remaing time \n 4:36", 50.0f, 600.0f, 1.0f);
@@ -683,8 +703,13 @@ int main()
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 		}
 		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.01f, -0.4f * scaleXZ * (mHeight - 1));
-		sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, glm::vec3(0.0f, 0.42f, 0.0f));
-		sphere.sphere_bounding_box();
+		//sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, glm::vec3(0.0f, 0.42f, 0.0f));
+		//sphere.sphere_bounding_box();
+		playerObject.drawObject(window, shaderProgram_kup, camera, brickTex);
+		playerObject.model->sphere_bounding_box();
+
+		AI.drawObject(shaderProgram_obj, camera, redTex);
+
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
 			bone_of_my_sword[e].
 				fire_arrow_draw(shaderProgram_kup, camera, brickTex, 
@@ -708,7 +733,7 @@ int main()
 		if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
 			Model arrows(path___2);
 			bone_of_my_sword.push_back(arrows);
-			bone_of_my_sword_translation.push_back(sphere.bounding_sphere_center);
+			bone_of_my_sword_translation.push_back(playerObject.model->bounding_sphere_center);
 			bone_of_my_sword_position.push_back(glm::vec3(0.f));
 
 		}
@@ -717,7 +742,7 @@ int main()
 			glm::vec3 translate_L = transfers[i];
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 			cubes[i].bounding_box;
-			if (sphere.detect_collision_sphere_box(cubes[i])) {
+			if (playerObject.model->detect_collision_sphere_box(cubes[i])) {
 				camera.collision_pos();
 			}
 
@@ -872,7 +897,8 @@ int main()
 		float heightOfSquare = 0.2f / mHeight;
 		glm::vec3 centerOfMap = glm::vec3(-0.8f + (widthOfSquare / 2), -0.8f + (heightOfSquare / 2), 0.0f);
 		Model littleSquare = scaledSquare.ScaleModel(1.0f / (2 * mWidth + 1), 1.0f / (2 * mHeight + 1), 1.0f);
-		glm::vec2 coords = maze.GetMyCoordinate(camera.Position);
+		glm::vec2 coords = maze.GetMyCoordinate(playerObject.position);
+		glm::vec2 AIcoords = maze.GetMyCoordinate(AI.position);
 
 		int xCoord = coords.x, yCoord = coords.y;
 		if (xCoord >= 0 && yCoord >= 0 && xCoord < mWidth * 2 + 1 && yCoord < mHeight * 2 + 1)
@@ -886,6 +912,10 @@ int main()
 		if (xCoord >= 0 && yCoord >= -1 && xCoord < mWidth * 2 + 1 && yCoord < mHeight * 2)
 			visitedCoords[xCoord][yCoord + 1] = 'X';
 
+		for (glm::vec2 point : AI.path) {
+			visitedCoords[point.x][point.y] = 'Y';
+		}
+
 		for (int i = 0; i < maze.maze.size(); i++) {
 			std::string line = maze.maze[i];
 			for (int j = 0; j < line.length(); j++) {
@@ -893,20 +923,30 @@ int main()
 				if (i == yCoord && j == xCoord) {
 					littleSquare.Draw(shaderProgram_obj, camera, redTex, 0, centerOfMap + transSquare);
 				}
+				else if (i == AIcoords.y && j == AIcoords.x) {
+					littleSquare.Draw(shaderProgram_obj, camera, redTex, 0, centerOfMap + transSquare);
+				}
 				else {
-					if (visitedCoords[j][i] == 'X') {
+					//if (visitedCoords[j][i] == 'X') {
 						if (line[j] == '#') {
 							littleSquare.Draw(shaderProgram_obj, camera, blueTex, 0, centerOfMap + transSquare);
 						}
 						else {
 							littleSquare.Draw(shaderProgram_obj, camera, whiteTex, 0, centerOfMap + transSquare);
 						}
+					//}
+					if (visitedCoords[j][i] == 'Y') {
+						littleSquare.Draw(shaderProgram_obj, camera, greenTex, 0, centerOfMap + transSquare, glm::vec3(1.0f, 1.0f, 1.0f));
 					}
-					else {
-						littleSquare.Draw(shaderProgram_obj, camera, grayTex, 0, centerOfMap + transSquare);
-					}
+					//else {
+					//	littleSquare.Draw(shaderProgram_obj, camera, grayTex, 0, centerOfMap + transSquare);
+					//}
 				}
 			}
+		}
+
+		for (glm::vec2 point : AI.path) {
+			visitedCoords[point.x][point.y] = 'O';
 		}
 
 
