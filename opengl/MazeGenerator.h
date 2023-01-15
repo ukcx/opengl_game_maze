@@ -11,6 +11,8 @@ public:
 	MazeGenerator(int h, int w, int seed, int _scale_xz, int _scale_y);
 	void CreateModels(const char* objPath);
 	std::vector<glm::vec2> GetNeighbors(glm::vec2 currentPos);
+	std::vector<Model> getModels_coins();
+	std::vector<glm::vec3> coin_getTranslates();
 	glm::vec2 GetRandomEmptyCoordinates(glm::vec2 lowerBound, glm::vec2 upperBound);
 	glm::vec3 MazeToWorldCoordinate(glm::vec2 mazeCoordinate);
 	std::vector<Model> getModels();
@@ -24,6 +26,8 @@ public:
 	int scale_xz;
 	int scale_y;
 private:
+	std::vector<Model> coins;
+	std::vector<glm::vec3> coins_translates;
 	std::vector<Model> models;
 	std::vector<glm::vec3> translates;
 };

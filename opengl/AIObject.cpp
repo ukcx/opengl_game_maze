@@ -10,56 +10,15 @@ Object::Object(Model* _model, glm::vec3 _pos/*, glm::vec3 _orientation*/, glm::v
 	model = _model;
 }
 
-void Object::Inputs_movement(GLFWwindow* window, Camera camera)
-{
-	float slow = 0.1f;
-	float speed = 1.0f;
-	//position = camera.Position + camera.Orientation * glm::vec3(4.0f, 4.0f, 4.0f);
-
-	// Handles key inputs
-	if (!camera.godMode) {
-		float posY = position.y;
-
-		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		{
-			speed = 4.4f;
-		}
-		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-		{
-			speed = 1.0f;
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		{
-			position += speed * camera.Orientation * slow;
-			position.y = posY;
-		}
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		{
-			position += speed * -glm::normalize(glm::cross(camera.Orientation, camera.Up)) * slow;
-			position.y = posY;
-		}
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		{
-			position += speed * -camera.Orientation * slow;
-			position.y = posY;
-		}
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		{
-			position += speed * glm::normalize(glm::cross(camera.Orientation, camera.Up)) * slow;
-			position.y = posY;
-		}
-	}
-}
 
 void Object::drawObject(GLFWwindow* window, Shader shader, Camera camera, Texture& texture) {
-	if (movable)
-		Inputs_movement(window, camera);
+	//if (movable)
+		//Inputs_movement(window, camera);
 
 	model->Draw(shader, camera, texture, rotation, position, scale);
 }
 
-AIObject::AIObject(Model* _model, glm::vec3 _pos, glm::vec3 _scale, float _rot, bool _isMovable, MazeGenerator* _maze, Object* _player)
+AIObject::AIObject(Model* _model, glm::vec3 _pos, glm::vec3 _scale, float _rot, bool _isMovable, MazeGenerator* _maze, Model* _player)
 	: Object(_model, _pos, _scale, _rot, _isMovable)
 {
 	maze = _maze;
@@ -88,12 +47,12 @@ struct StarSearch {
 };
 
 void AIObject::AStarFindPath() {
-	std::cout << "here\n";
+	//std::cout << "here\n";
 	//std::vector<glm::vec2> pathNew;
 	//path = pathNew;
 
 	glm::vec2 startPos = maze->GetMyCoordinate(position);
-	glm::vec2 targetPos = maze->GetMyCoordinate(player->position);
+	glm::vec2 targetPos = maze->GetMyCoordinate(player->position + player->translation);
 	//std::cout << "start pos, x: " << startPos.x << ", y: " << startPos.y << "\n";
 	//std::cout << "target pos, x: " << targetPos.x << ", y: " << targetPos.y << "\n";
 
@@ -107,7 +66,7 @@ void AIObject::AStarFindPath() {
 	allHashMap[Stringify(startPos)] = new StarSearch(0, GetDistance(startPos, targetPos));
 
 	while (openSet.size() > 0) {
-		std::cout << "openset size: " << openSet.size() << "\n";
+		//std::cout << "openset size: " << openSet.size() << "\n";
 		//std::make_heap(openSet.begin(), openSet.end());
 		glm::vec2 currentPos = openSet[0];
 		int removeIndex = 0;
@@ -126,13 +85,13 @@ void AIObject::AStarFindPath() {
 
 		if (currentPos == targetPos) {
 			//Retrace Path
-			std::cout << "path found\n";
+			//std::cout << "path found\n";
 			while (currentPos != startPos) {
 				path.push_back(currentPos);
 				currentPos = allHashMap[Stringify(currentPos)]->previous;
 			}
 			std::reverse(path.begin(), path.end());
-			std::cout << "path size: " << path.size() << "\n";
+			//std::cout << "path size: " << path.size() << "\n";
 			//Delete dynamically created memory
 			for (std::map<std::string, StarSearch*>::iterator it = allHashMap.begin(); it != allHashMap.end(); ++it) {
 				if (it->second != NULL)
@@ -183,9 +142,9 @@ AIObject::MOVE AIObject::MonsterGetMove() {
 	glm::vec2 monsterPos = maze->GetMyCoordinate(position);
 	glm::vec2 distanceVec = playerPos - monsterPos;
 	float distance = sqrt(glm::dot(distanceVec, distanceVec));
-	std::cout << "distance: " << distance << "\n";
+	//std::cout << "distance: " << distance << "\n";
 
-	if (distance > 1.0f * maze->mHeight) {
+	if (distance > 4.0f * maze->mHeight) {
 		return RANDOM;
 	}
 	else {
@@ -193,9 +152,9 @@ AIObject::MOVE AIObject::MonsterGetMove() {
 		auto time_span = static_cast<std::chrono::duration<double>>(end - start);
 		if (time_span.count() > allowedTimeSpan) {
 			AStarFindPath();
-			for (int i = 0; i < path.size(); i++) {
+			/*for (int i = 0; i < path.size(); i++) {
 				std::cout << "pathway (" << path[i].x << ", " << path[i].y << ")\n";
-			}
+			}*/
 			start = sc.now();
 		}
 

@@ -48,7 +48,7 @@ glm::vec2 MazeGenerator::GetMyCoordinate(glm::vec3 pos) {
 }
 void MazeGenerator::CreateModels(const char* objPath) {
 	Model model(objPath);
-
+	Model coin("vax.obj");
 	for (int i = 0; i < maze.size(); i++) {
 
 		for (int j = 0; j < maze[i].size(); j++) {
@@ -57,6 +57,16 @@ void MazeGenerator::CreateModels(const char* objPath) {
 				Model scaledCube = model.ScaleModel(scale_xz, scale_y, scale_xz);
 				translates.push_back(translate_loop);
 				models.push_back(scaledCube);
+			}
+			else {
+				int irand = rand() % 10 + 1;
+				if (irand != 7) {
+					//glm::vec3 translate_loop = glm::vec3( (j - mWidth), (0.4f / 2) * scale_y,  (i - mHeight));
+					glm::vec3 translate_loop = glm::vec3(0.4f * scale_xz * (j - mWidth), 0.5, 0.4f * scale_xz * (i - mHeight));
+					coins.push_back(coin);
+					coins_translates.push_back(translate_loop);
+
+				}
 			}
 		}
 	}
@@ -70,7 +80,7 @@ glm::vec2 MazeGenerator::GetRandomEmptyCoordinates(glm::vec2 lowerBound, glm::ve
 	do {
 		xVal = lowerBound.x + (rand() % rangeX);
 		yVal = lowerBound.y + (rand() % rangeY);
-	} while (maze[xVal][yVal] == '#');
+	} while (maze[yVal][xVal] == '#');
 
 	return glm::vec2(xVal, yVal);
 }
@@ -95,6 +105,7 @@ std::vector<glm::vec2> MazeGenerator::GetNeighbors(glm::vec2 currentPos) {
 				else
 					neighbours.push_back(glm::vec2(checkX, checkY));
 			}
+
 		}
 	}
 
@@ -126,6 +137,12 @@ std::vector<glm::vec2> MazeGenerator::GetNeighbors(glm::vec2 currentPos) {
 std::vector<Model> MazeGenerator::getModels() {
 	return models;
 }
+std::vector<Model> MazeGenerator::getModels_coins() {
+	return coins;
+}
 std::vector<glm::vec3> MazeGenerator::getTranslates() {
 	return translates;
+}
+std::vector<glm::vec3> MazeGenerator::coin_getTranslates() {
+	return coins_translates;
 }

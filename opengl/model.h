@@ -50,6 +50,10 @@ public:
 	void Draw(Shader shader, Camera camera, Texture& Texture);
 	// Draws the mesh
 	void Draw(Shader shader, Camera camera);
+	glm::vec3 position;
+	float speed= 0.6f;
+	void increase_speed(float increament);
+	glm::vec3 old_pos = glm::vec3(0);
 	void moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFWwindow* window, glm::vec3& position, float rotation, glm::vec3 trans);
 	void moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFWwindow* window, glm::vec3& position);
 	void Draw(Shader shader, Camera camera, float rotation, glm::vec3 trans);
@@ -59,11 +63,15 @@ public:
 	void box_bounding_box();
 	bool detect_collision_sphere(Model model);
 	bool detect_collision_sphere_box(Model model);
-    
+	void Draw_rotate(Shader shader, Camera camera, Texture& Texture, glm::vec3 trans);
 	bool detect_collision_box_box(Model model);
 	void fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm::vec3& position,glm::vec3 trasns);
 	void translate(glm::vec3 translati);
 	void delete_object();
+	bool first = true;
+	glm::vec3 trajectory;
+
+	enum objects { wall, arrow, player, ai };
 };
 #endif
 

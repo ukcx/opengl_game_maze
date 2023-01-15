@@ -27,7 +27,7 @@ public:
 	//glm::vec3 orientation;
 
 protected:
-	void Inputs_movement(GLFWwindow* window, Camera camera);
+	//void Inputs_movement(GLFWwindow* window, Camera camera);
 
 	
 };
@@ -36,7 +36,7 @@ class AIObject : public Object {
 
 private:
 	MazeGenerator* maze;
-	Object* player;
+	Model* player;
 	std::string Stringify(glm::vec2 point);
 	std::chrono::steady_clock sc;
 	std::chrono::steady_clock::time_point start;
@@ -44,7 +44,7 @@ private:
 
 public:
 	enum MOVE { RANDOM, ASTARMOVE, STRAIGHTLINE };
-	AIObject(Model* _model, glm::vec3 _pos, glm::vec3 _scale, float _rot, bool _isMovable, MazeGenerator* _maze, Object* _player);
+	AIObject(Model* _model, glm::vec3 _pos, glm::vec3 _scale, float _rot, bool _isMovable, MazeGenerator* _maze, Model* _player);
 	void RandomMove();
 	void AStarMove();
 	int GetDistance(glm::vec2 point1, glm::vec2 point2);

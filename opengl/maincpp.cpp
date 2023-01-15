@@ -534,7 +534,7 @@ int main()
 	const char* path___2 = "s.obj";
 	const char* path2 = "Sphere_mit.obj";
 	const char* path = "stall.obj";
-
+	const char* path_arrow = "arrow.obj";
 	//Vertices and Indices
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
@@ -630,7 +630,8 @@ int main()
 	maze.CreateModels(path_2_);
 	std::vector<Model> cubes = maze.getModels();
 	std::vector<glm::vec3> transfers = maze.getTranslates();
-
+	std::vector<Model> coins = maze.getModels_coins();
+	std::vector<glm::vec3> coin_transfers = maze.coin_getTranslates();
 	// Creates camera object
 	glm::vec3 translateCameraToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 2.5f, -0.4f * scaleXZ * (mHeight - 1));
 	Camera camera(width, height, translateCameraToEntrance);
@@ -652,9 +653,10 @@ int main()
 	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
 	std::cout << "AI coordinates: (" << maze.GetMyCoordinate(translateAI).x << ", " << maze.GetMyCoordinate(translateAI).y << ")\n";
 
+	sphere.translation = translateToEntrance;
 	//AI Objects
-	Object playerObject(&sphere, translateToEntrance, glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, true);
-	AIObject AI(&AIsphere, translateAI, glm::vec3(4.0f), 0.0f, true, &maze, &playerObject);
+	//Object playerObject(&sphere, translateToEntrance, glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, true);
+	AIObject AI(&AIsphere, translateAI, glm::vec3(4.0f), 0.0f, true, &maze, &sphere);
 
 
 	//Initialize visited coords matrix for the minimap
@@ -671,7 +673,7 @@ int main()
 	int frameCount = 0, incrmnt = 1;
 	bool arrows = true;
 	bool first = true;
-	vector<Model> bone_of_my_sword;
+	vector<Model*> bone_of_my_sword;
 	//Model  bone_of_my_sword[10];
 	vector<glm::vec3> bone_of_my_sword_translation;
 	vector<glm::vec3> bone_of_my_sword_position;
@@ -682,7 +684,7 @@ int main()
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//RenderMinimap(shader_minimap, camera);
-		camera.Inputs(window, playerObject.position);
+		camera.Inputs(window, sphere.position + sphere.translation);
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 5000.0f);
 		//Text.RenderText("Remaing time \n 4:36", 50.0f, 600.0f, 1.0f);
@@ -703,22 +705,31 @@ int main()
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 		}
 		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.01f, -0.4f * scaleXZ * (mHeight - 1));
-		//sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, glm::vec3(0.0f, 0.42f, 0.0f));
-		//sphere.sphere_bounding_box();
-		playerObject.drawObject(window, shaderProgram_kup, camera, brickTex);
-		playerObject.model->sphere_bounding_box();
+		sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, translateToEntrance);
+		sphere.sphere_bounding_box();
+		for (int i = 0; i < coins.size(); i++) {
+			glm::vec3 translate_L = coin_transfers[i];
+			coins[i].Draw_rotate(shaderProgram_box, camera, brickTex, translate_L);
+			coins[i].bounding_box;
+			if (sphere.detect_collision_sphere_box(coins[i])) {
+				std::cout << "go brrrrrrrrrrrrrrrrrrr" << endl;
+				sphere.increase_speed(0.001);
+			}
+
+		}
+		//playerObject.drawObject(window, shaderProgram_kup, camera, brickTex);
+		//playerObject.model->sphere_bounding_box();
 
 		AI.drawObject(shaderProgram_obj, camera, redTex);
 
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
-			bone_of_my_sword[e].
+			bone_of_my_sword[e]->
 				fire_arrow_draw(shaderProgram_kup, camera, brickTex, 
 					bone_of_my_sword_position[e], bone_of_my_sword_translation[e]);
-			if (first)
-			{
-			bone_of_my_sword[e].sphere_bounding_box();
-			first = false;
-			}
+			
+			bone_of_my_sword[e]->sphere_bounding_box();
+			//first = false;
+			
 		}
 	/*	if(arrows)
 		{
@@ -731,19 +742,21 @@ int main()
 			
 		}*/
 		if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
-			Model arrows(path___2);
+			Model* arrows = new Model(path___2);
 			bone_of_my_sword.push_back(arrows);
-			bone_of_my_sword_translation.push_back(playerObject.model->bounding_sphere_center);
+			bone_of_my_sword_translation.push_back(sphere.bounding_sphere_center);
 			bone_of_my_sword_position.push_back(glm::vec3(0.f));
-
+			std::cout << "Added new arrow, new size: " << bone_of_my_sword.size() << "\n";
 		}
 		
 		for (int i = 0; i < cubes.size(); i++) {
 			glm::vec3 translate_L = transfers[i];
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 			cubes[i].bounding_box;
-			if (playerObject.model->detect_collision_sphere_box(cubes[i])) {
-				camera.collision_pos();
+			//cout <<"sphere moovemet"<<sphere.bounding_sphere_center.x <<"   " << sphere.bounding_sphere_center.y << "   " << sphere.bounding_sphere_center.z << "   " << endl;
+			if (sphere.detect_collision_sphere_box(cubes[i])) {
+				std::cout << "it is in we have the collidio";
+				sphere.position = sphere.old_pos;
 			}
 
 			//
@@ -759,13 +772,22 @@ int main()
 				//std::cout << "number of the vector is" << e<<endl;
 				//bone_of_my_sword[e].fire_arrow_draw(shaderProgram_kup, camera, brickTex, position2, bone_of_my_sword_translation[e]);
 				
-				if (bone_of_my_sword[e].detect_collision_sphere_box(cubes[i])) {
+				if (bone_of_my_sword[e]->detect_collision_sphere_box(cubes[i])) {
 					std::cout << "it happened" << "\n";
-					//Model* s = bone_of_my_sword[e];
+					
+					Model* s = bone_of_my_sword[e];
+					cout << "point to object" << endl;
 					//bone_of_my_sword[e]->delete_object();
-					//bone_of_my_sword.erase(bone_of_my_sword.begin() + e);
-					//s->delete_object();
-					//bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
+					bone_of_my_sword.erase(bone_of_my_sword.begin() + e);
+					std::cout << "\ndeleted from bones \n";
+					s->delete_object();
+					delete s;
+					std::cout << "\ndeleted fully \n";
+					std::cout << "new size after deletion" << bone_of_my_sword.size() << endl;
+					bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
+					bone_of_my_sword_position.erase(bone_of_my_sword_position.begin() + e);
+					cout << "what2" << endl;
+					e--; 
 					/*std::vector<Model>::iterator start = bone_of_my_sword.begin() + e;
 					std::vector<Model>::iterator end = bone_of_my_sword.begin() + e + 1;
 					for (auto it = start; it != end; ++it) {
@@ -775,10 +797,11 @@ int main()
 					/*std::swap(bone_of_my_sword[e], bone_of_my_sword.back());
 					bone_of_my_sword.back().delete_object();
 					bone_of_my_sword.pop_back();*/
-					//bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
-					//bone_of_my_sword_position.erase(bone_of_my_sword_translation.begin() + e);
-					
-
+					/*bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
+					cout << "what" << endl;
+					bone_of_my_sword_position.erase(bone_of_my_sword_position.begin() + e);
+					cout << "what2" << endl;
+					e--;*/
 				}
 
 			}
@@ -876,7 +899,7 @@ int main()
 
 		}
 		Text.RenderText("Time: " + to_string(int(time_span.count()) / 60) + "." + to_string(int(time_span.count()) % 60), 50.0f, 700.0f, 1.0f);
-		Text.RenderText("Speed: " + to_string(int(camera.speed)), 50.0f, 630.0f, 1.0f, glm::vec3(0.1f, 0.1f, 0.9f));
+		Text.RenderText("Speed: " + to_string(int(sphere.speed * 100)), 50.0f, 630.0f, 1.0f, glm::vec3(0.1f, 0.1f, 0.9f));
 		Text.RenderText("Points: 100", 450.0f, 630.0f, 1.0f, glm::vec3(0.5f, 0.5f, 0.0f));
 		glDisable(GL_BLEND);
 		float scale = (frameCount % 50) * 0.003 + 1;
@@ -897,7 +920,7 @@ int main()
 		float heightOfSquare = 0.2f / mHeight;
 		glm::vec3 centerOfMap = glm::vec3(-0.8f + (widthOfSquare / 2), -0.8f + (heightOfSquare / 2), 0.0f);
 		Model littleSquare = scaledSquare.ScaleModel(1.0f / (2 * mWidth + 1), 1.0f / (2 * mHeight + 1), 1.0f);
-		glm::vec2 coords = maze.GetMyCoordinate(playerObject.position);
+		glm::vec2 coords = maze.GetMyCoordinate(sphere.position + sphere.translation);
 		glm::vec2 AIcoords = maze.GetMyCoordinate(AI.position);
 
 		int xCoord = coords.x, yCoord = coords.y;

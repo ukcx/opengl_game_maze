@@ -210,6 +210,9 @@
     <Object Include="heart.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
+    <Object Include="vax.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
   </ItemGroup>
   <ItemGroup>
     <Text Include="deletelater.txt">
