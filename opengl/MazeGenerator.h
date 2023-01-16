@@ -15,11 +15,13 @@ public:
 	std::vector<glm::vec3> coin_getTranslates();
 	glm::vec2 GetRandomEmptyCoordinates(glm::vec2 lowerBound, glm::vec2 upperBound);
 	glm::vec3 MazeToWorldCoordinate(glm::vec2 mazeCoordinate);
-	std::vector<Model> getModels();
+	std::vector<Model*> getModels();
 	std::vector<glm::vec3> getTranslates();
+	std::vector<std::vector<Model*>> maze_models;
 	std::vector<std::string> maze;
 	glm::vec2 GetMyCoordinate(glm::vec3 pos);
-
+	std::vector<Model*> GetNeighboringWalls(glm::vec3 myPos);
+	~MazeGenerator();
 	int mWidth;
 	int mHeight;
 	const char* path;
@@ -28,7 +30,7 @@ public:
 private:
 	std::vector<Model> coins;
 	std::vector<glm::vec3> coins_translates;
-	std::vector<Model> models;
+	std::vector<Model*> models;
 	std::vector<glm::vec3> translates;
 };
 #endif

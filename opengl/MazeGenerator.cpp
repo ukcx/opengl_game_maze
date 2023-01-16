@@ -10,6 +10,15 @@ MazeGenerator::MazeGenerator(int h, int w, int seed, int _scale, int _scale_y) {
 
 	std::fstream newfile;
 	std::vector<std::string> lines;
+
+	for (int i = 0; i < mHeight * 2 + 1; i++) {
+		std::vector<Model*> modelLine;
+		for (int j = 0; j < mWidth * 2 + 1; j++) {
+			modelLine.push_back(nullptr);
+		}
+		maze_models.push_back(modelLine);
+	}
+	std::cout << maze_models.size();
 	
 	newfile.open(path, std::ios::in); //open a file to perform read operation using file object
 	if (newfile.is_open()) {   //checking whether the file is open
@@ -27,6 +36,14 @@ MazeGenerator::MazeGenerator(int h, int w, int seed, int _scale, int _scale_y) {
 	else {
 		std::cout << "Could not open file! Check file path!\n";
 	}	
+}
+MazeGenerator::~MazeGenerator() {
+	for (int i = 0; i < mHeight * 2 + 1; i++) {
+		for (int j = 0; j < mWidth * 2 + 1; j++) {
+			if (maze_models[i][j] != nullptr)
+				delete maze_models[i][j];
+		}
+	}
 }
 glm::vec2 MazeGenerator::GetMyCoordinate(glm::vec3 pos) {
 
@@ -54,13 +71,17 @@ void MazeGenerator::CreateModels(const char* objPath) {
 		for (int j = 0; j < maze[i].size(); j++) {
 			if (maze[i][j] == '#') {
 				glm::vec3 translate_loop = glm::vec3(0.4f * scale_xz * (j - mWidth), (0.4f / 2) * scale_y, 0.4f * scale_xz * (i - mHeight));
-				Model scaledCube = model.ScaleModel(scale_xz, scale_y, scale_xz);
+				Model* scaledCube = new Model(model.ScaleModel(scale_xz, scale_y, scale_xz));
 				translates.push_back(translate_loop);
 				models.push_back(scaledCube);
+				glm::vec2 maze_coords = GetMyCoordinate(translate_loop);
+				//count++;
+				//std::cout << "here " << count << "th time\n";
+				maze_models[maze_coords.x][maze_coords.y] = scaledCube;
 			}
 			else {
 				int irand = rand() % 100 + 1;
-				if (irand == 6) {
+				if (irand != 6) {
 					//glm::vec3 translate_loop = glm::vec3( (j - mWidth), (0.4f / 2) * scale_y,  (i - mHeight));
 					glm::vec3 translate_loop = glm::vec3(0.4f * scale_xz * (j - mWidth), 0.5, 0.4f * scale_xz * (i - mHeight));
 					coins.push_back(coin);
@@ -70,6 +91,32 @@ void MazeGenerator::CreateModels(const char* objPath) {
 			}
 		}
 	}
+}
+std::vector<Model*> MazeGenerator::GetNeighboringWalls(glm::vec3 myPos) {
+	std::vector<Model*> neighboringModels;
+	glm::vec2 mazePos = GetMyCoordinate(myPos);
+	std::cout << "mazePos is " << mazePos.x << ", " << mazePos.y << "\n";
+	for (int x = -1; x <= 1; x++) {
+		for (int y = -1; y <= 1; y++) {
+			if (x == 0 && y == 0)
+				continue;
+			int checkX = mazePos.x + x;
+			int checkY = mazePos.y + y;
+			if (checkX >= 0 && checkX < mWidth * 2 + 1 && checkY >= 0 && checkY < mHeight * 2 + 1) {
+				std::cout << "here\n";
+				if (maze_models[checkX][checkY] == nullptr) {
+					std::cout << "here3\n";
+					continue;
+				}
+				else {
+					std::cout << (*maze_models[checkX][checkY]).rotation << "\n";
+					neighboringModels.push_back(maze_models[checkX][checkY]);
+				}
+				std::cout << "here2\n";
+			}
+		}
+	}
+	return neighboringModels;
 }
 glm::vec2 MazeGenerator::GetRandomEmptyCoordinates(glm::vec2 lowerBound, glm::vec2 upperBound) {
 	srand(time(0));
@@ -134,7 +181,7 @@ std::vector<glm::vec2> MazeGenerator::GetNeighbors(glm::vec2 currentPos) {
 //		}
 //	}
 //}
-std::vector<Model> MazeGenerator::getModels() {
+std::vector<Model*> MazeGenerator::getModels() {
 	return models;
 }
 std::vector<Model> MazeGenerator::getModels_coins() {

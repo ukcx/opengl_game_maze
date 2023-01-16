@@ -628,7 +628,7 @@ int main()
 	// Maze Generation
 	MazeGenerator maze(mHeight, mWidth, seeds[seedIndex], scaleXZ, scaleY);
 	maze.CreateModels(path_2_);
-	std::vector<Model> cubes = maze.getModels();
+	std::vector<Model*> cubes = maze.getModels();
 	std::vector<glm::vec3> transfers = maze.getTranslates();
 	std::vector<Model> coins = maze.getModels_coins();
 	std::vector<glm::vec3> coin_transfers = maze.coin_getTranslates();
@@ -700,10 +700,10 @@ int main()
 		glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
 
 
-		for (int i = 0; i < cubes.size(); i++) {
+		/*for (int i = 0; i < cubes.size(); i++) {
 			glm::vec3 translate_L = transfers[i];
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
-		}
+		}*/
 		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.01f, -0.4f * scaleXZ * (mHeight - 1));
 		sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, translateToEntrance);
 		sphere.sphere_bounding_box();
@@ -761,32 +761,41 @@ int main()
 		
 		for (int i = 0; i < cubes.size(); i++) {
 			glm::vec3 translate_L = transfers[i];
-			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
-			cubes[i].bounding_box;
-			//cout <<"sphere moovemet"<<sphere.bounding_sphere_center.x <<"   " << sphere.bounding_sphere_center.y << "   " << sphere.bounding_sphere_center.z << "   " << endl;
-			if (sphere.detect_collision_sphere_box(cubes[i])) {
-				std::cout << "boundi "<<sphere.bounding_sphere_center.x<< " "<<sphere.bounding_sphere_center.y << " " << sphere.bounding_sphere_center.z << endl;
-				std::cout << "sphere " << sphere.position.x +sphere.translation.x << " " << sphere.position.y + sphere.translation.y << " " << sphere.position.z + sphere.translation.z << endl;
+			cubes[i]->Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
+			cubes[i]->bounding_box;
+		}
+		
+		std::vector<Model*> adjacentWalls = maze.GetNeighboringWalls(sphere.position + sphere.translation);
+		std::cout << adjacentWalls.size() << "\n";
+		for (int i = 0; i < adjacentWalls.size(); i++) {
+			if (sphere.detect_collision_sphere_box((*adjacentWalls[i]))) {
+				std::cout << "boundi " << sphere.bounding_sphere_center.x << " " << sphere.bounding_sphere_center.y << " " << sphere.bounding_sphere_center.z << endl;
+				std::cout << "sphere " << sphere.position.x + sphere.translation.x << " " << sphere.position.y + sphere.translation.y << " " << sphere.position.z + sphere.translation.z << endl;
 
 				sphere.collision_result();
 			}
+		}
 
-			//
-			//if (arrows && stall.detect_collision_sphere_box(cubes[i])) {
-			//	std::cout << "it happened" << "\n";
-			//	stall.delete_object();
-			//	arrows = false;
+		//
+		//if (arrows && stall.detect_collision_sphere_box(cubes[i])) {
+		//	std::cout << "it happened" << "\n";
+		//	stall.delete_object();
+		//	arrows = false;
 
-			//
-			//	//break;
-			//}
-			for (int e = 0; e < bone_of_my_sword.size(); e++) {
+		//
+		//	//break;
+		//}
+		for (int e = 0; e < bone_of_my_sword.size(); e++) {
+			std::vector<Model*> adjacentWallsForArrow = maze.GetNeighboringWalls(bone_of_my_sword_translation[e] + bone_of_my_sword[e]->position);
+
+			std::cout << adjacentWallsForArrow.size() << "\n";
+			for (int i = 0; i < adjacentWallsForArrow.size(); i++) {
 				//std::cout << "number of the vector is" << e<<endl;
 				//bone_of_my_sword[e].fire_arrow_draw(shaderProgram_kup, camera, brickTex, position2, bone_of_my_sword_translation[e]);
-				
-				if (bone_of_my_sword[e]->detect_collision_sphere_box(cubes[i])) {
+
+				if (bone_of_my_sword[e]->detect_collision_sphere_box((*adjacentWallsForArrow[i]))) {
 					std::cout << "it happened" << "\n";
-					
+
 					Model* s = bone_of_my_sword[e];
 					cout << "point to object" << endl;
 					//bone_of_my_sword[e]->delete_object();
@@ -799,7 +808,7 @@ int main()
 					bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
 					bone_of_my_sword_position.erase(bone_of_my_sword_position.begin() + e);
 					cout << "what2" << endl;
-					e--; 
+					e--;
 					/*std::vector<Model>::iterator start = bone_of_my_sword.begin() + e;
 					std::vector<Model>::iterator end = bone_of_my_sword.begin() + e + 1;
 					for (auto it = start; it != end; ++it) {
@@ -815,7 +824,6 @@ int main()
 					cout << "what2" << endl;
 					e--;*/
 				}
-
 			}
 		}
 		
@@ -930,25 +938,33 @@ int main()
 
 		float widthOfSquare = 0.2f / mWidth;
 		float heightOfSquare = 0.2f / mHeight;
-		glm::vec3 centerOfMap = glm::vec3(-0.8f + (widthOfSquare / 2), -0.8f + (heightOfSquare / 2), 0.0f);
+		glm::vec3 centerOfMapLeft = glm::vec3(-0.8f + (widthOfSquare / 2), -0.8f + (heightOfSquare / 2), 0.0f);
+		glm::vec3 centerOfMapRight = glm::vec3(0.8f - (widthOfSquare / 2), -0.8f + (heightOfSquare / 2), 0.0f);
 		Model littleSquare = scaledSquare.ScaleModel(1.0f / (2 * mWidth + 1), 1.0f / (2 * mHeight + 1), 1.0f);
 		glm::vec2 coords = maze.GetMyCoordinate(sphere.position + sphere.translation);
 		glm::vec2 AIcoords = maze.GetMyCoordinate(AI.position);
 
 		int xCoord = coords.x, yCoord = coords.y;
-		if (xCoord >= 0 && yCoord >= 0 && xCoord < mWidth * 2 + 1 && yCoord < mHeight * 2 + 1)
-			visitedCoords[xCoord][yCoord] = 'X';
-		if (xCoord >= 1 && yCoord >= 0 && xCoord < mWidth * 2 + 2 && yCoord < mHeight * 2 + 1)
-			visitedCoords[xCoord - 1][yCoord] = 'X';
-		if (xCoord >= -1 && yCoord >= 0 && xCoord < mWidth * 2 && yCoord < mHeight * 2 + 1)
-			visitedCoords[xCoord + 1][yCoord] = 'X';
-		if (xCoord >= 0 && yCoord >= 1 && xCoord < mWidth * 2 + 1 && yCoord < mHeight * 2 + 2)
-			visitedCoords[xCoord][yCoord - 1] = 'X';
-		if (xCoord >= 0 && yCoord >= -1 && xCoord < mWidth * 2 + 1 && yCoord < mHeight * 2)
-			visitedCoords[xCoord][yCoord + 1] = 'X';
+		for (int i = -1; i <= 1; i++) {
+			for (int j = -1; j <= 1; j++) {
+
+				int x = xCoord + i;
+				int y = yCoord + j;
+
+				if (x >= 0 && x < mWidth * 2 + 1 && y >= 0 && y < mHeight * 2 + 1) {
+					if (visitedCoords[x][y] == 'Y' || visitedCoords[x][y] == 'Z')
+						visitedCoords[x][y] = 'Z';
+					else
+						visitedCoords[x][y] = 'X';
+				}
+			}
+		}
 
 		for (glm::vec2 point : AI.path) {
-			visitedCoords[point.x][point.y] = 'Y';
+			if (visitedCoords[point.x][point.y] == 'X' || visitedCoords[point.x][point.y] == 'Z')
+				visitedCoords[point.x][point.y] = 'Z';
+			else
+				visitedCoords[point.x][point.y] = 'Y';
 		}
 
 		for (int i = 0; i < maze.maze.size(); i++) {
@@ -956,32 +972,38 @@ int main()
 			for (int j = 0; j < line.length(); j++) {
 				glm::vec3 transSquare = glm::vec3(1.0f * (i - mHeight) * heightOfSquare, 1.0f * (j - mWidth) * widthOfSquare, 0.0f);
 				if (i == yCoord && j == xCoord) {
-					littleSquare.Draw(shaderProgram_obj, camera, redTex, 0, centerOfMap + transSquare);
-				}
-				else if (i == AIcoords.y && j == AIcoords.x) {
-					littleSquare.Draw(shaderProgram_obj, camera, redTex, 0, centerOfMap + transSquare);
+					littleSquare.Draw(shaderProgram_obj, camera, redTex, 0, centerOfMapRight + transSquare);
+					littleSquare.Draw(shaderProgram_obj, camera, redTex, 0, centerOfMapLeft + transSquare);
 				}
 				else {
-					//if (visitedCoords[j][i] == 'X') {
+					if (visitedCoords[j][i] == 'X' || visitedCoords[j][i] == 'Z') {
 						if (line[j] == '#') {
-							littleSquare.Draw(shaderProgram_obj, camera, blueTex, 0, centerOfMap + transSquare);
+							littleSquare.Draw(shaderProgram_obj, camera, blueTex, 0, centerOfMapLeft + transSquare);
 						}
 						else {
-							littleSquare.Draw(shaderProgram_obj, camera, whiteTex, 0, centerOfMap + transSquare);
+							littleSquare.Draw(shaderProgram_obj, camera, whiteTex, 0, centerOfMapLeft + transSquare);
 						}
-					//}
-					if (visitedCoords[j][i] == 'Y') {
-						littleSquare.Draw(shaderProgram_obj, camera, greenTex, 0, centerOfMap + transSquare, glm::vec3(1.0f, 1.0f, 1.0f));
 					}
-					//else {
-					//	littleSquare.Draw(shaderProgram_obj, camera, grayTex, 0, centerOfMap + transSquare);
-					//}
+					else {
+						littleSquare.Draw(shaderProgram_obj, camera, grayTex, 0, centerOfMapLeft + transSquare);
+					}
+					
+					if (i == AIcoords.y && j == AIcoords.x) {
+						littleSquare.Draw(shaderProgram_obj, camera, redTex, 0, centerOfMapRight + transSquare);
+					}
+					else if (visitedCoords[j][i] == 'Y' || visitedCoords[j][i] == 'Z') {
+						littleSquare.Draw(shaderProgram_obj, camera, greenTex, 0, centerOfMapRight + transSquare, glm::vec3(1.0f, 1.0f, 1.0f));
+					}
+					else {
+						if (line[j] == '#') {
+							littleSquare.Draw(shaderProgram_obj, camera, blueTex, 0, centerOfMapRight + transSquare);
+						}
+						else {
+							littleSquare.Draw(shaderProgram_obj, camera, whiteTex, 0, centerOfMapRight + transSquare);
+						}
+					}
 				}
 			}
-		}
-
-		for (glm::vec2 point : AI.path) {
-			visitedCoords[point.x][point.y] = 'O';
 		}
 
 
