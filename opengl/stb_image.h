@@ -35,7 +35,9 @@
       Animated GIF still needs a proper API, but here's one way to do it:
           http://gist.github.com/urraka/685d9a6340b26b830d49
 
-      - decode from memory or through FILE (define STBI_NO_STDIO to remove code)
+      - decode from memory or through FILE (define STBI_NO_STDIO to 
+      
+      code)
       - decode from arbitrary I/O callbacks
       - SIMD acceleration on x86/x64 (SSE2) and ARM (NEON)
 

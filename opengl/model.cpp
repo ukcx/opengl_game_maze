@@ -599,7 +599,7 @@ void Model::Draw_rotate(Shader shader, Camera camera, Texture& Texture, glm::vec
 	// Assigns different transformations to each matrix
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 	rotation += 15.05f;
-	std::cout << "rotation is" << " " << rotation << " \n";
+	//std::cout << "rotation is" << " " << rotation << " \n";
 	//Inputs_movement(window, position);
 	view = glm::translate(view, trans);
 	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
@@ -622,4 +622,10 @@ void Model::Draw_rotate(Shader shader, Camera camera, Texture& Texture, glm::vec
 }
 void Model::increase_speed(float increament) {
 	speed += increament;
+}
+void Model::collision_result() {
+	bounding_sphere_center += old_pos - position;
+	position = old_pos;
+	
+
 }

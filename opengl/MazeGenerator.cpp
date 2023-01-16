@@ -59,8 +59,8 @@ void MazeGenerator::CreateModels(const char* objPath) {
 				models.push_back(scaledCube);
 			}
 			else {
-				int irand = rand() % 10 + 1;
-				if (irand != 7) {
+				int irand = rand() % 100 + 1;
+				if (irand == 6) {
 					//glm::vec3 translate_loop = glm::vec3( (j - mWidth), (0.4f / 2) * scale_y,  (i - mHeight));
 					glm::vec3 translate_loop = glm::vec3(0.4f * scale_xz * (j - mWidth), 0.5, 0.4f * scale_xz * (i - mHeight));
 					coins.push_back(coin);

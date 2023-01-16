@@ -646,7 +646,7 @@ int main()
 	Text.Load("arial.ttf", 60);
 
 	//Translates
-	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.2f, -0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.6f, -0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
 	glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
@@ -714,6 +714,16 @@ int main()
 			if (sphere.detect_collision_sphere_box(coins[i])) {
 				std::cout << "go brrrrrrrrrrrrrrrrrrr" << endl;
 				sphere.increase_speed(0.001);
+				//Model* s = coins[i];
+				//cout << "point to object" << endl;
+				//
+				//coins.erase(coins.begin() + i);
+				//std::cout << "\ndeleted from bones \n";
+				////s->delete_object();
+				////delete s;
+				//coin_transfers.erase(coin_transfers.begin() + i);
+	
+				//i--;
 			}
 
 		}
@@ -755,8 +765,10 @@ int main()
 			cubes[i].bounding_box;
 			//cout <<"sphere moovemet"<<sphere.bounding_sphere_center.x <<"   " << sphere.bounding_sphere_center.y << "   " << sphere.bounding_sphere_center.z << "   " << endl;
 			if (sphere.detect_collision_sphere_box(cubes[i])) {
-				std::cout << "it is in we have the collidio";
-				sphere.position = sphere.old_pos;
+				std::cout << "boundi "<<sphere.bounding_sphere_center.x<< " "<<sphere.bounding_sphere_center.y << " " << sphere.bounding_sphere_center.z << endl;
+				std::cout << "sphere " << sphere.position.x +sphere.translation.x << " " << sphere.position.y + sphere.translation.y << " " << sphere.position.z + sphere.translation.z << endl;
+
+				sphere.collision_result();
 			}
 
 			//

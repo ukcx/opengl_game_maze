@@ -69,6 +69,7 @@ public:
 	void translate(glm::vec3 translati);
 	void delete_object();
 	bool first = true;
+	void collision_result();
 	glm::vec3 trajectory;
 
 	enum objects { wall, arrow, player, ai };
