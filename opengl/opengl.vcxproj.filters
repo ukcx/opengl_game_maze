@@ -22,7 +22,7 @@
     <Filter Include="Resource Files\Fonts">
       <UniqueIdentifier>{1696bf07-6395-4152-8a0a-3ed504c42e87}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shader\Textures">
+    <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{5fa47e4e-fb9c-4e53-b3d0-9da63a81623d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -157,43 +157,49 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="truebrick.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="s.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="q.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="brick.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="odin.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="brick2.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="newBrick.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="black.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="blue.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="darkgray.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="gray.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="red.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="white.png">
-      <Filter>Resource Files\Shader\Textures</Filter>
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="thunder.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="flash.png">
+      <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -213,7 +219,13 @@
     <Object Include="vax.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
-    <Object Include="deneme.obj">
+    <Object Include="x.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="better.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="coin_low.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
   </ItemGroup>

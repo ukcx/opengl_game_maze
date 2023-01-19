@@ -528,7 +528,7 @@ int main()
 	//maze parameters
 	int seeds[8] = { 42, 24, 68, 11, 52, 35, 76, 18 };
 	int mWidth = 15, mHeight = 15, scaleXZ = 40, scaleY = 32, seedIndex = (rand() % 8);
-	
+
 	//Paths
 	const char* path_2_ = "s.obj";
 	const char* path___2 = "s.obj";
@@ -561,7 +561,7 @@ int main()
 	Model stall(path);
 	Model kup(path___2);
 	Model sphere(path2);
-	Model tree("deneme.obj", true);
+	Model tree("better.obj", true);
 	Model AIsphere(path2);
 	Mesh piramid(vert_pry, ind_pry, width, height);
 	Model heart("heart.obj");
@@ -580,8 +580,8 @@ int main()
 	mat_pry.sendToShader(shaderProgram_obj);
 	mat_3.sendToShader(shaderProgram_kup);
 	mat_maze.sendToShader(shaderProgram_tree);
-	
-	
+
+
 	//Light
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.0f, 20.0f, 0.0f);
@@ -611,6 +611,10 @@ int main()
 
 	Texture whiteTex("white.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	whiteTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture thunderTex("thunder.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	thunderTex.texUnit(shaderProgram_obj, "tex0", 0);
+	//Texture flashTex("flash.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	//flashTex.texUnit(shaderProgram_obj, "tex0", 0);
 	Texture blackTex("black.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	blackTex.texUnit(shaderProgram_obj, "tex0", 0);
 	Texture redTex("red.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -713,8 +717,8 @@ int main()
 		sphere.sphere_bounding_box();
 		for (int i = 0; i < coins.size(); i++) {
 			glm::vec3 translate_L = coin_transfers[i];
-			coins[i].Draw_rotate(shaderProgram_box, camera, brickTex, translate_L);
-			coins[i].bounding_box;
+			coins[i].Draw_rotate(shaderProgram_box, camera, thunderTex, translate_L);
+			coins[i].box_bounding_box();
 			if (sphere.detect_collision_sphere_box(coins[i])) {
 				std::cout << "go brrrrrrrrrrrrrrrrrrr" << endl;
 				sphere.increase_speed(0.001);
@@ -726,7 +730,7 @@ int main()
 				////s->delete_object();
 				////delete s;
 				//coin_transfers.erase(coin_transfers.begin() + i);
-	
+
 				//i--;
 			}
 
@@ -738,23 +742,23 @@ int main()
 
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
 			bone_of_my_sword[e]->
-				fire_arrow_draw(shaderProgram_kup, camera, brickTex, 
+				fire_arrow_draw(shaderProgram_kup, camera, brickTex,
 					bone_of_my_sword_position[e], bone_of_my_sword_translation[e]);
-			
+
 			bone_of_my_sword[e]->sphere_bounding_box();
 			//first = false;
-			
+
 		}
-	/*	if(arrows)
-		{
-			stall.fire_arrow_draw(shaderProgram_kup, camera, brickTex, position2, sphere.bounding_sphere_center);
-			if(first)
+		/*	if(arrows)
 			{
-				stall.sphere_bounding_box();
-				first = false;
-			}
-			
-		}*/
+				stall.fire_arrow_draw(shaderProgram_kup, camera, brickTex, position2, sphere.bounding_sphere_center);
+				if(first)
+				{
+					stall.sphere_bounding_box();
+					first = false;
+				}
+
+			}*/
 		if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
 			Model* arrows = new Model(path___2);
 			bone_of_my_sword.push_back(arrows);
@@ -763,14 +767,14 @@ int main()
 			std::cout << "Added new arrow, new size: " << bone_of_my_sword.size() << "\n";
 		}
 
-		tree.Draw(shaderProgram_tree, camera, boxTex, 0.2f, glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0.4f, 0.4f, 0.4f));
-		
+		tree.Draw(shaderProgram_tree, camera, boxTex, 0.2f, glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(10.4f, 10.4f, 10.4f));
+
 		for (int i = 0; i < cubes.size(); i++) {
 			glm::vec3 translate_L = transfers[i];
 			cubes[i]->Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 			cubes[i]->box_bounding_box();
 		}
-		
+
 		std::vector<Model*> adjacentWalls = maze.GetNeighboringWalls(sphere.position + sphere.translation);
 		//std::cout << adjacentWalls.size() << "\n";
 		for (int i = 0; i < adjacentWalls.size(); i++) {
@@ -833,7 +837,7 @@ int main()
 				}
 			}
 		}
-		
+
 		object.Draw(shaderProgram, camera, boxTex, 0, translate2);
 
 		//stall.Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
@@ -994,7 +998,7 @@ int main()
 					else {
 						littleSquare.Draw(shaderProgram_obj, camera, grayTex, 0, centerOfMapLeft + transSquare);
 					}
-					
+
 					if (i == AIcoords.y && j == AIcoords.x) {
 						littleSquare.Draw(shaderProgram_obj, camera, redTex, 0, centerOfMapRight + transSquare);
 					}

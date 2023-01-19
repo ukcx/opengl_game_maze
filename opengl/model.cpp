@@ -556,7 +556,7 @@ void Model::sphere_bounding_box() {
 }
 
 bool Model::detect_collision_sphere(Model model) {
-	model.sphere_bounding_box();
+	//model.sphere_bounding_box();
 	float distance = glm::length(bounding_sphere_center - model.bounding_sphere_center);
 	std::cout << "moving center: " << bounding_sphere_center.x << " "<< bounding_sphere_center.y << " " << bounding_sphere_center.z<< " moving radius " << bounding_sphere_radius << std::endl;
 	std::cout << "other object center " << model.bounding_sphere_center.x << " " << model.bounding_sphere_center.y << " " << model.bounding_sphere_center.z << " " << " moving radius " << model.bounding_sphere_radius << std::endl;
@@ -586,7 +586,7 @@ void Model::box_bounding_box()
 	bounding_box.maxZ += translation.z;
 }
 bool Model::detect_collision_sphere_box(Model model) {
-	model.box_bounding_box();
+	//model.box_bounding_box();
 	// Find the closest point on the box to the sphere
 	float x = fmax(model.bounding_box.minX, fmin(bounding_sphere_center.x, model.bounding_box.maxX));
 	float y = fmax(model.bounding_box.minY, fmin(bounding_sphere_center.y, model.bounding_box.maxY));
@@ -691,7 +691,7 @@ void Model::Draw_rotate(Shader shader, Camera camera, Texture& Texture, glm::vec
 
 	// Assigns different transformations to each matrix
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-	rotation += 15.05f;
+	rotation += 1.05f;
 	//std::cout << "rotation is" << " " << rotation << " \n";
 	//Inputs_movement(window, position);
 	view = glm::translate(view, trans);
