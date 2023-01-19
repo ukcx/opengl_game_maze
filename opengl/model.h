@@ -31,7 +31,7 @@ public:
 	glm::vec3 translation=glm::vec3(0);
 	box bounding_box;
 	float rotation=0;
-	
+	bool first_arrow = true;
 	enum type { normal, lit };
 	
 	//std::vector <Texture> textures;
@@ -51,7 +51,7 @@ public:
 	// Draws the mesh
 	void Draw(Shader shader, Camera camera);
 	glm::vec3 position;
-	float speed= 0.6f;
+	float speed= 0.2f;
 	void increase_speed(float increament);
 	glm::vec3 old_pos = glm::vec3(0);
 	void moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFWwindow* window, glm::vec3& position, float rotation, glm::vec3 trans);

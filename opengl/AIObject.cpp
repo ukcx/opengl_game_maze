@@ -185,13 +185,13 @@ void AIObject::AStarMove()
 {
 	float speed = 0.2f;
 
-	if (path.size() <= 1)
+	if (path.size() < 1)
 		return;
 
 	if (maze->GetMyCoordinate(position) == path[0])
 		path.erase(path.begin() + 0);
 
-	if (path.size() <= 1)
+	if (path.size() < 1)
 		return;
 
 	glm::vec3 direction = maze->MazeToWorldCoordinate(path[0]) - position;

@@ -762,11 +762,11 @@ int main()
 		for (int i = 0; i < cubes.size(); i++) {
 			glm::vec3 translate_L = transfers[i];
 			cubes[i]->Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
-			cubes[i]->bounding_box;
+			cubes[i]->box_bounding_box();
 		}
 		
 		std::vector<Model*> adjacentWalls = maze.GetNeighboringWalls(sphere.position + sphere.translation);
-		std::cout << adjacentWalls.size() << "\n";
+		//std::cout << adjacentWalls.size() << "\n";
 		for (int i = 0; i < adjacentWalls.size(); i++) {
 			if (sphere.detect_collision_sphere_box((*adjacentWalls[i]))) {
 				std::cout << "boundi " << sphere.bounding_sphere_center.x << " " << sphere.bounding_sphere_center.y << " " << sphere.bounding_sphere_center.z << endl;
@@ -788,11 +788,11 @@ int main()
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
 			std::vector<Model*> adjacentWallsForArrow = maze.GetNeighboringWalls(bone_of_my_sword_translation[e] + bone_of_my_sword[e]->position);
 
-			std::cout << adjacentWallsForArrow.size() << "\n";
+			//std::cout << adjacentWallsForArrow.size() << "\n";
 			for (int i = 0; i < adjacentWallsForArrow.size(); i++) {
 				//std::cout << "number of the vector is" << e<<endl;
 				//bone_of_my_sword[e].fire_arrow_draw(shaderProgram_kup, camera, brickTex, position2, bone_of_my_sword_translation[e]);
-
+				//cubes[i]->bounding_box;
 				if (bone_of_my_sword[e]->detect_collision_sphere_box((*adjacentWallsForArrow[i]))) {
 					std::cout << "it happened" << "\n";
 
@@ -809,6 +809,7 @@ int main()
 					bone_of_my_sword_position.erase(bone_of_my_sword_position.begin() + e);
 					cout << "what2" << endl;
 					e--;
+					break;
 					/*std::vector<Model>::iterator start = bone_of_my_sword.begin() + e;
 					std::vector<Model>::iterator end = bone_of_my_sword.begin() + e + 1;
 					for (auto it = start; it != end; ++it) {
