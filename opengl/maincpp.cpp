@@ -561,7 +561,7 @@ int main()
 	Model stall(path);
 	Model kup(path___2);
 	Model sphere(path2);
-	Model tree("better.obj", true);
+	Model tree("x.obj", true);
 	Model AIsphere(path2);
 	Mesh piramid(vert_pry, ind_pry, width, height);
 	Model heart("heart.obj");
@@ -639,7 +639,11 @@ int main()
 	std::vector<Model*> cubes = maze.getModels();
 	std::vector<glm::vec3> transfers = maze.getTranslates();
 	std::vector<Model> coins = maze.getModels_coins();
+	std::vector<Model> low_trees = maze.getModels_low_tree();
+	std::vector<Model> middle_trees = maze.getModels_middle_tree();
+
 	std::vector<glm::vec3> coin_transfers = maze.coin_getTranslates();
+	std::vector<glm::vec3> tree_transfers = maze.tree_getTranslates();
 	// Creates camera object
 	glm::vec3 translateCameraToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 2.5f, -0.4f * scaleXZ * (mHeight - 1));
 	Camera camera(width, height, translateCameraToEntrance);
@@ -712,7 +716,7 @@ int main()
 			glm::vec3 translate_L = transfers[i];
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 		}*/
-		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.01f, -0.4f * scaleXZ * (mHeight - 1));
+		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.2f, -0.4f * scaleXZ * (mHeight - 1));
 		sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, translateToEntrance);
 		sphere.sphere_bounding_box();
 		for (int i = 0; i < coins.size(); i++) {
@@ -734,6 +738,19 @@ int main()
 				//i--;
 			}
 
+		}
+		for (int i = 0; i < low_trees.size(); i++) {
+			glm::vec3 translate_L = tree_transfers[i];
+			if (maze.isItFarDistance(camera.Position, translate_L)) {
+				low_trees[i].Draw_rotate(shaderProgram_box, camera, thunderTex, translate_L);
+				low_trees[i].box_bounding_box();
+			}
+			else {
+				middle_trees[i].Draw_rotate(shaderProgram_box, camera, thunderTex, translate_L);
+				middle_trees[i].box_bounding_box();
+			}
+			
+			
 		}
 		//playerObject.drawObject(window, shaderProgram_kup, camera, brickTex);
 		//playerObject.model->sphere_bounding_box();

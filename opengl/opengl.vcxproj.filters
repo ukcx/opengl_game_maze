@@ -219,13 +219,19 @@
     <Object Include="vax.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
-    <Object Include="x.obj">
+    <Object Include="low_tree.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
     <Object Include="better.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
     <Object Include="coin_low.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="high_tree.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="middle_tree.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
   </ItemGroup>
