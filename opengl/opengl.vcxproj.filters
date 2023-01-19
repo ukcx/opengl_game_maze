@@ -213,6 +213,9 @@
     <Object Include="vax.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
+    <Object Include="deneme.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
   </ItemGroup>
   <ItemGroup>
     <Text Include="deletelater.txt">

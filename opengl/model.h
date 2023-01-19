@@ -41,11 +41,12 @@ public:
 	// Generates Element Buffer Object and links it to indices
 	EBO EBO1;
 	// Initializes the mesh
-	Model(const char* path);
+	Model(const char* path, bool a = false);
 	Model(std::vector<Vertex> model_vertices, std::vector<GLuint> model_indices);
 	Model(const char* path, int this_is_dumm_you_should_find_a_better_way_to_do_this);
 	Model ScaleModel(float x_scale, float y_scale, float z_scale);
 	void model_load(const char* path);
+	void model_load2(const char* path);
 	void Draw(Shader shader, Camera camera, Texture& Texture, float rotation, glm::vec3 trans);
 	void Draw(Shader shader, Camera camera, Texture& Texture);
 	// Draws the mesh

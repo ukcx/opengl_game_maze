@@ -545,6 +545,7 @@ int main()
 	Shader shaderProgram("model.vert", "model.frag");
 	Shader shaderProgram_obj("model.vert", "model.frag");
 	Shader shaderProgram_kup("model.vert", "model.frag");
+	Shader shaderProgram_tree("model.vert", "default.frag");
 	Shader shaderProgram_box("model.vert", "model.frag");
 	Shader lightShader("light.vert", "light.frag");
 	Shader shaderNew("model.vert", "model.frag");
@@ -560,6 +561,7 @@ int main()
 	Model stall(path);
 	Model kup(path___2);
 	Model sphere(path2);
+	Model tree("deneme.obj", true);
 	Model AIsphere(path2);
 	Mesh piramid(vert_pry, ind_pry, width, height);
 	Model heart("heart.obj");
@@ -577,6 +579,7 @@ int main()
 	mat_2.sendToShader(shaderProgram);
 	mat_pry.sendToShader(shaderProgram_obj);
 	mat_3.sendToShader(shaderProgram_kup);
+	mat_maze.sendToShader(shaderProgram_tree);
 	
 	
 	//Light
@@ -586,6 +589,7 @@ int main()
 
 	only_light.light_conf(lightShader);
 	only_light.light_conf(shaderProgram, 1);
+	only_light.light_conf(shaderProgram_tree, 1);
 	only_light.light_conf(shaderProgram_box, 1);
 	only_light.light_conf(shaderProgram_kup, 1);
 	only_light.light_conf(shaderProgram_obj, 1);
@@ -691,7 +695,7 @@ int main()
 
 		rotation += 0.35f;
 		//obj.moving_obj_draw(shaderProgram, camera, brickTex, sizeof(indices),window,position, 0);
-		piramid.Draw(shaderProgram_obj, camera, boxTex, 0.0f, glm::vec3(3.0f));
+		//piramid.Draw(shaderProgram_obj, camera, boxTex, 0.0f, glm::vec3(3.0f));
 		Model scaledLight = mylight.ScaleModel(10.0f, 10.0f, 10.0f);
 		scaledLight.Draw(lightShader, camera, boxTex, 0.0f, lightPos);
 		//Draw(shaderProgram_box, camera, VAObox, boxTex, sizeof(indices_2d));
@@ -758,6 +762,8 @@ int main()
 			bone_of_my_sword_position.push_back(glm::vec3(0.f));
 			std::cout << "Added new arrow, new size: " << bone_of_my_sword.size() << "\n";
 		}
+
+		tree.Draw(shaderProgram_tree, camera, boxTex, 0.2f, glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0.4f, 0.4f, 0.4f));
 		
 		for (int i = 0; i < cubes.size(); i++) {
 			glm::vec3 translate_L = transfers[i];
@@ -898,7 +904,7 @@ int main()
 
 
 		}
-		if (int(time_span.count()) == 60) {
+		if (int(time_span.count()) == 120) {
 			while (true)
 			{
 				glClearColor(0.2f, 0.2f, 0.9f, 0.08f);
