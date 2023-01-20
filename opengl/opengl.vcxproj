@@ -199,6 +199,7 @@
       </DeploymentContent>
     </Image>
     <Image Include="darkgray.png" />
+    <Image Include="fire.png" />
     <Image Include="flash.png" />
     <Image Include="gray.png" />
     <Image Include="newBrick.png">
@@ -212,6 +213,7 @@
     <Image Include="thunder.png" />
     <Image Include="truebrick.png" />
     <Image Include="white.png" />
+    <Image Include="wowfire.png" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="better.obj">
@@ -226,7 +228,15 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Object>
-    <Object Include="high_tree.obj">
+    <Object Include="high_pirate_pole.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Object>
+    <Object Include="low_pirate_pole.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Object>
+    <Object Include="middle_pirate_pole.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Object>

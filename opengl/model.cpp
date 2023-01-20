@@ -1,9 +1,29 @@
 #include "Model.h"
-Model::Model(const char* path, bool a) {
-	if (a)
-		model_load2(path);
-	else 
-		model_load(path);
+Model::Model(const char* path) {
+
+	model_load(path);
+	VAO1.Bind();
+	// Generates Vertex Buffer Object and links it to vertices
+	VBO1=VBO(vertices_model);
+
+	// Generates Element Buffer Object and links it to indices
+	EBO1=EBO(indices_model);
+	
+	// Links VBO attributes such as coordinates and colors to VAO
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
+	VAO1.LinkAttrib(VBO1, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
+	VAO1.LinkAttrib(VBO1, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
+
+	// Unbind all to prevent accidentally modifying them
+	VAO1.Unbind();
+	VBO1.Unbind();
+	EBO1.Unbind();
+}
+Model::Model(const char* path, glm::vec3 color) {
+
+	model_load2(path, color);
+
 	VAO1.Bind();
 	// Generates Vertex Buffer Object and links it to vertices
 	VBO1=VBO(vertices_model);
@@ -275,6 +295,42 @@ void Model::Draw(Shader shader, Camera camera, Texture& Texture, float rotation,
 	// Draw primitives, number of indices, datatype of indices, index of indices
 	glDrawElements(GL_TRIANGLES, indices_model.size(), GL_UNSIGNED_INT, 0);
 }
+void Model::Draw_rts(Shader shader, Camera camera, Texture& Texture, glm::vec3 trans, glm::vec3 scale) {
+	shader.Activate();
+	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+	// Simple timer
+
+	// Initializes matrices so they are not the null matrix
+
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 proj = glm::mat4(1.0f);
+	glm::mat4 view = glm::mat4(1.0f);
+	
+	std::cout << "rotation is" << rotation << "\n";
+	// Assigns different transformations to each matrix
+	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+	rotation += 1.0;
+	//Inputs_movement(window, position);
+	model *= glm::scale(view, scale);
+	view = glm::translate(view, trans);
+	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
+	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+	model = view * model;
+	// Outputs the matrices into the Vertex Shader
+	int modelLoc = glGetUniformLocation(shader.ID, "model");
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+
+	camera.Matrix(shader, "camMatrix");
+
+	// Binds texture so that is appears in rendering
+	Texture.Bind();
+	// Bind the VAO so OpenGL knows to use it
+	VAO1.Bind();
+	// Draw primitives, number of indices, datatype of indices, index of indices
+	glDrawElements(GL_TRIANGLES, indices_model.size(), GL_UNSIGNED_INT, 0);
+}
 void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFWwindow* window, glm::vec3& pos) {
 	shader.Activate();
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
@@ -442,7 +498,7 @@ void Model::model_load(const char* path) {
 	
 
 }
-void Model::model_load2(const char* path) {
+void Model::model_load2(const char* path,glm::vec3 color) {
 	std::vector< unsigned int > vertexIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
 	std::vector< glm::vec3 > temp_normals;
@@ -494,17 +550,15 @@ void Model::model_load2(const char* path) {
 			normalIndices.push_back(normalIndex[2]);
 		}
 	}
-	std::cout << "buraya kadar geldi\n";
+	//std::cout << "buraya kadar geldi\n";
 	std::vector<Vertex> vertices;
 	vertices.resize(vertexIndices.size(), Vertex());
 
 	for (size_t i = 0; i < vertices.size(); ++i)
 	{
-	    float i_x = 1.0f* (rand() % 10 + 1) / 10;
-		float i_y = 1.0f * (rand() % 10 + 1) / 10;
-		float i_z = 1.0f * (rand() % 10 + 1) / 10;
+
 		vertices[i].position = temp_vertices[vertexIndices[i] - 1];
-		vertices[i].color = glm::vec3(i_x, i_y, i_z);
+		vertices[i].color = color;
 		vertices[i].normal = temp_normals[normalIndices[i] - 1];
 		vertices[i].texUV = glm::vec3(0.0f, 0.0f, 0.0f);
 	}
@@ -558,10 +612,17 @@ void Model::sphere_bounding_box() {
 bool Model::detect_collision_sphere(Model model) {
 	//model.sphere_bounding_box();
 	float distance = glm::length(bounding_sphere_center - model.bounding_sphere_center);
-	std::cout << "moving center: " << bounding_sphere_center.x << " "<< bounding_sphere_center.y << " " << bounding_sphere_center.z<< " moving radius " << bounding_sphere_radius << std::endl;
-	std::cout << "other object center " << model.bounding_sphere_center.x << " " << model.bounding_sphere_center.y << " " << model.bounding_sphere_center.z << " " << " moving radius " << model.bounding_sphere_radius << std::endl;
+	//std::cout << "moving center: " << bounding_sphere_center.x << " "<< bounding_sphere_center.y << " " << bounding_sphere_center.z<< " moving radius " << bounding_sphere_radius << std::endl;
+	//std::cout << "other object center " << model.bounding_sphere_center.x << " " << model.bounding_sphere_center.y << " " << model.bounding_sphere_center.z << " " << " moving radius " << model.bounding_sphere_radius << std::endl;
 	// If the distance between the centers is less than the sum of the radii, then the spheres are colliding
 	return distance < bounding_sphere_radius + model.bounding_sphere_radius;
+}
+bool Model::detect_collision_sphere(glm::vec3 boundingsphere, float rad) {
+	float distance = glm::length(bounding_sphere_center - boundingsphere);
+	//std::cout << "moving center: " << bounding_sphere_center.x << " " << bounding_sphere_center.y << " " << bounding_sphere_center.z << " moving radius " << bounding_sphere_radius << std::endl;
+	//std::cout << "other object center " << boundingsphere.x << " " << model.bounding_sphere_center.y << " " << model.bounding_sphere_center.z << " " << " moving radius " << model.bounding_sphere_radius << std::endl;
+	// If the distance between the centers is less than the sum of the radii, then the spheres are colliding
+	return distance < bounding_sphere_radius + rad;
 }
 void Model::box_bounding_box()
 {
@@ -606,8 +667,17 @@ bool Model::detect_collision_box_box(Model model) {
 }
 
 void Model::fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm::vec3& posit, glm::vec3 trans) {
-
-	translation = trans;
+	if (first_arrow) {
+		//std::cout << "arrow pos: " << translation.x + position.x << " " << translation.y + position.y << " " << " " << translation.z + position.z << "\n";
+		//std::cout << "sphere moovemet for arrows " << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " << "\n";
+		//std::cout << "buraya girdi \n";
+		trajectory = camera.Orientation;
+		first_arrow = false;
+	}
+	//std::cout << "translate before" << trans.x<<" " <<trans.y<<" "<<trans.z<<"\n";
+	translation = trans +trajectory*2.5f;
+	translation.y = trans.y;
+	//std::cout << "translate after" << translation.x << " " << translation.y << " " << translation.z << "\n";
 	shader.Activate();
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 	// Simple timer
@@ -622,13 +692,7 @@ void Model::fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm:
 	float speed = 0.25f;
 	
 	glm::vec3 bounding_pos = bounding_sphere_center;
-	if (first_arrow) {
-		std::cout << "arrow pos: " << translation.x + position.x << " " << translation.y + position.y << " " << " " << translation.z + position.z << "\n";
-		std::cout << "sphere moovemet for arrows " << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " << "\n";
-		std::cout << "buraya girdi \n";
-		trajectory = camera.Orientation;
-		first_arrow = false;
-	}
+	
 	/*std::cout << "before arrow pos: " << translation.x + position.x << " " << translation.y + position.y << " " << " " << translation.z + position.z << "\n";
 	std::cout << "before sphere moovemet for arrows " << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " << "\n";*/	Model::position += speed * trajectory * 0.5f;
 	bounding_sphere_center+= (speed * trajectory* 0.5f);
@@ -642,7 +706,7 @@ void Model::fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm:
 		//camera.speed * camera.Orientation * 0.005f;
 	
 	view = glm::translate(view, position);
-	view = glm::translate(view, trans);
+	view = glm::translate(view, translation);
 	//change center
 	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
 	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
@@ -691,7 +755,7 @@ void Model::Draw_rotate(Shader shader, Camera camera, Texture& Texture, glm::vec
 
 	// Assigns different transformations to each matrix
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-	rotation += 1.05f;
+	rotation += 6.05f;
 	//std::cout << "rotation is" << " " << rotation << " \n";
 	//Inputs_movement(window, position);
 	view = glm::translate(view, trans);

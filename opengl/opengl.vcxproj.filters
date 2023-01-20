@@ -201,6 +201,12 @@
     <Image Include="flash.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+    <Image Include="fire.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="wowfire.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Object Include="s.obj">
@@ -228,10 +234,16 @@
     <Object Include="coin_low.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
-    <Object Include="high_tree.obj">
+    <Object Include="middle_tree.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
-    <Object Include="middle_tree.obj">
+    <Object Include="low_pirate_pole.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="high_pirate_pole.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="middle_pirate_pole.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
   </ItemGroup>

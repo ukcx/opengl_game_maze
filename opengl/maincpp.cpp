@@ -25,6 +25,7 @@
 #include"model.h"
 #include"Light.h"
 #include"TextRenderer.h"
+
 const float MINIMAP_SIZE = 100.0f; // size of the minimap in world units
 glm::mat4 minimapProjection = glm::ortho(-MINIMAP_SIZE / 2, MINIMAP_SIZE / 2,
 	-MINIMAP_SIZE / 2, MINIMAP_SIZE / 2,
@@ -37,6 +38,11 @@ glm::mat4 minimapView = glm::lookAt(glm::vec3(0.0f, MINIMAP_ALTITUDE, 0.0f), // 
 	glm::vec3(0.0f, 0.0f, -1.0f)); // camera up vector
 unsigned int fbo, rbo;
 GLuint minimapTexture;
+float Distance_Calculate(glm::vec3 cameraPos, glm::vec3 objectPos) {
+	glm::vec3 distance = cameraPos - objectPos;
+	float dist = sqrt(glm::dot(distance, distance));
+	return dist;
+}
 void createMinimapTexture()
 {
 
@@ -491,6 +497,25 @@ std::vector<GLuint> indicesSquare = {
 	0, 1, 2,
 	1, 2, 3
 };
+void you_win(GLFWwindow* window) {
+	while (true)
+	{
+		glClearColor(0.1f, 1.0f, 0.4f, 0.08f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		TextRenderer a_text(width, height);
+		a_text.Load("arial.ttf", 174);
+		a_text.RenderText("You WiN", 400.0f, 740.0f, 1.0f, glm::vec3(1.0, 0, 0));
+
+		glfwSwapBuffers(window);
+
+		// Take care of all GLFW events
+		glfwPollEvents();
+		if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
+			break;
+		}
+
+	}
+}
 using namespace std;
 int main()
 {
@@ -555,21 +580,27 @@ int main()
 		verts[i].position.x *= 1000;// scaleXZ * 10;
 		verts[i].position.z *= 1000;// scaleXZ*10;
 	}
-
+	float scale = 0.5;
 	//Models
+	glm::vec3 green = glm::vec3(0, 0.5, 0);
 	Mesh object(verts, ind, width, height);
 	Model stall(path);
 	Model kup(path___2);
 	Model sphere(path2);
-	Model tree("x.obj", true);
+	//Model tree("x.obj",green );
 	Model AIsphere(path2);
 	Mesh piramid(vert_pry, ind_pry, width, height);
-	Model heart("heart.obj");
+	Model heart1("heart.obj");
+	Model heart2("heart.obj");
+	Model heart3("heart.obj");
 	Model sphere2 = sphere.ScaleModel(1.0f, 1.0f, 1.0f);
 	Model mylight(path___2, 1);
 	Model square(vertices_square, indicesSquare);
+	Model finish_pole_low("low_pirate_pole.obj");
+	Model finish_pole_middle("middle_pirate_pole.obj");
+	Model finish_pole_high("high_pirate_pole.obj");
 
-
+	
 	//Materials
 	Material mat_pry(0.9f, 0.8f, 0.8f);
 	Material mat_maze(0.5f, 0.5f, 0.5f);
@@ -579,7 +610,7 @@ int main()
 	mat_2.sendToShader(shaderProgram);
 	mat_pry.sendToShader(shaderProgram_obj);
 	mat_3.sendToShader(shaderProgram_kup);
-	mat_maze.sendToShader(shaderProgram_tree);
+	mat_pry.sendToShader(shaderProgram_tree);
 
 
 	//Light
@@ -611,6 +642,8 @@ int main()
 
 	Texture whiteTex("white.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	whiteTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture fireTex("wowfire.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	fireTex.texUnit(shaderProgram_obj, "tex0", 0);
 	Texture thunderTex("thunder.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	thunderTex.texUnit(shaderProgram_obj, "tex0", 0);
 	//Texture flashTex("flash.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -641,11 +674,12 @@ int main()
 	std::vector<Model> coins = maze.getModels_coins();
 	std::vector<Model> low_trees = maze.getModels_low_tree();
 	std::vector<Model> middle_trees = maze.getModels_middle_tree();
+	std::vector<Model> high_trees = maze.getModels_high_tree();
 
 	std::vector<glm::vec3> coin_transfers = maze.coin_getTranslates();
 	std::vector<glm::vec3> tree_transfers = maze.tree_getTranslates();
 	// Creates camera object
-	glm::vec3 translateCameraToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 2.5f, -0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateCameraToEntrance = glm::vec3(0.4f * scaleXZ * mWidth, 2.5f, 0.4f * scaleXZ * (mHeight - 1));
 	Camera camera(width, height, translateCameraToEntrance);
 	float rotation = 0.0f;
 	double prevTime = glfwGetTime();
@@ -659,6 +693,7 @@ int main()
 
 	//Translates
 	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.6f, -0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateToend = glm::vec3(0.4f * scaleXZ * mWidth, 0.6f, 0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
 	glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
@@ -689,6 +724,26 @@ int main()
 	//Model  bone_of_my_sword[10];
 	vector<glm::vec3> bone_of_my_sword_translation;
 	vector<glm::vec3> bone_of_my_sword_position;
+	for (int i = 0; i < low_trees.size(); i++) {
+		glm::vec3 translate_L = tree_transfers[i];
+
+		low_trees[i].translate(translate_L);
+		low_trees[i].box_bounding_box();
+		middle_trees[i].translate(translate_L);
+		middle_trees[i].box_bounding_box();
+		high_trees[i].translate(translate_L);
+		high_trees[i].box_bounding_box();
+
+
+	}
+	finish_pole_low.translate(translateToend);
+	finish_pole_low.box_bounding_box();
+	finish_pole_middle.translate(translateToend);
+	finish_pole_middle.box_bounding_box();
+	finish_pole_high.translate(translateToend);
+	finish_pole_high.box_bounding_box();
+	chrono::steady_clock arrow_time;   // create an object of `steady_clock` class
+	auto start_arrow = arrow_time.now();
 	while (!glfwWindowShouldClose(window))
 	{
 		// Specify the color of the background
@@ -716,9 +771,10 @@ int main()
 			glm::vec3 translate_L = transfers[i];
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 		}*/
-		glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.2f, -0.4f * scaleXZ * (mHeight - 1));
+		//glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.2f, -0.4f * scaleXZ * (mHeight - 1));
 		sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, translateToEntrance);
 		sphere.sphere_bounding_box();
+		//if(sphere.position+sphere)
 		for (int i = 0; i < coins.size(); i++) {
 			glm::vec3 translate_L = coin_transfers[i];
 			coins[i].Draw_rotate(shaderProgram_box, camera, thunderTex, translate_L);
@@ -742,24 +798,40 @@ int main()
 		for (int i = 0; i < low_trees.size(); i++) {
 			glm::vec3 translate_L = tree_transfers[i];
 			if (maze.isItFarDistance(camera.Position, translate_L)) {
-				low_trees[i].Draw_rotate(shaderProgram_box, camera, thunderTex, translate_L);
-				low_trees[i].box_bounding_box();
+				low_trees[i].Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
+				//low_trees[i].box_bounding_box();
 			}
 			else {
-				middle_trees[i].Draw_rotate(shaderProgram_box, camera, thunderTex, translate_L);
-				middle_trees[i].box_bounding_box();
+				if (maze.isMiddleDistance(camera.Position, translate_L))
+				{
+					middle_trees[i].Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
+					//middle_trees[i].box_bounding_box();
+
+				}
+				else
+				{
+					high_trees[i].Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
+					high_trees[i].box_bounding_box();
+					if (sphere.detect_collision_sphere_box(high_trees[i])) {
+						sphere.collision_result();
+					}
+
+				}
 			}
-			
-			
+
+
 		}
 		//playerObject.drawObject(window, shaderProgram_kup, camera, brickTex);
 		//playerObject.model->sphere_bounding_box();
 
 		AI.drawObject(shaderProgram_obj, camera, redTex);
-
+		AI.sphere_bounding_box();
+		if (sphere.detect_collision_sphere(AI.bounding_sphere_center, AI.bounding_sphere_radius)) {
+			std::cout << "it somehow work \n";
+		}
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
 			bone_of_my_sword[e]->
-				fire_arrow_draw(shaderProgram_kup, camera, brickTex,
+				fire_arrow_draw(shaderProgram_kup, camera, fireTex,
 					bone_of_my_sword_position[e], bone_of_my_sword_translation[e]);
 
 			bone_of_my_sword[e]->sphere_bounding_box();
@@ -777,14 +849,22 @@ int main()
 
 			}*/
 		if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
-			Model* arrows = new Model(path___2);
-			bone_of_my_sword.push_back(arrows);
-			bone_of_my_sword_translation.push_back(sphere.bounding_sphere_center);
-			bone_of_my_sword_position.push_back(glm::vec3(0.f));
-			std::cout << "Added new arrow, new size: " << bone_of_my_sword.size() << "\n";
+			auto end_arrow_time = arrow_time.now();
+			auto is_it_less = static_cast<chrono::duration<double>>(end_arrow_time - start_arrow);
+			std::cout << "time is " << is_it_less.count() << endl;
+			if (is_it_less.count() > 0.5)
+			{
+				Model* arrows = new Model(path___2);
+				bone_of_my_sword.push_back(arrows);
+				bone_of_my_sword_translation.push_back(sphere.bounding_sphere_center);
+				bone_of_my_sword_position.push_back(glm::vec3(0.f));
+				std::cout << "Added new arrow, new size: " << bone_of_my_sword.size() << "\n";
+				start_arrow = arrow_time.now();
+			}
+
 		}
 
-		tree.Draw(shaderProgram_tree, camera, boxTex, 0.2f, glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(10.4f, 10.4f, 10.4f));
+		//tree.Draw(shaderProgram_tree, camera, boxTex, 0.2f, glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(10.4f, 10.4f, 10.4f));
 
 		for (int i = 0; i < cubes.size(); i++) {
 			glm::vec3 translate_L = transfers[i];
@@ -814,7 +894,7 @@ int main()
 		//}
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
 			std::vector<Model*> adjacentWallsForArrow = maze.GetNeighboringWalls(bone_of_my_sword_translation[e] + bone_of_my_sword[e]->position);
-
+			bool duvar = false;
 			//std::cout << adjacentWallsForArrow.size() << "\n";
 			for (int i = 0; i < adjacentWallsForArrow.size(); i++) {
 				//std::cout << "number of the vector is" << e<<endl;
@@ -824,7 +904,7 @@ int main()
 					std::cout << "it happened" << "\n";
 
 					Model* s = bone_of_my_sword[e];
-					cout << "point to object" << endl;
+					std::cout << "point to object" << endl;
 					//bone_of_my_sword[e]->delete_object();
 					bone_of_my_sword.erase(bone_of_my_sword.begin() + e);
 					std::cout << "\ndeleted from bones \n";
@@ -834,8 +914,9 @@ int main()
 					std::cout << "new size after deletion" << bone_of_my_sword.size() << endl;
 					bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
 					bone_of_my_sword_position.erase(bone_of_my_sword_position.begin() + e);
-					cout << "what2" << endl;
+					std::cout << "what2" << endl;
 					e--;
+					duvar = true;
 					break;
 					/*std::vector<Model>::iterator start = bone_of_my_sword.begin() + e;
 					std::vector<Model>::iterator end = bone_of_my_sword.begin() + e + 1;
@@ -853,8 +934,39 @@ int main()
 					e--;*/
 				}
 			}
-		}
+			if (!duvar) {
+				for (int i = 0; i < tree_transfers.size(); i++) {
+					if (bone_of_my_sword[e]->detect_collision_sphere_box((middle_trees[i])) || bone_of_my_sword[e]->detect_collision_sphere_box((low_trees[i]))|| bone_of_my_sword[e]->detect_collision_sphere_box((high_trees[i]))) {
+						std::cout << "it happened" << "\n";
+						Model* s = bone_of_my_sword[e];
+						std::cout << "point to object" << endl;
+						//bone_of_my_sword[e]->delete_object();
+						bone_of_my_sword.erase(bone_of_my_sword.begin() + e);
+						std::cout << "\ndeleted from bones \n";
+						s->delete_object();
+						delete s;
+						std::cout << "\ndeleted fully \n";
+						std::cout << "new size after deletion" << bone_of_my_sword.size() << endl;
+						bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
+						bone_of_my_sword_position.erase(bone_of_my_sword_position.begin() + e);
+						std::cout << "what2" << endl;
+						e--;
+						break;
+					}
+				}
 
+			}
+
+		}
+		float pol_dist = Distance_Calculate(camera.Position, finish_pole_low.translation);
+		if(pol_dist>100)
+			finish_pole_low.Draw(shaderProgram_box, camera, thunderTex, 0, translateToend);
+		else if(pol_dist > 30) {
+			finish_pole_middle.Draw(shaderProgram_box, camera, thunderTex, 0, translateToend);
+		}
+		else {
+			finish_pole_high.Draw(shaderProgram_box, camera, thunderTex, 0, translateToend);
+		}
 		object.Draw(shaderProgram, camera, boxTex, 0, translate2);
 
 		//stall.Draw(shaderProgram_obj, camera, boxTex, 0, translateToEntrance);
@@ -925,6 +1037,10 @@ int main()
 
 
 		}
+		if (sphere.detect_collision_sphere_box(finish_pole_high)) {
+			you_win(window);
+
+		}
 		if (int(time_span.count()) == 120) {
 			while (true)
 			{
@@ -951,12 +1067,14 @@ int main()
 		Text.RenderText("Points: 100", 450.0f, 630.0f, 1.0f, glm::vec3(0.5f, 0.5f, 0.0f));
 		glDisable(GL_BLEND);
 		float scale = (frameCount % 50) * 0.003 + 1;
-		Model scaledHeart = heart.ScaleModel(0.1f * scale, 0.1f * scale, 0.1f * scale);
+		
 		Model scaledSquare = square.ScaleModel(0.5f, 0.5f, 0.5f);
-
-		scaledHeart.Draw(shaderProgram_kup, camera, boxTex, 0, glm::vec3(0.4f, 0.12f, 0.0f));
-		scaledHeart.Draw(shaderProgram_kup, camera, redTex, 0, glm::vec3(0.62f, 0.12f, 0.0f));
-		scaledHeart.Draw(shaderProgram_kup, camera, boxTex, 0, glm::vec3(0.84f, 0.12f, 0.0f));
+		//scaledHeart.rotation = 90;
+		
+		//heart1.Draw_rotate(shaderProgram_kup, camera, boxTex, glm::vec3(0.4f, 0.12f, 0.0f));
+		heart1.Draw(shaderProgram_kup, camera, boxTex,0, glm::vec3(0.4f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
+		heart2.Draw_rts(shaderProgram_kup, camera, redTex, glm::vec3(0.62f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
+		heart3.Draw(shaderProgram_kup, camera, boxTex, 0, glm::vec3(0.84f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
 
 		if (frameCount == 49)
 			incrmnt = -1;

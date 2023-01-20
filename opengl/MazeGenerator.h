@@ -14,6 +14,7 @@ public:
 	std::vector<Model> getModels_coins();
 	std::vector<Model> getModels_low_tree();
 	std::vector<Model> getModels_middle_tree();
+	std::vector<Model> getModels_high_tree();
 	std::vector<glm::vec3> coin_getTranslates();
 	std::vector<glm::vec3> tree_getTranslates();
 	bool isItFarDistance(glm::vec3 cameraPos, glm::vec3 objectPos);
@@ -37,6 +38,7 @@ private:
 	std::vector<Model> coins;
 	std::vector<Model> low_trees;
 	std::vector<Model> middle_trees;
+	std::vector<Model> high_trees;
 	std::vector<glm::vec3> coins_translates;
 	std::vector<glm::vec3> tree_translates;
 	std::vector<Model*> models;

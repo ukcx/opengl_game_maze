@@ -179,6 +179,8 @@ void AIObject::RandomMove()
 
 	position.x += randXMove * signX * speed;
 	position.z += randZMove * signZ * speed;
+	bounding_sphere_center.x += randXMove * signX * speed;
+	bounding_sphere_center.y += randXMove * signZ * speed;
 }
 
 void AIObject::AStarMove()
@@ -197,6 +199,9 @@ void AIObject::AStarMove()
 	glm::vec3 direction = maze->MazeToWorldCoordinate(path[0]) - position;
 	position.x += direction.x * speed * 0.1;
 	position.z += direction.z * speed * 0.1;
+	bounding_sphere_center.x += direction.x * speed * 0.1;
+	bounding_sphere_center.z += direction.z * speed * 0.1;
+
 }
 
 bool AIObject::isPathStraightLine() {
@@ -206,6 +211,7 @@ bool AIObject::isPathStraightLine() {
 		return true;
 	//std::cout << "is really Straight?\n";
 	bool straightLine = true;
+
 	glm::vec2 direction = path[1] - path[0];
 	for (int i = 2; i < path.size(); i++) {
 		if (path[i] - path[i - 1] != direction)
@@ -213,6 +219,8 @@ bool AIObject::isPathStraightLine() {
 	}
 	return true;
 }
+
+
 
 void AIObject::drawObject(Shader shader, Camera camera, Texture& texture) {
 	if (movable)
@@ -234,4 +242,35 @@ void AIObject::drawObject(Shader shader, Camera camera, Texture& texture) {
 	}
 
 	model->Draw(shader, camera, texture, rotation, position, scale);
+}
+void AIObject::sphere_bounding_box() {
+	glm::vec3 min(FLT_MAX, FLT_MAX, FLT_MAX);
+	glm::vec3 max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+	// Loop through the vertices of the object
+	for (int i = 0; i < model->vertices_model.size(); i++) {
+		// Update the minimum and maximum values as necessary
+		min.x = fmin(min.x, model->vertices_model[i].position.x);
+		min.y = fmin(min.y, model->vertices_model[i].position.y);
+		min.z = fmin(min.z, model->vertices_model[i].position.z);
+		max.x = fmax(max.x, model->vertices_model[i].position.x);
+		max.y = fmax(max.y, model->vertices_model[i].position.y);
+		max.z = fmax(max.z, model->vertices_model[i].position.z);
+	}
+
+	// Calculate the center of the bounding box
+	if (first)
+	{
+		glm::vec3 center = (min + max) / 2.0f;
+		bounding_sphere_center = center;
+		bounding_sphere_center += translation;
+		bounding_sphere_radius = (glm::length(max - min) / 2.0f);//-0.002
+		bounding_sphere_radius = bounding_sphere_radius * 60 / 100;
+		first = false;
+
+	}
+
+
+	// Calculate the radius of the bounding sphere
+
 }

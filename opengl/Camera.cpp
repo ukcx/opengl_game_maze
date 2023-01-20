@@ -84,7 +84,7 @@ void Camera::Inputs(GLFWwindow* window, glm::vec3 playerPos)
 		}
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		{
-			speed = 30.0f;//4.4f;
+			speed = 120.0f;//4.4f;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 		{

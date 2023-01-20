@@ -24,6 +24,8 @@ public:
 	float rotation;
 	glm::vec3 position;
 	Model* model;
+	glm::vec3 bounding_sphere_center;
+	float bounding_sphere_radius;
 	//glm::vec3 orientation;
 
 protected:
@@ -41,6 +43,7 @@ private:
 	std::chrono::steady_clock sc;
 	std::chrono::steady_clock::time_point start;
 	double allowedTimeSpan = 7.0f;
+	bool first=true;
 
 public:
 	enum MOVE { RANDOM, ASTARMOVE, STRAIGHTLINE };
@@ -53,6 +56,7 @@ public:
 	std::vector<glm::vec2> path;
 	void drawObject(Shader shader, Camera camera, Texture& Texture);
 	bool isPathStraightLine();
+	void sphere_bounding_box();
 };
 
 #endif

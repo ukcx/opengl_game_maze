@@ -66,8 +66,10 @@ glm::vec2 MazeGenerator::GetMyCoordinate(glm::vec3 pos) {
 void MazeGenerator::CreateModels(const char* objPath) {
 	Model model(objPath);
 	Model coin("coin_low.obj");
-	Model tree("low_tree.obj",true);
-	Model tree_high("middle_tree.obj", true);
+	glm::vec3 green = glm::vec3(0, 0.5, 0);
+	Model tree("low_tree.obj", green);
+	Model tree_medium("middle_tree.obj", green);
+	Model tree_high("high_tree.obj", green);
 	//Model tree("low_tree.obj", true);
 	for (int i = 0; i < maze.size(); i++) {
 
@@ -95,7 +97,8 @@ void MazeGenerator::CreateModels(const char* objPath) {
 					//glm::vec3 translate_loop = glm::vec3( (j - mWidth), (0.4f / 2) * scale_y,  (i - mHeight));
 					glm::vec3 translate_loop_tree = glm::vec3(0.4f * scale_xz * (j - mWidth)-0.15f*scale_xz, 2.1, 0.4f * scale_xz * (i - mHeight)+ 0.15f * scale_xz);
 					low_trees.push_back(tree);
-					middle_trees.push_back(tree_high);
+					middle_trees.push_back(tree_medium);
+					high_trees.push_back(tree_high);
 					tree_translates.push_back(translate_loop_tree);
 
 				}
@@ -196,7 +199,7 @@ bool MazeGenerator::isMiddleDistance(glm::vec3 cameraPos, glm::vec3 objectPos) {
 	glm::vec3 distance = cameraPos - objectPos;
 	float dist = sqrt(glm::dot(distance, distance));
 
-	if(dist < 3 * 0.4f * scale_xz){
+	if(dist <= 4 * 0.4f * scale_xz && dist > 2 * 0.4f * scale_xz){
 		return true;
 	}
 	return false;
@@ -205,7 +208,7 @@ bool MazeGenerator::isItFarDistance(glm::vec3 cameraPos, glm::vec3 objectPos) {
 	glm::vec3 distance = cameraPos - objectPos;
 	float dist = sqrt(glm::dot(distance, distance));
 
-	if (dist >= 3 * 0.4f * scale_xz) {
+	if (dist > 4 * 0.4f * scale_xz) {
 		return true;
 	}
 	return false;
@@ -221,6 +224,9 @@ std::vector<Model> MazeGenerator::getModels_low_tree() {
 }
 std::vector<Model> MazeGenerator::getModels_middle_tree() {
 	return middle_trees;
+}
+std::vector<Model> MazeGenerator::getModels_high_tree() {
+	return high_trees;
 }
 std::vector<glm::vec3> MazeGenerator::getTranslates() {
 	return translates;

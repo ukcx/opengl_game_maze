@@ -41,13 +41,15 @@ public:
 	// Generates Element Buffer Object and links it to indices
 	EBO EBO1;
 	// Initializes the mesh
-	Model(const char* path, bool a = false);
+	Model(const char* path);
+	Model(const char* path, glm::vec3 color);
 	Model(std::vector<Vertex> model_vertices, std::vector<GLuint> model_indices);
 	Model(const char* path, int this_is_dumm_you_should_find_a_better_way_to_do_this);
 	Model ScaleModel(float x_scale, float y_scale, float z_scale);
 	void model_load(const char* path);
-	void model_load2(const char* path);
+	void model_load2(const char* path,glm::vec3 color);
 	void Draw(Shader shader, Camera camera, Texture& Texture, float rotation, glm::vec3 trans);
+	void Draw_rts(Shader shader, Camera camera, Texture& Texture, glm::vec3 trans, glm::vec3 scale);
 	void Draw(Shader shader, Camera camera, Texture& Texture);
 	// Draws the mesh
 	void Draw(Shader shader, Camera camera);
@@ -63,6 +65,7 @@ public:
 	void sphere_bounding_box(glm::vec3 trans);
 	void box_bounding_box();
 	bool detect_collision_sphere(Model model);
+	bool detect_collision_sphere(glm::vec3 boundingsphere,float radius);
 	bool detect_collision_sphere_box(Model model);
 	void Draw_rotate(Shader shader, Camera camera, Texture& Texture, glm::vec3 trans);
 	bool detect_collision_box_box(Model model);
