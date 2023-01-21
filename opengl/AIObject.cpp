@@ -26,6 +26,19 @@ AIObject::AIObject(Model* _model, glm::vec3 _pos, glm::vec3 _scale, float _rot, 
 	AStarFindPath();
 	start_astar = sc.now();
 	start_arrows = sc.now();
+
+	glm::vec3 min(FLT_MAX, FLT_MAX, FLT_MAX);
+	glm::vec3 max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+	// Loop through the vertices of the object
+	for (int i = 0; i < model->vertices_model.size(); i++) {
+		// Update the minimum and maximum values as necessary
+		min.x = fmin(min.x, model->vertices_model[i].position.x);
+		min.y = fmin(min.y, model->vertices_model[i].position.y);
+		min.z = fmin(min.z, model->vertices_model[i].position.z);
+	}
+	position += -min.y;
+	translation = position;
 	//std::cout << "x: " <<  position.x << "y: " << position.y << "z: " << position.z;
 }
 
@@ -150,7 +163,7 @@ AIObject::MOVE AIObject::MonsterGetMove() {
 	//std::cout << "distance: " << distance << "\n";
 
 	if (distance > 1.0f * maze->mHeight * maze->scale_xz) {
-		return RANDOM;
+		return STOP;
 	}
 	else {
 		auto end = sc.now();
@@ -162,8 +175,10 @@ AIObject::MOVE AIObject::MonsterGetMove() {
 			}*/
 			start_astar = sc.now();
 		}
-
-		if (isPathStraightLine()) {
+		if (areWeAdjacent()) {
+			return CLOSEBY;
+		}
+		else if (isPathStraightLine()) {
 			return STRAIGHTLINE;
 		}
 		else {
@@ -239,7 +254,7 @@ void AIObject::FireArrows() {
 		
 		Model* arrow = new Model("s.obj");
 		arrows.push_back(arrow);
-		arrows_translation.push_back(bounding_sphere_center);
+		arrows_translation.push_back(bounding_sphere_center - glm::vec3(0.0f, 2.0f, 0.0f));
 		arrows_orientation.push_back(glm::normalize(player->position + player->translation - position));
 		start_arrows = sc.now();
 	}
@@ -252,8 +267,9 @@ void AIObject::drawObject(Shader shader, Camera camera, Texture& texture) {
 		////std::cout << "nextMove: " << nextMove << "\n";
 
 		if (nextMove == RANDOM) {
-			//RandomMove();
+			RandomMove();
 		}
+		else if(nextMove == STOP){}
 		else if (nextMove == ASTARMOVE) {
 			AStarMove();
 		}
@@ -261,7 +277,9 @@ void AIObject::drawObject(Shader shader, Camera camera, Texture& texture) {
 			//AStarMove();
 			FireArrows();
 		}
-		//AStarMove();
+		else if (nextMove == CLOSEBY) {
+			CloseByMove();
+		}
 	}
 
 	model->Draw(shader, camera, texture, rotation, position, scale);
@@ -315,6 +333,41 @@ void AIObject::arrow_hit() {
 		glm::vec3 new_3d = maze->MazeToWorldCoordinate(new_2d);
 		lives = 5;
 		transportation(new_3d);
+		
+	}
+}
+
+bool AIObject::areWeAdjacent() {
+	if (path.size() <= 1)
+		return true;
+	return false;
+}
+
+void AIObject::CloseByMove()
+{
+	float speed = 0.05f;
+
+	if (path.size() > 1) {
+		return;
+	}
+
+	if (path.size() == 0) {
+		glm::vec3 direction = player->position + player->translation - position;
+		position.x += direction.x * speed * 0.2;
+		position.z += direction.z * speed * 0.2;
+		bounding_sphere_center.x += direction.x * speed * 0.2;
+		bounding_sphere_center.z += direction.z * speed * 0.2;
+	}
+	else {
+		if (maze->GetMyCoordinate(position) == path[0])
+			path.erase(path.begin() + 0);
+
+
+			glm::vec3 direction = player->position + player->translation - position;
+			position.x += direction.x * speed * 0.2;
+			position.z += direction.z * speed * 0.2;
+			bounding_sphere_center.x += direction.x * speed * 0.2;
+			bounding_sphere_center.z += direction.z * speed * 0.2;
 		
 	}
 }

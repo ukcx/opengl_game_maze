@@ -772,7 +772,7 @@ int main()
 	Text.Load("arial.ttf", 60);
 
 	//Translates
-	glm::vec3 translateToEntrance = glm::vec3(0.4f * scaleXZ * mWidth, 0.6f, 0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.6f, -0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translateToend = glm::vec3(0.4f * scaleXZ * mWidth, 0.6f, 0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
@@ -784,7 +784,8 @@ int main()
 	sphere.translation = translateToEntrance;
 	//AI Objects
 	//Object playerObject(&sphere, translateToEntrance, glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, true);
-	AIObject AI(&AIsphere, translateAI, glm::vec3(4.0f), 0.0f, true, &maze, &sphere);
+	Model scaledAISphere = AIsphere.ScaleModel(4.0f, 4.0f, 4.0f);
+	AIObject AI(&scaledAISphere, translateAI, glm::vec3(1.0f), 0.0f, true, & maze, &sphere);
 
 
 	//Initialize visited coords matrix for the minimap

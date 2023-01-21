@@ -48,10 +48,11 @@ private:
 	std::chrono::steady_clock::time_point start_arrows;
 
 public:
-	enum MOVE { RANDOM, ASTARMOVE, STRAIGHTLINE };
+	enum MOVE { RANDOM, STOP, ASTARMOVE, STRAIGHTLINE, CLOSEBY };
 	AIObject(Model* _model, glm::vec3 _pos, glm::vec3 _scale, float _rot, bool _isMovable, MazeGenerator* _maze, Model* _player);
 	void RandomMove();
 	void AStarMove();
+	void CloseByMove();
 	int GetDistance(glm::vec2 point1, glm::vec2 point2);
 	void AStarFindPath();
 	void FireArrows();
@@ -59,6 +60,7 @@ public:
 	std::vector<glm::vec2> path;
 	void drawObject(Shader shader, Camera camera, Texture& Texture);
 	bool isPathStraightLine();
+	bool areWeAdjacent();
 	void sphere_bounding_box();
 	std::vector<Model*> arrows;
 	std::vector<glm::vec3> arrows_translation;
