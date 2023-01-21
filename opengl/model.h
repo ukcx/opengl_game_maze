@@ -16,6 +16,7 @@ struct box {
 	float maxY = 0;
 	float maxZ = 0;
 };
+enum coins {speed, points, teleport,timer };
 class Model
 {
 private:
@@ -33,7 +34,8 @@ public:
 	float rotation=0;
 	bool first_arrow = true;
 	enum type { normal, lit };
-	
+
+	coins coin_type=coins::speed;
 	//std::vector <Texture> textures;
 	// Store VAO in public so it can be used in the Draw function
 	VAO VAO1;
@@ -74,8 +76,10 @@ public:
 	void delete_object();
 	bool first = true;
 	void collision_result();
+	void transportation(glm::vec3 new_translate);
+	bool first_move = true;
 	glm::vec3 trajectory;
-
+	
 	enum objects { wall, arrow, player, ai };
 };
 #endif

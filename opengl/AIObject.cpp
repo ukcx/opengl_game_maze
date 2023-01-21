@@ -297,3 +297,24 @@ void AIObject::sphere_bounding_box() {
 	// Calculate the radius of the bounding sphere
 
 }
+void AIObject::transportation(glm::vec3 new_pos) {
+	bounding_sphere_center -= position;
+	position = new_pos;
+	
+	bounding_sphere_center += position;
+	
+}
+void AIObject::arrow_hit() {
+	lives -= 1;
+	if (lives <= 0) {
+		glm::vec2 new_2d=maze->GetRandomEmptyCoordinates(glm::vec2(0), glm::vec2(2 * maze->mWidth + 1, 2 * maze->mHeight + 1));
+		while (new_2d == maze->GetMyCoordinate(player->position)) {
+			new_2d = maze->GetRandomEmptyCoordinates(glm::vec2(0), glm::vec2(2 * maze->mWidth + 1, 2 * maze->mHeight + 1));
+
+		}
+		glm::vec3 new_3d = maze->MazeToWorldCoordinate(new_2d);
+		lives = 5;
+		transportation(new_3d);
+		
+	}
+}

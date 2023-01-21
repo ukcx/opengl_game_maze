@@ -231,9 +231,6 @@
     <Object Include="better.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
-    <Object Include="coin_low.obj">
-      <Filter>Resource Files\Object</Filter>
-    </Object>
     <Object Include="middle_tree.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
@@ -244,6 +241,15 @@
       <Filter>Resource Files\Object</Filter>
     </Object>
     <Object Include="middle_pirate_pole.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="coin_high.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="coin_low.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
+    <Object Include="coin_middle.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
   </ItemGroup>

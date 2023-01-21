@@ -8,7 +8,6 @@ Model::Model(const char* path) {
 
 	// Generates Element Buffer Object and links it to indices
 	EBO1=EBO(indices_model);
-	
 	// Links VBO attributes such as coordinates and colors to VAO
 	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
 	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
@@ -135,7 +134,7 @@ void Model::Draw(Shader shader, Camera camera, Texture& Texture, float rotation,
 	// Assigns different transformations to each matrix
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 	//Inputs_movement(window, position);
-	view = glm::translate(view, trans);
+	view = glm::translate(view, translation);
 	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
 	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
 	model = view * model;
@@ -358,7 +357,13 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 	//std::cout << "with" <<"\n";
 }
 void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFWwindow* window, glm::vec3& pos, float rotation, glm::vec3 trans) {
-	translation = trans;
+	if (first_move)
+	{
+		translation = trans;
+		first_move = false;
+
+	}
+	
 	shader.Activate();
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 	// Simple timer
@@ -373,7 +378,7 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 	Inputs_movement(window, position, camera);
 	view = glm::translate(view, position);
-	view = glm::translate(view, trans);
+	view = glm::translate(view, translation);
 	//change center
 	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
 	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
@@ -743,6 +748,16 @@ void Model::delete_object() {
 } 
 void Model::translate(glm::vec3 translation) {
 	Model::translation = translation;
+}
+void Model::transportation(glm::vec3 new_trans) {
+	bounding_sphere_center -= position;
+	bounding_sphere_center -= translation;
+	bounding_sphere_center += new_trans;
+	std::cout << "moving center sphere after isinlanma: " << bounding_sphere_center.x << " "<< bounding_sphere_center.y << " " << bounding_sphere_center.z<< std::endl;
+	position = glm::vec3(0);
+
+	translation = new_trans;
+	std::cout << "moving pos: " << position.x+translation.x << " "<< position.y + translation.y << " " << position.z + translation.z<< std::endl;
 }
 void Model::Draw_rotate(Shader shader, Camera camera, Texture& Texture, glm::vec3 trans) {
 	translation = trans;

@@ -45,7 +45,9 @@ public:
 	MazeGenerator(int h, int w, int seed, int _scale_xz, int _scale_y);
 	void CreateModels(const char* objPath);
 	std::vector<glm::vec2> GetNeighbors(glm::vec2 currentPos);
-	std::vector<Model*> getModels_coins();
+	std::vector<Model*> getModels_low_coins();
+	std::vector<Model*> getModels_middle_coins();
+	std::vector<Model*> getModels_high_coins();
 	std::vector<Model*> getModels_low_tree();
 	std::vector<Model*> getModels_middle_tree();
 	std::vector<Model*> getModels_high_tree();
@@ -70,8 +72,11 @@ public:
 	const char* path;
 	int scale_xz;
 	int scale_y;
+	
 private:
-	std::vector<Model*> coins;
+	std::vector<Model*> low_coins;
+	std::vector<Model*> middle_coins;
+	std::vector<Model*> high_coins;
 	std::vector<Model*> low_trees;
 	std::vector<Model*> middle_trees;
 	std::vector<Model*> high_trees;

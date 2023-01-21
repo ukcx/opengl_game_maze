@@ -27,20 +27,19 @@ TextRenderer::TextRenderer(unsigned int width, unsigned int height)
 }
 void TextRenderer::Load(std::string font, unsigned int fontSize)
 {
-    std::cout << "0" << "\n";
+    
     // first clear the previously loaded Characters
     this->Characters.clear();
     // then initialize and load the FreeType library
     FT_Library ft;
-    std::cout << "1"<<"\n";
+    
     if (FT_Init_FreeType(&ft)) // all functions return a value different than 0 whenever an error occurred
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
      //load font as face
-    std::cout << "2" << "\n";
     FT_Face face;
     if (FT_New_Face(ft, font.c_str(), 0, &face))
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-    std::cout << "3" << "\n";
+   
      //set size to load glyphs as
     FT_Set_Pixel_Sizes(face, 0, fontSize);//0 for width it will dynamicly resize
     // disable byte-alignment restriction so can use sin

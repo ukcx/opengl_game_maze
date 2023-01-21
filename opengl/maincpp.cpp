@@ -497,25 +497,103 @@ std::vector<GLuint> indicesSquare = {
 	0, 1, 2,
 	1, 2, 3
 };
-void you_win(GLFWwindow* window) {
+std::string input;
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+		if (key == GLFW_KEY_BACKSPACE && input.size() > 0) {
+			input.pop_back();
+		}
+		else if (key != GLFW_KEY_ESCAPE && key != GLFW_KEY_ENTER) {
+			const char* keyName = glfwGetKeyName(key, scancode);
+			if (keyName && strlen(keyName) == 1)
+				input += keyName;
+		}
+	}
+}
+struct Leader {
+	std::string user_name;
+	std::string finish_time;
+	int score;
+	int order;
+};
+int point = 0;
+void you_win(GLFWwindow* window, int&lives, auto time_span, int &total_time) {
 	while (true)
 	{
+		int new_score = point + lives * 100 + (total_time - int(time_span.count()));
 		glClearColor(0.1f, 1.0f, 0.4f, 0.08f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		TextRenderer a_text(width, height);
 		a_text.Load("arial.ttf", 174);
-		a_text.RenderText("You WiN", 400.0f, 740.0f, 1.0f, glm::vec3(1.0, 0, 0));
+		TextRenderer small_text(width, height);
+		small_text.Load("arial.ttf", 84);
+		glfwSetKeyCallback(window, key_callback);
+		a_text.RenderText("You WiN ", 400.0f, 740.0f, 1.0f, glm::vec3(1.0, 0, 0));
+		small_text.RenderText("Your score is " + std::to_string(new_score), 400.0f, 1040.0f, 1.0f, glm::vec3(1.0, 0, 1.0));
+		small_text.RenderText("Enter your name ", 400.0f, 1140.0f, 1.0f, glm::vec3(1.0, 0, 1.0));
+		small_text.RenderText(input, 400.0f, 1340.0f, 1.0f, glm::vec3(1.0, 0, 1.0));
+
+		glfwSwapBuffers(window);
+
+		// Take care of all GLFW events
+		glfwPollEvents();
+		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+			std::ifstream infile("leaders.txt");
+			std::vector<Leader> leaders;
+			std::string names, times;
+			int score, order;
+			while (infile >> names >> times >> score >> order) {
+				leaders.push_back({ names, times, score, order });
+			}
+			infile.close();
+
+			// Compare the new score to the scores in the leaderboard
+			std::string new_name = input;
+			std::string new_time = "12:34";
+			
+			int new_order = leaders.size() + 1;
+			for (int i = 0; i < leaders.size(); i++) {
+				if (new_score > leaders[i].score) {
+					leaders.insert(leaders.begin() + i, { new_name, new_time, new_score, new_order });
+					leaders.pop_back();
+					break;
+				}
+			}
+
+			// Write the updated leaderboard to the file
+			std::ofstream outfile("leaders.txt");
+			for (auto leader : leaders) {
+				outfile << leader.user_name << " " << leader.finish_time << " " << leader.score << " " << leader.order << "\n";
+			}
+			outfile.close();
+			break;
+		}
+
+	}
+}
+void game_over(GLFWwindow* window,int &lives) {
+	while (true)
+	{
+		glClearColor(0.2f, 0.2f, 0.9f, 0.08f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		TextRenderer a_text(width, height);
+		a_text.Load("arial.ttf", 174);
+		a_text.RenderText("GAME OVER", 400.0f, 740.0f, 1.0f, glm::vec3(1.0, 0, 0));
+		a_text.RenderText("YOU SUCK", 400.0f, 940.0f, 1.0f, glm::vec3(1.0, 0, 0));
 
 		glfwSwapBuffers(window);
 
 		// Take care of all GLFW events
 		glfwPollEvents();
 		if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
+			lives = 3;
 			break;
 		}
 
 	}
 }
+
 using namespace std;
 int main()
 {
@@ -639,7 +717,7 @@ int main()
 	boxTex.texUnit(shaderProgram_box, "tex0", 0);
 	tex[0].texUnit(shaderProgram_box, "tex0", 0);
 	tex[0].Bind();
-
+	Texture temp =boxTex;
 	Texture whiteTex("white.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	whiteTex.texUnit(shaderProgram_obj, "tex0", 0);
 	Texture fireTex("wowfire.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -671,7 +749,9 @@ int main()
 	maze.CreateModels(path_2_);
 	std::vector<Model*> cubes = maze.getModels();
 	std::vector<glm::vec3> transfers = maze.getTranslates();
-	std::vector<Model*> coins = maze.getModels_coins();
+	std::vector<Model*> low_coins = maze.getModels_low_coins();
+	std::vector<Model*> middle_coins = maze.getModels_middle_coins();
+	std::vector<Model*> high_coins = maze.getModels_high_coins();
 	std::vector<Model*> low_trees = maze.getModels_low_tree();
 	std::vector<Model*> middle_trees = maze.getModels_middle_tree();
 	std::vector<Model*> high_trees = maze.getModels_high_tree();
@@ -679,7 +759,7 @@ int main()
 	std::vector<glm::vec3> coin_transfers = maze.coin_getTranslates();
 	std::vector<glm::vec3> tree_transfers = maze.tree_getTranslates();
 	// Creates camera object
-	glm::vec3 translateCameraToEntrance = glm::vec3(0.4f * scaleXZ * mWidth, 2.5f, 0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateCameraToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 2.5f, -0.4f * scaleXZ * (mHeight - 1));
 	Camera camera(width, height, translateCameraToEntrance);
 	float rotation = 0.0f;
 	double prevTime = glfwGetTime();
@@ -692,7 +772,7 @@ int main()
 	Text.Load("arial.ttf", 60);
 
 	//Translates
-	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.6f, -0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateToEntrance = glm::vec3(0.4f * scaleXZ * mWidth, 0.6f, 0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translateToend = glm::vec3(0.4f * scaleXZ * mWidth, 0.6f, 0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
@@ -751,6 +831,8 @@ int main()
 	finish_pole_high.box_bounding_box();
 	chrono::steady_clock arrow_time;   // create an object of `steady_clock` class
 	auto start_arrow = arrow_time.now();
+	int total_time = 300;
+	int lives = 3;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Specify the color of the background
@@ -782,25 +864,77 @@ int main()
 		sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, translateToEntrance);
 		sphere.sphere_bounding_box();
 		//if(sphere.position+sphere)
-		for (int i = 0; i < coins.size(); i++) {
+		for (int i = 0; i < low_coins.size(); i++) {
 			glm::vec3 translate_L = coin_transfers[i];
-			coins[i]->Draw_rotate(shaderProgram_box, camera, thunderTex, translate_L);
-			coins[i]->box_bounding_box();
+			switch (low_coins[i]->coin_type)
+			{
+			case(coins::points):
+				temp = redTex;
+				break;
+			case(coins::speed):
+				temp = thunderTex;
+				break;
+			case(coins::teleport):
+				temp = whiteTex;
+				break;
+			case(coins::timer):
+				temp = boxTex;
+				break;
+			default:
+				break;
+			}
+			if (maze.isItFarDistance(camera.Position,coin_transfers[i]) ){
+				low_coins[i]->Draw_rotate(shaderProgram_box, camera, temp, translate_L);
+			}
+			else if (maze.isMiddleDistance(camera.Position, coin_transfers[i])) {
+				middle_coins[i]->Draw_rotate(shaderProgram_box, camera, temp, translate_L);
+			}
+			else{
+				high_coins[i]->Draw_rotate(shaderProgram_box, camera, temp, translate_L);
+			}
+			
+			
+			high_coins[i]->box_bounding_box();
 			//std::vector<Model*> adjacentCoins = maze.GetNeighboringCoins(sphere.position + sphere.translation);
-			if (sphere.detect_collision_sphere_box(*coins[i])) {
-				std::cout << "go brrrrrrrrrrrrrrrrrrr" << endl;
-				sphere.increase_speed(0.01);
-				Model* s = coins[i];
+			if (sphere.detect_collision_sphere_box(*low_coins[i]) || sphere.detect_collision_sphere_box(*middle_coins[i]) || sphere.detect_collision_sphere_box(*high_coins[i])) {
+			switch (low_coins[i]->coin_type)
+				{
+				case(coins::points):
+					point += 100;
+					break;
+				case(coins::speed):
+					sphere.increase_speed(0.01);
+					break;
+				case(coins::teleport):
+					glm::vec2 news=maze.GetRandomEmptyCoordinates(glm::vec2(0), glm::vec2(2*maze.mWidth+1,2*maze.mHeight+1));
+					glm::vec3 news_cord = maze.MazeToWorldCoordinate(news);
+					sphere.transportation(news_cord);
+					break;
+				case(coins::timer):
+					total_time+=10;
+					break;
+				default:
+					break;
+				}
+				
+				Model* sl = low_coins[i];
+				Model* sm = middle_coins[i];
+				Model* sh = high_coins[i];
 				//cout << "point to object" << endl;
 				//
-				coins.erase(coins.begin() + i);
+				low_coins.erase(low_coins.begin() + i);
+				middle_coins.erase(middle_coins.begin() + i);
+				high_coins.erase(high_coins.begin() + i);
 				//std::cout << "\ndeleted from bones \n";
-				s->delete_object();
-				delete s;
+				sl->delete_object();
+				delete sl;
+				sm->delete_object();
+				delete sm;
+				sh->delete_object();
+				delete sh;
 				coin_transfers.erase(coin_transfers.begin() + i);
 				i--;
 			}
-
 		}
 		for (int i = 0; i < low_trees.size(); i++) {
 			glm::vec3 translate_L = tree_transfers[i];
@@ -838,7 +972,7 @@ int main()
 		AI.drawObject(shaderProgram_obj, camera, redTex);
 		AI.sphere_bounding_box();
 		if (sphere.detect_collision_sphere(AI.bounding_sphere_center, AI.bounding_sphere_radius)) {
-			std::cout << "it somehow work \n";
+			lives = 0;
 		}
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
 			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -919,6 +1053,47 @@ int main()
 		//	//break;
 		//}
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
+			if (bone_of_my_sword[e]->detect_collision_sphere(AI.bounding_sphere_center, AI.bounding_sphere_radius)) {
+				AI.arrow_hit();
+	
+				std::cout << "AI COLLEsion detected \n";
+				Model* s = bone_of_my_sword[e];
+				std::cout << "point to object" << endl;
+				//bone_of_my_sword[e]->delete_object();
+				bone_of_my_sword.erase(bone_of_my_sword.begin() + e);
+				std::cout << "\ndeleted from bones \n";
+				s->delete_object();
+				delete s;
+				std::cout << "\ndeleted fully \n";
+				std::cout << "new size after deletion" << bone_of_my_sword.size() << endl;
+				bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
+				bone_of_my_sword_orientation.erase(bone_of_my_sword_orientation.begin() + e);
+				std::cout << "what2" << endl;
+				e--;
+				break;
+			}
+		}
+		for (int e = 0; e < bone_of_ais_sword.size(); e++) {
+			if (bone_of_ais_sword[e]->detect_collision_sphere(sphere.bounding_sphere_center, sphere.bounding_sphere_radius)) {
+				lives--;
+				std::cout << "sphere collision detected \n";
+				Model* s = bone_of_ais_sword[e];
+				std::cout << "point to object" << endl;
+				//bone_of_my_sword[e]->delete_object();
+				bone_of_ais_sword.erase(bone_of_ais_sword.begin() + e);
+				std::cout << "\ndeleted from bones \n";
+				s->delete_object();
+				delete s;
+				std::cout << "\ndeleted fully \n";
+				std::cout << "new size after deletion" << bone_of_ais_sword.size() << endl;
+				bone_of_ais_sword_translation.erase(bone_of_ais_sword_translation.begin() + e);
+				bone_of_ais_sword_orientation.erase(bone_of_ais_sword_orientation.begin() + e);
+				std::cout << "what2" << endl;
+				e--;
+				break;
+			}
+		}
+		for (int e = 0; e < bone_of_my_sword.size(); e++) {
 			std::vector<Model*> adjacentWallsForArrow = maze.GetNeighboringWalls(bone_of_my_sword_translation[e] + bone_of_my_sword[e]->position);
 			bool duvar = false;
 			for (int i = 0; i < adjacentWallsForArrow.size(); i++) {
@@ -941,6 +1116,7 @@ int main()
 					duvar = true;
 					break;
 				}
+			 
 			}
 			if (!duvar) {
 				std::vector<Model*> adjacentLowTreesForArrow = maze.GetNeighboringTrees(bone_of_my_sword_translation[e] + bone_of_my_sword[e]->position, ModelInfo::LOW);
@@ -1077,14 +1253,14 @@ int main()
 				Texts.RenderText("Name", 450.0f, 740.0f, 1.0f);
 				Texts.RenderText("Time", 450.0f + xInc, 740.0f, 1.0f);
 				Texts.RenderText("Score", 450.0f + xInc + xInc, 740.0f, 1.0f);
-
+				int i = 0;
 				while (std::getline(MyReadFile, myText)) {
 					// Output the text from the file
 
 					stringstream ss(myText);
-
+					i = i + 1;
 					ss >> name >> time >> score >> sira;
-					Texts.RenderText(sira, 410.0f, 740.0f + yInc, 1.0f);
+					Texts.RenderText(to_string(i), 410.0f, 740.0f + yInc, 1.0f);
 					Texts.RenderText(name, 450.0f, 740.0f + yInc, 1.0f);
 					Texts.RenderText(time, 450.0f + xInc, 740.0f + yInc, 1.0f);
 					Texts.RenderText(score, 450.0f + xInc + xInc, 740.0f + yInc, 1.0f);
@@ -1104,33 +1280,17 @@ int main()
 
 		}
 		if (sphere.detect_collision_sphere_box(finish_pole_high)) {
-			you_win(window);
+			you_win(window, lives, time_span, total_time);
 
 		}
-		if (int(time_span.count()) == 120) {
-			while (true)
-			{
-				glClearColor(0.2f, 0.2f, 0.9f, 0.08f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				TextRenderer a_text(width, height);
-				a_text.Load("arial.ttf", 174);
-				a_text.RenderText("GAME OVER", 400.0f, 740.0f, 1.0f, glm::vec3(1.0, 0, 0));
-
-				glfwSwapBuffers(window);
-
-				// Take care of all GLFW events
-				glfwPollEvents();
-				if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
-					break;
-				}
-
-			}
+		if ((total_time - int(time_span.count())==0||lives<=0)) {
+			game_over(window,lives);
 
 
 		}
-		Text.RenderText("Time: " + to_string(int(time_span.count()) / 60) + "." + to_string(int(time_span.count()) % 60), 50.0f, 700.0f, 1.0f);
+		Text.RenderText("Time: " + to_string((total_time-int(time_span.count())) / 60) + "." + to_string((total_time - int(time_span.count())) % 60), 50.0f, 700.0f, 1.0f);
 		Text.RenderText("Speed: " + to_string(int(sphere.speed * 100)), 50.0f, 630.0f, 1.0f, glm::vec3(0.1f, 0.1f, 0.9f));
-		Text.RenderText("Points: 100", 450.0f, 630.0f, 1.0f, glm::vec3(0.5f, 0.5f, 0.0f));
+		Text.RenderText("Points: "+to_string(point), 450.0f, 630.0f, 1.0f, glm::vec3(0.5f, 0.5f, 0.0f));
 		glDisable(GL_BLEND);
 		float scale = (frameCount % 50) * 0.003 + 1;
 		
@@ -1138,9 +1298,26 @@ int main()
 		//scaledHeart.rotation = 90;
 		
 		//heart1.Draw_rotate(shaderProgram_kup, camera, boxTex, glm::vec3(0.4f, 0.12f, 0.0f));
-		heart1.Draw(shaderProgram_kup, camera, boxTex,0, glm::vec3(0.4f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
-		heart2.Draw_rts(shaderProgram_kup, camera, redTex, glm::vec3(0.62f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
-		heart3.Draw(shaderProgram_kup, camera, boxTex, 0, glm::vec3(0.84f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
+		switch (lives)
+		{
+		case(1):
+			
+			heart2.Draw_rts(shaderProgram_kup, camera, redTex, glm::vec3(0.62f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
+	
+			break;
+		case(2):
+			heart1.Draw(shaderProgram_kup, camera, boxTex, 0, glm::vec3(0.4f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
+			heart2.Draw_rts(shaderProgram_kup, camera, redTex, glm::vec3(0.62f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
+			break;
+		case(3):
+			heart1.Draw(shaderProgram_kup, camera, boxTex, 0, glm::vec3(0.4f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
+			heart2.Draw_rts(shaderProgram_kup, camera, redTex, glm::vec3(0.62f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
+			heart3.Draw(shaderProgram_kup, camera, boxTex, 0, glm::vec3(0.84f, 0.12f, -3.0f), glm::vec3(0.1f * scale, 0.1f * scale, 0.1f * scale));
+			break;
+		default:
+			break;
+		}
+		
 
 		if (frameCount == 49)
 			incrmnt = -1;

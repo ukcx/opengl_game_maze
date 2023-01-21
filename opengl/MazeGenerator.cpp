@@ -68,7 +68,9 @@ glm::vec2 MazeGenerator::GetMyCoordinate(glm::vec3 pos) {
 }
 void MazeGenerator::CreateModels(const char* objPath) {
 	Model model(objPath);
-	Model coin("coin_low.obj");
+	Model coin("coin_high.obj");
+	Model coin_middle("coin_middle.obj");
+	Model coin_low("coin_low.obj");
 	glm::vec3 green = glm::vec3(0, 0.5, 0);
 	Model tree("low_tree.obj", green);
 	Model tree_medium("middle_tree.obj", green);
@@ -87,17 +89,52 @@ void MazeGenerator::CreateModels(const char* objPath) {
 				//std::cout << "here " << count << "th time\n";
 				maze_models[maze_coords.x][maze_coords.y] = ModelInfo(ModelInfo::modelType::WALL, scaledCube);
 			}
+			else if(i==1 &&j==0) {
+				continue;
+			}
 			else {
 				int irand = rand() % 10 + 1;
+				
 				if (irand == 6) {
 					//glm::vec3 translate_loop = glm::vec3( (j - mWidth), (0.4f / 2) * scale_y,  (i - mHeight));
 					glm::vec3 translate_loop = glm::vec3(0.4f * scale_xz * (j - mWidth), 0.5, 0.4f * scale_xz * (i - mHeight));
 					coins_translates.push_back(translate_loop);
 
 					Model* coinModel = new Model(coin.ScaleModel(1, 1, 1));
-					coins.push_back(coinModel);
+					Model* coinModelMiddle = new Model(coin_middle.ScaleModel(1, 1, 1));
+					Model* coinModelLow = new Model(coin_low.ScaleModel(1, 1, 1));
+					int rand_coin = rand() % 4 + 1;
+					switch (rand_coin)
+					{
+					case(1):
+						coinModel->coin_type = coins::points;
+						coinModelMiddle->coin_type = coins::points;
+						coinModelLow->coin_type = coins::points;
+						break;
+					case(2):
+						coinModel->coin_type = coins::speed;
+						coinModelMiddle->coin_type = coins::speed;
+						coinModelLow->coin_type = coins::speed;
+						break;
+					case(3):
+						coinModel->coin_type = coins::teleport;
+						coinModelMiddle->coin_type = coins::teleport;
+						coinModelLow->coin_type = coins::teleport;
+						break;
+					case(4):
+						coinModel->coin_type = coins::timer;
+						coinModelMiddle->coin_type = coins::timer;
+						coinModelLow->coin_type = coins::timer;
+						break;
+
+					default:
+						break;
+					}
+					high_coins.push_back(coinModel);
+					middle_coins.push_back(coinModelMiddle);
+					low_coins.push_back(coinModelLow);
 					glm::vec2 maze_coords = GetMyCoordinate(translate_loop);
-					maze_models[maze_coords.x][maze_coords.y] = ModelInfo(ModelInfo::modelType::COIN, coinModel);
+					maze_models[maze_coords.x][maze_coords.y] = ModelInfo(ModelInfo::modelType::COIN, coinModelLow, coinModelMiddle, coinModel);
 				}
 				if (irand == 1) {
 					//glm::vec3 translate_loop = glm::vec3( (j - mWidth), (0.4f / 2) * scale_y,  (i - mHeight));
@@ -262,7 +299,7 @@ bool MazeGenerator::isMiddleDistance(glm::vec3 cameraPos, glm::vec3 objectPos) {
 	glm::vec3 distance = cameraPos - objectPos;
 	float dist = sqrt(glm::dot(distance, distance));
 
-	if(dist <= 4 * 0.4f * scale_xz && dist > 2 * 0.4f * scale_xz){
+	if((dist <= 4 * 0.4f * scale_xz) && (dist > 2 * 0.4f * scale_xz)){
 		return true;
 	}
 	return false;
@@ -279,8 +316,14 @@ bool MazeGenerator::isItFarDistance(glm::vec3 cameraPos, glm::vec3 objectPos) {
 std::vector<Model*> MazeGenerator::getModels() {
 	return models;
 }
-std::vector<Model*> MazeGenerator::getModels_coins() {
-	return coins;
+std::vector<Model*> MazeGenerator::getModels_low_coins() {
+	return low_coins;
+}
+std::vector<Model*> MazeGenerator::getModels_middle_coins() {
+	return middle_coins;
+}
+std::vector<Model*> MazeGenerator::getModels_high_coins() {
+	return high_coins;
 }
 std::vector<Model*> MazeGenerator::getModels_low_tree() {
 	return low_trees;

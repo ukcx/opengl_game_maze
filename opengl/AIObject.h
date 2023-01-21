@@ -43,7 +43,7 @@ private:
 	std::chrono::steady_clock sc;
 	std::chrono::steady_clock::time_point start_astar;
 	double allowedTimeSpanAStar = 3.0f;
-	double allowedTimeSpanArrows = 10.0f;
+	double allowedTimeSpanArrows = 7.0f;
 	bool first=true;
 	std::chrono::steady_clock::time_point start_arrows;
 
@@ -63,6 +63,9 @@ public:
 	std::vector<Model*> arrows;
 	std::vector<glm::vec3> arrows_translation;
 	std::vector<glm::vec3> arrows_orientation;
+	void arrow_hit();
+	void transportation(glm::vec3 new_trans);
+	int lives = 5;
 };
 
 #endif
