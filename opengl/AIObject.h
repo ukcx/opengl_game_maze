@@ -41,9 +41,11 @@ private:
 	Model* player;
 	std::string Stringify(glm::vec2 point);
 	std::chrono::steady_clock sc;
-	std::chrono::steady_clock::time_point start;
-	double allowedTimeSpan = 7.0f;
+	std::chrono::steady_clock::time_point start_astar;
+	double allowedTimeSpanAStar = 3.0f;
+	double allowedTimeSpanArrows = 10.0f;
 	bool first=true;
+	std::chrono::steady_clock::time_point start_arrows;
 
 public:
 	enum MOVE { RANDOM, ASTARMOVE, STRAIGHTLINE };
@@ -52,11 +54,15 @@ public:
 	void AStarMove();
 	int GetDistance(glm::vec2 point1, glm::vec2 point2);
 	void AStarFindPath();
+	void FireArrows();
 	MOVE MonsterGetMove();
 	std::vector<glm::vec2> path;
 	void drawObject(Shader shader, Camera camera, Texture& Texture);
 	bool isPathStraightLine();
 	void sphere_bounding_box();
+	std::vector<Model*> arrows;
+	std::vector<glm::vec3> arrows_translation;
+	std::vector<glm::vec3> arrows_orientation;
 };
 
 #endif

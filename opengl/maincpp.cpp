@@ -697,7 +697,8 @@ int main()
 	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
 	glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
-	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
+	//glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
+	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(1,1), glm::vec2(5, 5)));
 	std::cout << "AI coordinates: (" << maze.GetMyCoordinate(translateAI).x << ", " << maze.GetMyCoordinate(translateAI).y << ")\n";
 
 	sphere.translation = translateToEntrance;
@@ -720,10 +721,16 @@ int main()
 	int frameCount = 0, incrmnt = 1;
 	bool arrows = true;
 	bool first = true;
+	//Player Arrows
 	vector<Model*> bone_of_my_sword;
-	//Model  bone_of_my_sword[10];
 	vector<glm::vec3> bone_of_my_sword_translation;
-	vector<glm::vec3> bone_of_my_sword_position;
+	vector<glm::vec3> bone_of_my_sword_orientation;
+
+	//AI Arrows
+	vector<Model*> bone_of_ais_sword;
+	vector<glm::vec3> bone_of_ais_sword_translation;
+	vector<glm::vec3> bone_of_ais_sword_orientation;
+
 	for (int i = 0; i < low_trees.size(); i++) {
 		glm::vec3 translate_L = tree_transfers[i];
 
@@ -830,11 +837,22 @@ int main()
 			std::cout << "it somehow work \n";
 		}
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
+			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
 			bone_of_my_sword[e]->
 				fire_arrow_draw(shaderProgram_kup, camera, fireTex,
-					bone_of_my_sword_position[e], bone_of_my_sword_translation[e]);
+					pos, bone_of_my_sword_translation[e], bone_of_my_sword_orientation[e]);
 
 			bone_of_my_sword[e]->sphere_bounding_box();
+			//first = false;
+
+		}
+		for (int e = 0; e < bone_of_ais_sword.size(); e++) {
+			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
+			bone_of_ais_sword[e]->
+				fire_arrow_draw(shaderProgram_kup, camera, fireTex,
+					pos, bone_of_ais_sword_translation[e], bone_of_ais_sword_orientation[e]);
+
+			bone_of_ais_sword[e]->sphere_bounding_box();
 			//first = false;
 
 		}
@@ -857,12 +875,16 @@ int main()
 				Model* arrows = new Model(path___2);
 				bone_of_my_sword.push_back(arrows);
 				bone_of_my_sword_translation.push_back(sphere.bounding_sphere_center);
-				bone_of_my_sword_position.push_back(glm::vec3(0.f));
+				bone_of_my_sword_orientation.push_back(camera.Orientation);
 				std::cout << "Added new arrow, new size: " << bone_of_my_sword.size() << "\n";
 				start_arrow = arrow_time.now();
 			}
 
 		}
+
+		bone_of_ais_sword = AI.arrows;
+		bone_of_ais_sword_translation = AI.arrows_translation;
+		bone_of_ais_sword_orientation = AI.arrows_orientation;
 
 		//tree.Draw(shaderProgram_tree, camera, boxTex, 0.2f, glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(10.4f, 10.4f, 10.4f));
 
@@ -913,7 +935,7 @@ int main()
 					std::cout << "\ndeleted fully \n";
 					std::cout << "new size after deletion" << bone_of_my_sword.size() << endl;
 					bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
-					bone_of_my_sword_position.erase(bone_of_my_sword_position.begin() + e);
+					bone_of_my_sword_orientation.erase(bone_of_my_sword_orientation.begin() + e);
 					std::cout << "what2" << endl;
 					e--;
 					duvar = true;
@@ -929,7 +951,7 @@ int main()
 					bone_of_my_sword.pop_back();*/
 					/*bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
 					cout << "what" << endl;
-					bone_of_my_sword_position.erase(bone_of_my_sword_position.begin() + e);
+					bone_of_my_sword_orientation.erase(bone_of_my_sword_orientation.begin() + e);
 					cout << "what2" << endl;
 					e--;*/
 				}
@@ -948,7 +970,7 @@ int main()
 						std::cout << "\ndeleted fully \n";
 						std::cout << "new size after deletion" << bone_of_my_sword.size() << endl;
 						bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
-						bone_of_my_sword_position.erase(bone_of_my_sword_position.begin() + e);
+						bone_of_my_sword_orientation.erase(bone_of_my_sword_orientation.begin() + e);
 						std::cout << "what2" << endl;
 						e--;
 						break;
@@ -958,6 +980,77 @@ int main()
 			}
 
 		}
+		for (int e = 0; e < bone_of_ais_sword.size(); e++) {
+			std::vector<Model*> adjacentWallsForArrow = maze.GetNeighboringWalls(bone_of_ais_sword_translation[e] + bone_of_ais_sword[e]->position);
+			bool duvar = false;
+			//std::cout << adjacentWallsForArrow.size() << "\n";
+			for (int i = 0; i < adjacentWallsForArrow.size(); i++) {
+				//std::cout << "number of the vector is" << e<<endl;
+				//bone_of_my_sword[e].fire_arrow_draw(shaderProgram_kup, camera, brickTex, position2, bone_of_my_sword_translation[e]);
+				//cubes[i]->bounding_box;
+				if (bone_of_ais_sword[e]->detect_collision_sphere_box((*adjacentWallsForArrow[i]))) {
+					std::cout << "it happened" << "\n";
+
+					Model* s = bone_of_ais_sword[e];
+					std::cout << "point to object" << endl;
+					//bone_of_my_sword[e]->delete_object();
+					bone_of_ais_sword.erase(bone_of_ais_sword.begin() + e);
+					std::cout << "\ndeleted from bones \n";
+					s->delete_object();
+					delete s;
+					std::cout << "\ndeleted fully \n";
+					std::cout << "new size after deletion" << bone_of_ais_sword.size() << endl;
+					bone_of_ais_sword_translation.erase(bone_of_ais_sword_translation.begin() + e);
+					bone_of_ais_sword_orientation.erase(bone_of_ais_sword_orientation.begin() + e);
+					std::cout << "what2" << endl;
+					e--;
+					duvar = true;
+					break;
+					/*std::vector<Model>::iterator start = bone_of_my_sword.begin() + e;
+					std::vector<Model>::iterator end = bone_of_my_sword.begin() + e + 1;
+					for (auto it = start; it != end; ++it) {
+						it->delete_object();
+					}
+					bone_of_my_sword.erase(start, end);*/
+					/*std::swap(bone_of_my_sword[e], bone_of_my_sword.back());
+					bone_of_my_sword.back().delete_object();
+					bone_of_my_sword.pop_back();*/
+					/*bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
+					cout << "what" << endl;
+					bone_of_my_sword_orientation.erase(bone_of_my_sword_orientation.begin() + e);
+					cout << "what2" << endl;
+					e--;*/
+				}
+			}
+			if (!duvar) {
+				for (int i = 0; i < tree_transfers.size(); i++) {
+					if (bone_of_ais_sword[e]->detect_collision_sphere_box((middle_trees[i])) || bone_of_ais_sword[e]->detect_collision_sphere_box((low_trees[i])) || bone_of_ais_sword[e]->detect_collision_sphere_box((high_trees[i]))) {
+						std::cout << "it happened" << "\n";
+						Model* s = bone_of_ais_sword[e];
+						std::cout << "point to object" << endl;
+						//bone_of_my_sword[e]->delete_object();
+						bone_of_ais_sword.erase(bone_of_ais_sword.begin() + e);
+						std::cout << "\ndeleted from bones \n";
+						s->delete_object();
+						delete s;
+						std::cout << "\ndeleted fully \n";
+						std::cout << "new size after deletion" << bone_of_ais_sword.size() << endl;
+						bone_of_ais_sword_translation.erase(bone_of_ais_sword_translation.begin() + e);
+						bone_of_ais_sword_orientation.erase(bone_of_ais_sword_orientation.begin() + e);
+						std::cout << "what2" << endl;
+						e--;
+						break;
+					}
+				}
+
+			}
+
+		}
+
+		AI.arrows = bone_of_ais_sword;
+		AI.arrows_translation = bone_of_ais_sword_translation;
+		AI.arrows_orientation = bone_of_ais_sword_orientation;
+		
 		float pol_dist = Distance_Calculate(camera.Position, finish_pole_low.translation);
 		if(pol_dist>100)
 			finish_pole_low.Draw(shaderProgram_box, camera, thunderTex, 0, translateToend);

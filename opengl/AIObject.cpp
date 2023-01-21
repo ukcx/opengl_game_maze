@@ -24,7 +24,8 @@ AIObject::AIObject(Model* _model, glm::vec3 _pos, glm::vec3 _scale, float _rot, 
 	maze = _maze;
 	player = _player;
 	AStarFindPath();
-	start = sc.now();
+	start_astar = sc.now();
+	start_arrows = sc.now();
 	//std::cout << "x: " <<  position.x << "y: " << position.y << "z: " << position.z;
 }
 
@@ -48,11 +49,14 @@ struct StarSearch {
 
 void AIObject::AStarFindPath() {
 	//std::cout << "here\n";
-	//std::vector<glm::vec2> pathNew;
-	//path = pathNew;
+	std::vector<glm::vec2> pathNew;
+	path = pathNew;
 
 	glm::vec2 startPos = maze->GetMyCoordinate(position);
 	glm::vec2 targetPos = maze->GetMyCoordinate(player->position + player->translation);
+
+	if (startPos == targetPos)
+		return;
 	//std::cout << "start pos, x: " << startPos.x << ", y: " << startPos.y << "\n";
 	//std::cout << "target pos, x: " << targetPos.x << ", y: " << targetPos.y << "\n";
 
@@ -88,6 +92,7 @@ void AIObject::AStarFindPath() {
 			//std::cout << "path found\n";
 			while (currentPos != startPos) {
 				path.push_back(currentPos);
+				//std::cout << "position x: " << currentPos.x << ", y: " << currentPos.y << "\n";
 				currentPos = allHashMap[Stringify(currentPos)]->previous;
 			}
 			std::reverse(path.begin(), path.end());
@@ -138,24 +143,24 @@ int AIObject::GetDistance(glm::vec2 point1, glm::vec2 point2) {
 }
 
 AIObject::MOVE AIObject::MonsterGetMove() {
-	glm::vec2 playerPos = maze->GetMyCoordinate(player->position);
-	glm::vec2 monsterPos = maze->GetMyCoordinate(position);
-	glm::vec2 distanceVec = playerPos - monsterPos;
+	glm::vec3 playerPos = player->position + player->translation;
+	glm::vec3 monsterPos = position;
+	glm::vec3 distanceVec = playerPos - monsterPos;
 	float distance = sqrt(glm::dot(distanceVec, distanceVec));
 	//std::cout << "distance: " << distance << "\n";
 
-	if (distance > 4.0f * maze->mHeight) {
+	if (distance > 1.0f * maze->mHeight * maze->scale_xz) {
 		return RANDOM;
 	}
 	else {
 		auto end = sc.now();
-		auto time_span = static_cast<std::chrono::duration<double>>(end - start);
-		if (time_span.count() > allowedTimeSpan) {
+		auto time_span = static_cast<std::chrono::duration<double>>(end - start_astar);
+		if (time_span.count() > allowedTimeSpanAStar) {
 			AStarFindPath();
 			/*for (int i = 0; i < path.size(); i++) {
 				std::cout << "pathway (" << path[i].x << ", " << path[i].y << ")\n";
 			}*/
-			start = sc.now();
+			start_astar = sc.now();
 		}
 
 		if (isPathStraightLine()) {
@@ -180,15 +185,21 @@ void AIObject::RandomMove()
 	position.x += randXMove * signX * speed;
 	position.z += randZMove * signZ * speed;
 	bounding_sphere_center.x += randXMove * signX * speed;
-	bounding_sphere_center.y += randXMove * signZ * speed;
+	bounding_sphere_center.z += randXMove * signZ * speed;
 }
 
 void AIObject::AStarMove()
 {
 	float speed = 0.2f;
 
-	if (path.size() < 1)
+	if (path.size() < 1) {
+		//glm::vec3 direction = player->position + player->translation - position;
+		//position.x += direction.x * speed * 0.05;
+		//position.z += direction.z * speed * 0.05;
+		//bounding_sphere_center.x += direction.x * speed * 0.05;
+		//bounding_sphere_center.z += direction.z * speed * 0.05;
 		return;
+	}
 
 	if (maze->GetMyCoordinate(position) == path[0])
 		path.erase(path.begin() + 0);
@@ -207,26 +218,38 @@ void AIObject::AStarMove()
 bool AIObject::isPathStraightLine() {
 	//std::cout << "isStraight?\n";
 	//std::cout << "size: " << path.size() << "\n";
-	if (path.size() <= 2)
+	if (path.size() <= 1)
 		return true;
 	//std::cout << "is really Straight?\n";
-	bool straightLine = true;
 
-	glm::vec2 direction = path[1] - path[0];
-	for (int i = 2; i < path.size(); i++) {
+	glm::vec2 direction = path[0] - maze->GetMyCoordinate(position);
+	for (int i = 1; i < path.size(); i++) {
 		if (path[i] - path[i - 1] != direction)
 			return false;
 	}
 	return true;
 }
 
-
+void AIObject::FireArrows() {
+	auto end = sc.now();
+	auto time_span = static_cast<std::chrono::duration<double>>(end - start_arrows);
+	//std::cout << "arrow fired\n";
+	
+	if (time_span.count() > allowedTimeSpanArrows) {
+		
+		Model* arrow = new Model("s.obj");
+		arrows.push_back(arrow);
+		arrows_translation.push_back(bounding_sphere_center);
+		arrows_orientation.push_back(glm::normalize(player->position + player->translation - position));
+		start_arrows = sc.now();
+	}
+}
 
 void AIObject::drawObject(Shader shader, Camera camera, Texture& texture) {
 	if (movable)
 	{
 		MOVE nextMove = MonsterGetMove();
-		//std::cout << "nextMove: " << nextMove << "\n";
+		////std::cout << "nextMove: " << nextMove << "\n";
 
 		if (nextMove == RANDOM) {
 			//RandomMove();
@@ -235,10 +258,10 @@ void AIObject::drawObject(Shader shader, Camera camera, Texture& texture) {
 			AStarMove();
 		}
 		else if (nextMove == STRAIGHTLINE) {
-			AStarMove();
-			//extra functions
+			//AStarMove();
+			FireArrows();
 		}
-
+		//AStarMove();
 	}
 
 	model->Draw(shader, camera, texture, rotation, position, scale);

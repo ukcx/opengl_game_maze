@@ -275,7 +275,7 @@ void Model::Draw(Shader shader, Camera camera, Texture& Texture, float rotation,
 	// Assigns different transformations to each matrix
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 	//Inputs_movement(window, position);
-	model = glm::scale(view, scale);
+	model *= glm::scale(view, scale);
 	view = glm::translate(view, trans);
 	//std::cout << position.x<<"     "<<position.y << position.z << std::endl;
 	proj = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
@@ -306,7 +306,7 @@ void Model::Draw_rts(Shader shader, Camera camera, Texture& Texture, glm::vec3 t
 	glm::mat4 proj = glm::mat4(1.0f);
 	glm::mat4 view = glm::mat4(1.0f);
 	
-	std::cout << "rotation is" << rotation << "\n";
+	//std::cout << "rotation is" << rotation << "\n";
 	// Assigns different transformations to each matrix
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 	rotation += 1.0;
@@ -666,12 +666,12 @@ bool Model::detect_collision_box_box(Model model) {
 	return true;
 }
 
-void Model::fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm::vec3& posit, glm::vec3 trans) {
+void Model::fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm::vec3& posit, glm::vec3 trans, glm::vec3 orientation) {
 	if (first_arrow) {
 		//std::cout << "arrow pos: " << translation.x + position.x << " " << translation.y + position.y << " " << " " << translation.z + position.z << "\n";
 		//std::cout << "sphere moovemet for arrows " << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " << "\n";
 		//std::cout << "buraya girdi \n";
-		trajectory = camera.Orientation;
+		trajectory = orientation;
 		first_arrow = false;
 	}
 	//std::cout << "translate before" << trans.x<<" " <<trans.y<<" "<<trans.z<<"\n";
@@ -694,7 +694,8 @@ void Model::fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm:
 	glm::vec3 bounding_pos = bounding_sphere_center;
 	
 	/*std::cout << "before arrow pos: " << translation.x + position.x << " " << translation.y + position.y << " " << " " << translation.z + position.z << "\n";
-	std::cout << "before sphere moovemet for arrows " << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " << "\n";*/	Model::position += speed * trajectory * 0.5f;
+	std::cout << "before sphere moovemet for arrows " << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " << "\n";*/	
+	Model::position += speed * trajectory * 0.5f;
 	bounding_sphere_center+= (speed * trajectory* 0.5f);
 	bounding_sphere_center.y = bounding_pos.y;
 	Model::position.y = bounding_pos.y;
