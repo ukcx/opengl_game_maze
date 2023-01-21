@@ -671,9 +671,11 @@ void Model::fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm:
 		//std::cout << "arrow pos: " << translation.x + position.x << " " << translation.y + position.y << " " << " " << translation.z + position.z << "\n";
 		//std::cout << "sphere moovemet for arrows " << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " << "\n";
 		//std::cout << "buraya girdi \n";
-		trajectory = orientation;
+		
 		first_arrow = false;
 	}
+	trajectory = orientation;
+	trajectory.y = 0;
 	//std::cout << "translate before" << trans.x<<" " <<trans.y<<" "<<trans.z<<"\n";
 	translation = trans +trajectory*2.5f;
 	translation.y = trans.y;

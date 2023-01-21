@@ -671,10 +671,10 @@ int main()
 	maze.CreateModels(path_2_);
 	std::vector<Model*> cubes = maze.getModels();
 	std::vector<glm::vec3> transfers = maze.getTranslates();
-	std::vector<Model> coins = maze.getModels_coins();
-	std::vector<Model> low_trees = maze.getModels_low_tree();
-	std::vector<Model> middle_trees = maze.getModels_middle_tree();
-	std::vector<Model> high_trees = maze.getModels_high_tree();
+	std::vector<Model*> coins = maze.getModels_coins();
+	std::vector<Model*> low_trees = maze.getModels_low_tree();
+	std::vector<Model*> middle_trees = maze.getModels_middle_tree();
+	std::vector<Model*> high_trees = maze.getModels_high_tree();
 
 	std::vector<glm::vec3> coin_transfers = maze.coin_getTranslates();
 	std::vector<glm::vec3> tree_transfers = maze.tree_getTranslates();
@@ -734,12 +734,12 @@ int main()
 	for (int i = 0; i < low_trees.size(); i++) {
 		glm::vec3 translate_L = tree_transfers[i];
 
-		low_trees[i].translate(translate_L);
-		low_trees[i].box_bounding_box();
-		middle_trees[i].translate(translate_L);
-		middle_trees[i].box_bounding_box();
-		high_trees[i].translate(translate_L);
-		high_trees[i].box_bounding_box();
+		low_trees[i]->translate(translate_L);
+		low_trees[i]->box_bounding_box();
+		middle_trees[i]->translate(translate_L);
+		middle_trees[i]->box_bounding_box();
+		high_trees[i]->translate(translate_L);
+		high_trees[i]->box_bounding_box();
 
 
 	}
@@ -784,50 +784,54 @@ int main()
 		//if(sphere.position+sphere)
 		for (int i = 0; i < coins.size(); i++) {
 			glm::vec3 translate_L = coin_transfers[i];
-			coins[i].Draw_rotate(shaderProgram_box, camera, thunderTex, translate_L);
-			coins[i].box_bounding_box();
-			if (sphere.detect_collision_sphere_box(coins[i])) {
+			coins[i]->Draw_rotate(shaderProgram_box, camera, thunderTex, translate_L);
+			coins[i]->box_bounding_box();
+			//std::vector<Model*> adjacentCoins = maze.GetNeighboringCoins(sphere.position + sphere.translation);
+			if (sphere.detect_collision_sphere_box(*coins[i])) {
 				std::cout << "go brrrrrrrrrrrrrrrrrrr" << endl;
-				sphere.increase_speed(0.001);
-				//Model* s = coins[i];
+				sphere.increase_speed(0.01);
+				Model* s = coins[i];
 				//cout << "point to object" << endl;
 				//
-				//coins.erase(coins.begin() + i);
+				coins.erase(coins.begin() + i);
 				//std::cout << "\ndeleted from bones \n";
-				////s->delete_object();
-				////delete s;
-				//coin_transfers.erase(coin_transfers.begin() + i);
-
-				//i--;
+				s->delete_object();
+				delete s;
+				coin_transfers.erase(coin_transfers.begin() + i);
+				i--;
 			}
 
 		}
 		for (int i = 0; i < low_trees.size(); i++) {
 			glm::vec3 translate_L = tree_transfers[i];
 			if (maze.isItFarDistance(camera.Position, translate_L)) {
-				low_trees[i].Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
-				//low_trees[i].box_bounding_box();
+				low_trees[i]->Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
+				//low_trees[i]->box_bounding_box();
 			}
 			else {
 				if (maze.isMiddleDistance(camera.Position, translate_L))
 				{
-					middle_trees[i].Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
-					//middle_trees[i].box_bounding_box();
+					middle_trees[i]->Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
+					//middle_trees[i]->box_bounding_box();
 
 				}
 				else
 				{
-					high_trees[i].Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
-					high_trees[i].box_bounding_box();
-					if (sphere.detect_collision_sphere_box(high_trees[i])) {
+					high_trees[i]->Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
+					high_trees[i]->box_bounding_box();
+					if (sphere.detect_collision_sphere_box(*high_trees[i])) {
 						sphere.collision_result();
 					}
-
 				}
 			}
-
-
 		}
+
+		//std::vector<Model*> sphereAdjacentTrees = maze.GetNeighboringTrees(sphere.position + sphere.translation, ModelInfo::LOW);
+		//for (int i = 0; i < sphereAdjacentTrees.size(); i++) {
+		//	if (sphere.detect_collision_sphere_box(*sphereAdjacentTrees[i])) {
+		//		sphere.collision_result();
+		//	}
+		//}
 		//playerObject.drawObject(window, shaderProgram_kup, camera, brickTex);
 		//playerObject.model->sphere_bounding_box();
 
@@ -917,11 +921,7 @@ int main()
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
 			std::vector<Model*> adjacentWallsForArrow = maze.GetNeighboringWalls(bone_of_my_sword_translation[e] + bone_of_my_sword[e]->position);
 			bool duvar = false;
-			//std::cout << adjacentWallsForArrow.size() << "\n";
 			for (int i = 0; i < adjacentWallsForArrow.size(); i++) {
-				//std::cout << "number of the vector is" << e<<endl;
-				//bone_of_my_sword[e].fire_arrow_draw(shaderProgram_kup, camera, brickTex, position2, bone_of_my_sword_translation[e]);
-				//cubes[i]->bounding_box;
 				if (bone_of_my_sword[e]->detect_collision_sphere_box((*adjacentWallsForArrow[i]))) {
 					std::cout << "it happened" << "\n";
 
@@ -940,29 +940,18 @@ int main()
 					e--;
 					duvar = true;
 					break;
-					/*std::vector<Model>::iterator start = bone_of_my_sword.begin() + e;
-					std::vector<Model>::iterator end = bone_of_my_sword.begin() + e + 1;
-					for (auto it = start; it != end; ++it) {
-						it->delete_object();
-					}
-					bone_of_my_sword.erase(start, end);*/
-					/*std::swap(bone_of_my_sword[e], bone_of_my_sword.back());
-					bone_of_my_sword.back().delete_object();
-					bone_of_my_sword.pop_back();*/
-					/*bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
-					cout << "what" << endl;
-					bone_of_my_sword_orientation.erase(bone_of_my_sword_orientation.begin() + e);
-					cout << "what2" << endl;
-					e--;*/
 				}
 			}
 			if (!duvar) {
-				for (int i = 0; i < tree_transfers.size(); i++) {
-					if (bone_of_my_sword[e]->detect_collision_sphere_box((middle_trees[i])) || bone_of_my_sword[e]->detect_collision_sphere_box((low_trees[i]))|| bone_of_my_sword[e]->detect_collision_sphere_box((high_trees[i]))) {
+				std::vector<Model*> adjacentLowTreesForArrow = maze.GetNeighboringTrees(bone_of_my_sword_translation[e] + bone_of_my_sword[e]->position, ModelInfo::LOW);
+				std::vector<Model*> adjacentMediumTreesForArrow = maze.GetNeighboringTrees(bone_of_my_sword_translation[e] + bone_of_my_sword[e]->position, ModelInfo::MEDIUM);
+				std::vector<Model*> adjacentHighTreesForArrow = maze.GetNeighboringTrees(bone_of_my_sword_translation[e] + bone_of_my_sword[e]->position, ModelInfo::HIGH);
+				
+				for (int i = 0; i < adjacentHighTreesForArrow.size(); i++) {
+					if (bone_of_my_sword[e]->detect_collision_sphere_box((*adjacentLowTreesForArrow[i])) || bone_of_my_sword[e]->detect_collision_sphere_box((*adjacentMediumTreesForArrow[i]))|| bone_of_my_sword[e]->detect_collision_sphere_box((*adjacentHighTreesForArrow[i]))) {
 						std::cout << "it happened" << "\n";
 						Model* s = bone_of_my_sword[e];
 						std::cout << "point to object" << endl;
-						//bone_of_my_sword[e]->delete_object();
 						bone_of_my_sword.erase(bone_of_my_sword.begin() + e);
 						std::cout << "\ndeleted from bones \n";
 						s->delete_object();
@@ -983,17 +972,12 @@ int main()
 		for (int e = 0; e < bone_of_ais_sword.size(); e++) {
 			std::vector<Model*> adjacentWallsForArrow = maze.GetNeighboringWalls(bone_of_ais_sword_translation[e] + bone_of_ais_sword[e]->position);
 			bool duvar = false;
-			//std::cout << adjacentWallsForArrow.size() << "\n";
 			for (int i = 0; i < adjacentWallsForArrow.size(); i++) {
-				//std::cout << "number of the vector is" << e<<endl;
-				//bone_of_my_sword[e].fire_arrow_draw(shaderProgram_kup, camera, brickTex, position2, bone_of_my_sword_translation[e]);
-				//cubes[i]->bounding_box;
 				if (bone_of_ais_sword[e]->detect_collision_sphere_box((*adjacentWallsForArrow[i]))) {
 					std::cout << "it happened" << "\n";
 
 					Model* s = bone_of_ais_sword[e];
 					std::cout << "point to object" << endl;
-					//bone_of_my_sword[e]->delete_object();
 					bone_of_ais_sword.erase(bone_of_ais_sword.begin() + e);
 					std::cout << "\ndeleted from bones \n";
 					s->delete_object();
@@ -1006,29 +990,18 @@ int main()
 					e--;
 					duvar = true;
 					break;
-					/*std::vector<Model>::iterator start = bone_of_my_sword.begin() + e;
-					std::vector<Model>::iterator end = bone_of_my_sword.begin() + e + 1;
-					for (auto it = start; it != end; ++it) {
-						it->delete_object();
-					}
-					bone_of_my_sword.erase(start, end);*/
-					/*std::swap(bone_of_my_sword[e], bone_of_my_sword.back());
-					bone_of_my_sword.back().delete_object();
-					bone_of_my_sword.pop_back();*/
-					/*bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
-					cout << "what" << endl;
-					bone_of_my_sword_orientation.erase(bone_of_my_sword_orientation.begin() + e);
-					cout << "what2" << endl;
-					e--;*/
 				}
 			}
 			if (!duvar) {
-				for (int i = 0; i < tree_transfers.size(); i++) {
-					if (bone_of_ais_sword[e]->detect_collision_sphere_box((middle_trees[i])) || bone_of_ais_sword[e]->detect_collision_sphere_box((low_trees[i])) || bone_of_ais_sword[e]->detect_collision_sphere_box((high_trees[i]))) {
+				std::vector<Model*> adjacentLowTreesForArrow = maze.GetNeighboringTrees(bone_of_ais_sword_translation[e] + bone_of_ais_sword[e]->position, ModelInfo::LOW);
+				std::vector<Model*> adjacentMediumTreesForArrow = maze.GetNeighboringTrees(bone_of_ais_sword_translation[e] + bone_of_ais_sword[e]->position, ModelInfo::MEDIUM);
+				std::vector<Model*> adjacentHighTreesForArrow = maze.GetNeighboringTrees(bone_of_ais_sword_translation[e] + bone_of_ais_sword[e]->position, ModelInfo::HIGH);
+
+				for (int i = 0; i < adjacentHighTreesForArrow.size(); i++) {
+					if (bone_of_ais_sword[e]->detect_collision_sphere_box((*adjacentLowTreesForArrow[i])) || bone_of_ais_sword[e]->detect_collision_sphere_box((*adjacentMediumTreesForArrow[i])) || bone_of_ais_sword[e]->detect_collision_sphere_box((*adjacentHighTreesForArrow[i]))) {
 						std::cout << "it happened" << "\n";
 						Model* s = bone_of_ais_sword[e];
 						std::cout << "point to object" << endl;
-						//bone_of_my_sword[e]->delete_object();
 						bone_of_ais_sword.erase(bone_of_ais_sword.begin() + e);
 						std::cout << "\ndeleted from bones \n";
 						s->delete_object();

@@ -12,9 +12,9 @@ MazeGenerator::MazeGenerator(int h, int w, int seed, int _scale, int _scale_y) {
 	std::vector<std::string> lines;
 
 	for (int i = 0; i < mHeight * 2 + 1; i++) {
-		std::vector<Model*> modelLine;
+		std::vector<ModelInfo> modelLine;
 		for (int j = 0; j < mWidth * 2 + 1; j++) {
-			modelLine.push_back(nullptr);
+			modelLine.push_back(ModelInfo());
 		}
 		maze_models.push_back(modelLine);
 	}
@@ -40,8 +40,11 @@ MazeGenerator::MazeGenerator(int h, int w, int seed, int _scale, int _scale_y) {
 MazeGenerator::~MazeGenerator() {
 	for (int i = 0; i < mHeight * 2 + 1; i++) {
 		for (int j = 0; j < mWidth * 2 + 1; j++) {
-			if (maze_models[i][j] != nullptr)
-				delete maze_models[i][j];
+			ModelInfo::modelLoad loads[] = { ModelInfo::LOW, ModelInfo::MEDIUM, ModelInfo::HIGH };
+			for (ModelInfo::modelLoad load : loads) {
+				if(maze_models[i][j].getModel(load) != nullptr)
+					delete maze_models[i][j].getModel(load);
+			}
 		}
 	}
 }
@@ -82,29 +85,89 @@ void MazeGenerator::CreateModels(const char* objPath) {
 				glm::vec2 maze_coords = GetMyCoordinate(translate_loop);
 				//count++;
 				//std::cout << "here " << count << "th time\n";
-				maze_models[maze_coords.x][maze_coords.y] = scaledCube;
+				maze_models[maze_coords.x][maze_coords.y] = ModelInfo(ModelInfo::modelType::WALL, scaledCube);
 			}
 			else {
 				int irand = rand() % 10 + 1;
 				if (irand == 6) {
 					//glm::vec3 translate_loop = glm::vec3( (j - mWidth), (0.4f / 2) * scale_y,  (i - mHeight));
 					glm::vec3 translate_loop = glm::vec3(0.4f * scale_xz * (j - mWidth), 0.5, 0.4f * scale_xz * (i - mHeight));
-					coins.push_back(coin);
 					coins_translates.push_back(translate_loop);
 
+					Model* coinModel = new Model(coin.ScaleModel(1, 1, 1));
+					coins.push_back(coinModel);
+					glm::vec2 maze_coords = GetMyCoordinate(translate_loop);
+					maze_models[maze_coords.x][maze_coords.y] = ModelInfo(ModelInfo::modelType::COIN, coinModel);
 				}
 				if (irand == 1) {
 					//glm::vec3 translate_loop = glm::vec3( (j - mWidth), (0.4f / 2) * scale_y,  (i - mHeight));
 					glm::vec3 translate_loop_tree = glm::vec3(0.4f * scale_xz * (j - mWidth)-0.15f*scale_xz, 2.1, 0.4f * scale_xz * (i - mHeight)+ 0.15f * scale_xz);
-					low_trees.push_back(tree);
-					middle_trees.push_back(tree_medium);
-					high_trees.push_back(tree_high);
 					tree_translates.push_back(translate_loop_tree);
 
+					Model* treeModel = new Model(tree.ScaleModel(1,1,1));
+					Model* treeModelMedium = new Model(tree_medium.ScaleModel(1, 1, 1));
+					Model* treeModelHigh = new Model(tree_high.ScaleModel(1, 1, 1));
+					low_trees.push_back((treeModel));
+					middle_trees.push_back((treeModelMedium));
+					high_trees.push_back((treeModelHigh));
+					glm::vec2 maze_coords = GetMyCoordinate(translate_loop_tree);
+					maze_models[maze_coords.x][maze_coords.y] = ModelInfo(ModelInfo::modelType::TREE, treeModel, treeModelMedium, treeModelHigh);
 				}
 			}
 		}
 	}
+}
+std::vector<Model*> MazeGenerator::GetNeighboringCoins(glm::vec3 myPos, ModelInfo::modelLoad ml) {
+	std::vector<Model*> neighboringModels;
+	glm::vec2 mazePos = GetMyCoordinate(myPos);
+	//std::cout << "mazePos is " << mazePos.x << ", " << mazePos.y << "\n";
+	for (int x = -1; x <= 1; x++) {
+		for (int y = -1; y <= 1; y++) {
+			if (x == 0 && y == 0)
+				continue;
+			int checkX = mazePos.x + x;
+			int checkY = mazePos.y + y;
+			if (checkX >= 0 && checkX < mWidth * 2 + 1 && checkY >= 0 && checkY < mHeight * 2 + 1) {
+				//std::cout << "here\n";
+				if (maze_models[checkX][checkY].getModelType() != ModelInfo::COIN || maze_models[checkX][checkY].getModel(ml) == nullptr) {
+					//std::cout << "here3\n";
+					continue;
+				}
+				else {
+					//std::cout << (*maze_models[checkX][checkY]).rotation << "\n";
+					neighboringModels.push_back(maze_models[checkX][checkY].getModel(ml));
+				}
+				//std::cout << "here2\n";
+			}
+		}
+	}
+	return neighboringModels;
+}
+std::vector<Model*> MazeGenerator::GetNeighboringTrees(glm::vec3 myPos, ModelInfo::modelLoad ml) {
+	std::vector<Model*> neighboringModels;
+	glm::vec2 mazePos = GetMyCoordinate(myPos);
+	//std::cout << "mazePos is " << mazePos.x << ", " << mazePos.y << "\n";
+	for (int x = -1; x <= 1; x++) {
+		for (int y = -1; y <= 1; y++) {
+			if (x == 0 && y == 0)
+				continue;
+			int checkX = mazePos.x + x;
+			int checkY = mazePos.y + y;
+			if (checkX >= 0 && checkX < mWidth * 2 + 1 && checkY >= 0 && checkY < mHeight * 2 + 1) {
+				//std::cout << "here\n";
+				if (maze_models[checkX][checkY].getModelType() != ModelInfo::TREE || maze_models[checkX][checkY].getModel(ml) == nullptr) {
+					//std::cout << "here3\n";
+					continue;
+				}
+				else {
+					//std::cout << (*maze_models[checkX][checkY]).rotation << "\n";
+					neighboringModels.push_back(maze_models[checkX][checkY].getModel(ml));
+				}
+				//std::cout << "here2\n";
+			}
+		}
+	}
+	return neighboringModels;
 }
 std::vector<Model*> MazeGenerator::GetNeighboringWalls(glm::vec3 myPos) {
 	std::vector<Model*> neighboringModels;
@@ -118,13 +181,13 @@ std::vector<Model*> MazeGenerator::GetNeighboringWalls(glm::vec3 myPos) {
 			int checkY = mazePos.y + y;
 			if (checkX >= 0 && checkX < mWidth * 2 + 1 && checkY >= 0 && checkY < mHeight * 2 + 1) {
 				//std::cout << "here\n";
-				if (maze_models[checkX][checkY] == nullptr) {
+				if (maze_models[checkX][checkY].getModelType() != ModelInfo::WALL || maze_models[checkX][checkY].getModel() == nullptr) {
 					//std::cout << "here3\n";
 					continue;
 				}
 				else {
 					//std::cout << (*maze_models[checkX][checkY]).rotation << "\n";
-					neighboringModels.push_back(maze_models[checkX][checkY]);
+					neighboringModels.push_back(maze_models[checkX][checkY].getModel());
 				}
 				//std::cout << "here2\n";
 			}
@@ -216,16 +279,16 @@ bool MazeGenerator::isItFarDistance(glm::vec3 cameraPos, glm::vec3 objectPos) {
 std::vector<Model*> MazeGenerator::getModels() {
 	return models;
 }
-std::vector<Model> MazeGenerator::getModels_coins() {
+std::vector<Model*> MazeGenerator::getModels_coins() {
 	return coins;
 }
-std::vector<Model> MazeGenerator::getModels_low_tree() {
+std::vector<Model*> MazeGenerator::getModels_low_tree() {
 	return low_trees;
 }
-std::vector<Model> MazeGenerator::getModels_middle_tree() {
+std::vector<Model*> MazeGenerator::getModels_middle_tree() {
 	return middle_trees;
 }
-std::vector<Model> MazeGenerator::getModels_high_tree() {
+std::vector<Model*> MazeGenerator::getModels_high_tree() {
 	return high_trees;
 }
 std::vector<glm::vec3> MazeGenerator::getTranslates() {
