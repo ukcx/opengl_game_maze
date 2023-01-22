@@ -189,73 +189,55 @@ void Model::Draw(Shader shader, Camera camera, float rotation, glm::vec3 trans) 
 void Model::Inputs_movement(GLFWwindow* window, glm::vec3& pos, Camera camera)
 {
 	glm::mat4 view = glm::mat4(1.0f);
-	//// Handles key inputs
-	//if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	//{
-	//	position.z -= 0.01;
-	//	//view = glm::translate(view, position);
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	//{
-	//	position.x -= 0.01;
-	//	//view = glm::translate(view, position);
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	//{
-	//	position.z += 0.01;
-	//	//view = glm::translate(view, position);
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	//{
-	//	position.x += 0.01;
-	//	//view = glm::translate(view, position);
-	//}
 
-	//if (!camera.godmode) {
-	//	float posy = position.y;
-	//	// handles key inputs
-	//	position = camera.position + camera.orientation * glm::vec3(4.0f, 4.0f, 4.0f);
-	//	position.y = posy;
-	//	glm::vec3 objectcenter = position + camera.orientation * glm::vec3(0.5f, 0.5f, 0.0f);
-
-	//	// update the center of the bounding sphere
-	//	bounding_sphere_center = objectcenter;
-	//}
 	if (!camera.godMode) {
-		float posY = position.y;
-		old_pos = position;
-		float bounding_y = bounding_sphere_center.y;
+		glm::vec3 orient = camera.Orientation - glm::vec3(0, camera.Orientation.y, 0);
+		new_speed = accel_speed;
+
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			position += speed * camera.Orientation ;
-			position.y = posY;
-			
-			bounding_sphere_center += speed * camera.Orientation;
-			
-			bounding_sphere_center.y = bounding_y;
-			//std::cout << "sphere moovemet" << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " <<"\n";
+			acc = orient * acc_magnitude;
+			glm::vec3 speedChange = acc * time_delta;
 
+			new_speed += speedChange;
+			float newSpeedSize = glm::length(new_speed);
+			new_speed = glm::normalize(new_speed) * glm::min(newSpeedSize, max_speed);
+			//std::cout << "accel_speed: " << accel_speed.x << " " << accel_speed.y << " " << accel_speed.z << "\n";
+			
+			//std::cout << "sphere moovemet" << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " <<"\n";
 		}
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		{
-			position += speed * -glm::normalize(glm::cross(camera.Orientation, camera.Up));
-			position.y = posY;
-			bounding_sphere_center += speed * -glm::normalize(glm::cross(camera.Orientation, camera.Up));
-			bounding_sphere_center.y = bounding_y;
+			acc = -glm::normalize(glm::cross(orient, camera.Up)) * acc_magnitude;
+			glm::vec3 speedChange = time_delta * acc;
+
+			new_speed += speedChange;
+			float newSpeedSize = glm::length(new_speed);
+			new_speed = glm::normalize(new_speed) * glm::min(newSpeedSize, max_speed);
+
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		{
-			position += speed * -camera.Orientation ;
-			position.y = posY;
-			bounding_sphere_center += speed * -camera.Orientation;
-			bounding_sphere_center.y = bounding_y;
+			acc = -orient * acc_magnitude;
+			glm::vec3 speedChange = acc * time_delta;
+
+			new_speed += speedChange;
+			float newSpeedSize = glm::length(new_speed);
+			new_speed = glm::normalize(new_speed) * glm::min(newSpeedSize, max_speed);
+
+			//position += speed * -camera.Orientation ;
+			//position.y = posY;
+			//bounding_sphere_center += speed * -camera.Orientation;
+			//bounding_sphere_center.y = bounding_y;
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		{
-			position += speed * glm::normalize(glm::cross(camera.Orientation, camera.Up));
-			position.y = posY;
-			bounding_sphere_center += speed * glm::normalize(glm::cross(camera.Orientation, camera.Up));
-			bounding_sphere_center.y = bounding_y;
+			acc = glm::normalize(glm::cross(orient, camera.Up)) * acc_magnitude;
+			glm::vec3 speedChange = acc * time_delta;
+
+			new_speed += speedChange;
+			float newSpeedSize = glm::length(new_speed);
+			new_speed = glm::normalize(new_speed) * glm::min(newSpeedSize, max_speed);
 		}
 	}
 
@@ -376,7 +358,36 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 
 	// Assigns different transformations to each matrix
 	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+	
+	float posY = position.y;
+	old_pos = position;
+	float bounding_y = bounding_sphere_center.y;
+	
+	//Friction
+	float delta_speed = frict_coefficient * time_delta;
+	float speedLen = glm::length(accel_speed);
+	if (speedLen > 0) {
+		if ((glm::length(accel_speed) - delta_speed) > 0)
+			accel_speed = glm::normalize(accel_speed) * (glm::length(accel_speed) - delta_speed);
+		else
+			accel_speed = glm::normalize(accel_speed) * 0.0f;
+	}
+	//std::cout << "accel_speed: " << accel_speed.x << " " << accel_speed.y << " " << accel_speed.z << "\n";
+
+	//Acceleration
 	Inputs_movement(window, position, camera);
+	
+	//Position Change in Total
+	position += accel_speed * time_delta + (0.5f * acc * time_delta * time_delta);
+	position.y = posY;
+	bounding_sphere_center += accel_speed * time_delta + (0.5f * acc * time_delta * time_delta);
+	bounding_sphere_center.y = bounding_y;
+
+	//Update speed and accleration
+	accel_speed = new_speed;
+	acc = glm::vec3(0.0f, 0.0f, 0.0f);
+
+
 	view = glm::translate(view, position);
 	view = glm::translate(view, translation);
 	//change center
@@ -796,11 +807,18 @@ void Model::Draw_rotate(Shader shader, Camera camera, Texture& Texture, glm::vec
 	glDrawElements(GL_TRIANGLES, indices_model.size(), GL_UNSIGNED_INT, 0);
 }
 void Model::increase_speed(float increament) {
-	speed += increament;
+	max_speed += increament;
 }
-void Model::collision_result() {
+void Model::collision_result_wall(glm::vec3 normal_raw) {
+	glm::vec3 normal = glm::normalize(normal_raw);
+
+	glm::vec3 reflected_speed = accel_speed - 2.0f * glm::dot(accel_speed, normal) * normal;
+	accel_speed = reflected_speed * elast_coefficient;
+	new_speed = accel_speed;
+}
+void Model::collision_result_tree() {
 	bounding_sphere_center += old_pos - position;
 	position = old_pos;
-	
-
+	accel_speed = glm::vec3(0.0f);
+	new_speed = glm::vec3(0.0f);
 }

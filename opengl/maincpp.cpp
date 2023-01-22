@@ -777,8 +777,8 @@ int main()
 	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
 	glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
-	//glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
-	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(1,1), glm::vec2(5, 5)));
+	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
+	//glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(1,1), glm::vec2(5, 5)));
 	translateAI.y = 0;
 	std::cout << "AI coordinates: (" << maze.GetMyCoordinate(translateAI).x << ", " << maze.GetMyCoordinate(translateAI).y << ")\n";
 
@@ -835,6 +835,7 @@ int main()
 	auto start_arrow = arrow_time.now();
 	int total_time = 300;
 	int lives = 3;
+	bool collision_over = true;
 	while (!glfwWindowShouldClose(window))
 	{
 		// Specify the color of the background
@@ -905,7 +906,7 @@ int main()
 					point += 100;
 					break;
 				case(coins::speed):
-					sphere.increase_speed(0.01);
+					sphere.increase_speed(0.03);
 					break;
 				case(coins::teleport):
 					glm::vec2 news=maze.GetRandomEmptyCoordinates(glm::vec2(0), glm::vec2(2*maze.mWidth+1,2*maze.mHeight+1));
@@ -956,7 +957,7 @@ int main()
 					high_trees[i]->Draw_rotate(shaderProgram_tree, camera, thunderTex, translate_L);
 					high_trees[i]->box_bounding_box();
 					if (sphere.detect_collision_sphere_box(*high_trees[i])) {
-						sphere.collision_result();
+						sphere.collision_result_tree();
 					}
 				}
 			}
@@ -1034,6 +1035,7 @@ int main()
 			cubes[i]->box_bounding_box();
 		}
 
+		bool collision = false;
 		std::vector<Model*> adjacentWalls = maze.GetNeighboringWalls(sphere.position + sphere.translation);
 		//std::cout << adjacentWalls.size() << "\n";
 		for (int i = 0; i < adjacentWalls.size(); i++) {
@@ -1041,8 +1043,21 @@ int main()
 				std::cout << "boundi " << sphere.bounding_sphere_center.x << " " << sphere.bounding_sphere_center.y << " " << sphere.bounding_sphere_center.z << endl;
 				std::cout << "sphere " << sphere.position.x + sphere.translation.x << " " << sphere.position.y + sphere.translation.y << " " << sphere.position.z + sphere.translation.z << endl;
 
-				sphere.collision_result();
+				glm::vec3 wallCoordinate = adjacentWalls[i]->translation;
+				glm::vec3 sphereCoordinate = maze.MazeToWorldCoordinate(maze.GetMyCoordinate(sphere.old_pos + sphere.translation));
+				glm::vec3 normalRaw = sphereCoordinate - wallCoordinate;
+
+				collision = true;
+				if(collision_over)
+					sphere.collision_result_wall(normalRaw);
 			}
+		}
+
+		if (collision == false) {
+			collision_over = true;
+		}
+		else {
+			collision_over = false;
 		}
 
 		//
@@ -1291,7 +1306,7 @@ int main()
 
 		}
 		Text.RenderText("Time: " + to_string((total_time-int(time_span.count())) / 60) + "." + to_string((total_time - int(time_span.count())) % 60), 50.0f, 700.0f, 1.0f);
-		Text.RenderText("Speed: " + to_string(int(sphere.speed * 100)), 50.0f, 630.0f, 1.0f, glm::vec3(0.1f, 0.1f, 0.9f));
+		Text.RenderText("Speed: " + to_string(int(glm::length(sphere.accel_speed) * 100)), 50.0f, 630.0f, 1.0f, glm::vec3(0.1f, 0.1f, 0.9f));
 		Text.RenderText("Points: "+to_string(point), 450.0f, 630.0f, 1.0f, glm::vec3(0.5f, 0.5f, 0.0f));
 		glDisable(GL_BLEND);
 		float scale = (frameCount % 50) * 0.003 + 1;

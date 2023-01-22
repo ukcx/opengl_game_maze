@@ -23,6 +23,16 @@ private:
 	void Inputs_movement(GLFWwindow* window, glm::vec3& position, Camera camera);
 	
 public:
+	float acc_magnitude = 0.02f;
+	glm::vec3 acc = glm::vec3(0.0f, 0.0f, 0.0f);
+	float mass = 50.0f;
+	float max_speed = 0.4f;
+	float frict_coefficient = 0.01f;
+	float elast_coefficient = 0.7f;
+	glm::vec3 accel_speed = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 new_speed = glm::vec3(0.0f, 0.0f, 0.0f);
+	float time_delta = 1.0f;
+	
 	std::vector <Vertex> vertices_model;
 	std::vector <GLuint> indices_model;
 	const unsigned int width = 1600;
@@ -75,7 +85,8 @@ public:
 	void translate(glm::vec3 translati);
 	void delete_object();
 	bool first = true;
-	void collision_result();
+	void collision_result_wall(glm::vec3 normal_raw);
+	void collision_result_tree();
 	void transportation(glm::vec3 new_translate);
 	bool first_move = true;
 	glm::vec3 trajectory;
