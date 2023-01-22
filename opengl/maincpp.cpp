@@ -779,12 +779,13 @@ int main()
 	glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
 	//glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
 	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(1,1), glm::vec2(5, 5)));
+	translateAI.y = 0;
 	std::cout << "AI coordinates: (" << maze.GetMyCoordinate(translateAI).x << ", " << maze.GetMyCoordinate(translateAI).y << ")\n";
 
 	sphere.translation = translateToEntrance;
 	//AI Objects
 	//Object playerObject(&sphere, translateToEntrance, glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, true);
-	Model scaledAISphere = AIsphere.ScaleModel(4.0f, 4.0f, 4.0f);
+	Model scaledAISphere = AIsphere.ScaleModel(3.0f, 3.0f, 3.0f);
 	AIObject AI(&scaledAISphere, translateAI, glm::vec3(1.0f), 0.0f, true, & maze, &sphere);
 
 

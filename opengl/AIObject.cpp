@@ -254,7 +254,7 @@ void AIObject::FireArrows() {
 		
 		Model* arrow = new Model("s.obj");
 		arrows.push_back(arrow);
-		arrows_translation.push_back(bounding_sphere_center - glm::vec3(0.0f, 2.0f, 0.0f));
+		arrows_translation.push_back(bounding_sphere_center - glm::vec3(0.0f, 1.2f, 0.0f));
 		arrows_orientation.push_back(glm::normalize(player->position + player->translation - position));
 		start_arrows = sc.now();
 	}
@@ -304,7 +304,7 @@ void AIObject::sphere_bounding_box() {
 	{
 		glm::vec3 center = (min + max) / 2.0f;
 		bounding_sphere_center = center;
-		bounding_sphere_center += translation;
+		bounding_sphere_center += position;
 		bounding_sphere_radius = (glm::length(max - min) / 2.0f);//-0.002
 		bounding_sphere_radius = bounding_sphere_radius * 60 / 100;
 		first = false;
@@ -326,7 +326,7 @@ void AIObject::arrow_hit() {
 	lives -= 1;
 	if (lives <= 0) {
 		glm::vec2 new_2d=maze->GetRandomEmptyCoordinates(glm::vec2(0), glm::vec2(2 * maze->mWidth + 1, 2 * maze->mHeight + 1));
-		while (new_2d == maze->GetMyCoordinate(player->position)) {
+		while (new_2d == maze->GetMyCoordinate(player->position + player->translation)) {
 			new_2d = maze->GetRandomEmptyCoordinates(glm::vec2(0), glm::vec2(2 * maze->mWidth + 1, 2 * maze->mHeight + 1));
 
 		}
@@ -345,7 +345,7 @@ bool AIObject::areWeAdjacent() {
 
 void AIObject::CloseByMove()
 {
-	float speed = 0.05f;
+	float speed = 0.2f;
 
 	if (path.size() > 1) {
 		return;
@@ -353,21 +353,47 @@ void AIObject::CloseByMove()
 
 	if (path.size() == 0) {
 		glm::vec3 direction = player->position + player->translation - position;
-		position.x += direction.x * speed * 0.2;
-		position.z += direction.z * speed * 0.2;
-		bounding_sphere_center.x += direction.x * speed * 0.2;
-		bounding_sphere_center.z += direction.z * speed * 0.2;
+		glm::vec3 oldPos = position;
+		glm::vec3 oldCenter = bounding_sphere_center;
+		model->bounding_sphere_center = bounding_sphere_center;
+		model->bounding_sphere_radius = bounding_sphere_radius;
+		
+		position.x += direction.x * speed * 0.1;
+		position.z += direction.z * speed * 0.1;
+		bounding_sphere_center.x += direction.x * speed * 0.1;
+		bounding_sphere_center.z += direction.z * speed * 0.1;
+
+		std::vector<Model*> walls = maze->GetNeighboringWalls(position);
+		for (Model* wall : walls) {
+			if((*this).model->detect_collision_sphere_box((*wall))) {
+				std::cout << "collision with wall somehow\n";
+				position = oldPos;
+				bounding_sphere_center = oldCenter;
+			}
+		}
+
+		//std::vector<Model*> highTrees = maze->GetNeighboringTrees(position, ModelInfo::HIGH);
+		//std::vector<Model*> middleTrees = maze->GetNeighboringTrees(position, ModelInfo::MEDIUM);
+		//std::vector<Model*> lowTrees = maze->GetNeighboringTrees(position, ModelInfo::LOW);
+		//for (int i = 0; i < highTrees.size(); i++) {
+		//	if ((*this).model->detect_collision_sphere_box((*highTrees[i])) || (*this).model->detect_collision_sphere_box((*middleTrees[i])) || (*this).model->detect_collision_sphere_box((*lowTrees[i]))) {
+		//		std::cout << "collision with tree somehow\n";
+		//		position = oldPos;
+		//		bounding_sphere_center = oldCenter;
+		//	}
+		//}
+
 	}
 	else {
 		if (maze->GetMyCoordinate(position) == path[0])
-			path.erase(path.begin() + 0);
+			path.erase(path.begin() + 0);	
 
-
-			glm::vec3 direction = player->position + player->translation - position;
-			position.x += direction.x * speed * 0.2;
-			position.z += direction.z * speed * 0.2;
-			bounding_sphere_center.x += direction.x * speed * 0.2;
-			bounding_sphere_center.z += direction.z * speed * 0.2;
-		
+		if (path.size() == 1) {
+			glm::vec3 direction = maze->MazeToWorldCoordinate(path[0]) - position;
+			position.x += direction.x * speed * 0.1;
+			position.z += direction.z * speed * 0.1;
+			bounding_sphere_center.x += direction.x * speed * 0.1;
+			bounding_sphere_center.z += direction.z * speed * 0.1;
+		}
 	}
 }
