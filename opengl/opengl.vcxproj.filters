@@ -255,6 +255,9 @@
     <Object Include="coin_middle.obj">
       <Filter>Resource Files\Object</Filter>
     </Object>
+    <Object Include="sphere_deneme.obj">
+      <Filter>Resource Files\Object</Filter>
+    </Object>
   </ItemGroup>
   <ItemGroup>
     <Text Include="deletelater.txt">

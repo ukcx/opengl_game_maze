@@ -381,7 +381,7 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 	bounding_sphere_center.y = bounding_y;
 
 	//Calculate angle change and new angular position
-	angular_speed = accel_speed / 2.0f; //bounding_sphere_radius;
+	angular_speed = accel_speed / bounding_sphere_radius;
 	glm::vec3 angular_pos_change = angular_speed * time_delta;// + (0.5f * acc * time_delta * time_delta);
 	angular_position += angular_pos_change;
 	//int ang_x = angular_position.x / (M_PI * 2);
@@ -718,7 +718,7 @@ void Model::fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm:
 	glm::mat4 view = glm::mat4(1.0f);
 	float pos =Model::position.y;
 	// Assigns different transformations to each matrix
-	float speed = 0.25f;
+	float speed = 3.5f;
 	
 	glm::vec3 bounding_pos = bounding_sphere_center;
 	

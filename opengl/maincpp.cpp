@@ -664,7 +664,8 @@ int main()
 	Mesh object(verts, ind, width, height);
 	Model stall(path);
 	Model kup(path___2);
-	Model sphere(path2);
+	const char * path_deneme = "sphere_deneme.obj";
+	Model sphere(path_deneme);
 	//Model tree("x.obj",green );
 	Model AIsphere(path2);
 	Mesh piramid(vert_pry, ind_pry, width, height);
@@ -677,6 +678,8 @@ int main()
 	Model finish_pole_low("low_pirate_pole.obj");
 	Model finish_pole_middle("middle_pirate_pole.obj");
 	Model finish_pole_high("high_pirate_pole.obj");
+	Model beggining_cube("s.obj");
+	Model *scaled_beggining = new Model(beggining_cube.ScaleModel(scaleXZ,scaleY,scaleXZ));
 
 	
 	//Materials
@@ -750,7 +753,9 @@ int main()
 	MazeGenerator maze(mHeight, mWidth, seeds[seedIndex], scaleXZ, scaleY);
 	maze.CreateModels(path_2_);
 	std::vector<Model*> cubes = maze.getModels();
+	//cubes.push_back(scaled_beggining);
 	std::vector<glm::vec3> transfers = maze.getTranslates();
+	//transfers.push_back(glm::vec3(-0.4f * scaleXZ * (mWidth+1 ), 5.5f, -0.4f * scaleXZ * (mHeight-1 )));
 	std::vector<Model*> low_coins = maze.getModels_low_coins();
 	std::vector<Model*> middle_coins = maze.getModels_middle_coins();
 	std::vector<Model*> high_coins = maze.getModels_high_coins();
@@ -774,13 +779,13 @@ int main()
 	Text.Load("arial.ttf", 60);
 
 	//Translates
-	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.6f, -0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.724f, -0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translateToend = glm::vec3(0.4f * scaleXZ * mWidth, 0.6f, 0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
 	glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
-	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
-	//glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(1,1), glm::vec2(5, 5)));
+	//glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
+	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(1,1), glm::vec2(5, 5)));
 	translateAI.y = 0;
 	std::cout << "AI coordinates: (" << maze.GetMyCoordinate(translateAI).x << ", " << maze.GetMyCoordinate(translateAI).y << ")\n";
 
@@ -838,6 +843,7 @@ int main()
 	int total_time = 300;
 	int lives = 3;
 	bool collision_over = true;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// Specify the color of the background
@@ -866,8 +872,9 @@ int main()
 			cubes[i].Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 		}*/
 		//glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.2f, -0.4f * scaleXZ * (mHeight - 1));
-		sphere.moving_obj_draw(shaderProgram_kup, camera, brickTex, window, position, 0, translateToEntrance);
 		sphere.sphere_bounding_box();
+		sphere.moving_obj_draw(shaderProgram_kup, camera, thunderTex, window, position, 0, translateToEntrance);
+		
 		//if(sphere.position+sphere)
 		for (int i = 0; i < low_coins.size(); i++) {
 			glm::vec3 translate_L = coin_transfers[i];
@@ -974,6 +981,7 @@ int main()
 		//playerObject.drawObject(window, shaderProgram_kup, camera, brickTex);
 		//playerObject.model->sphere_bounding_box();
 
+
 		AI.drawObject(shaderProgram_obj, camera, redTex);
 		AI.sphere_bounding_box();
 		if (sphere.detect_collision_sphere(AI.bounding_sphere_center, AI.bounding_sphere_radius)) {
@@ -1035,6 +1043,11 @@ int main()
 			glm::vec3 translate_L = transfers[i];
 			cubes[i]->Draw(shaderProgram_box, camera, brickTex, 0.0f, translate_L);
 			cubes[i]->box_bounding_box();
+		}
+		scaled_beggining->Draw(shaderProgram_box, camera, brickTex, 0.0f, glm::vec3(-0.4f * scaleXZ * (mWidth + 1), 6.5f, -0.4f * scaleXZ * (mHeight - 1)));
+		scaled_beggining->box_bounding_box();
+		if (sphere.detect_collision_sphere_box(*scaled_beggining)) {
+			sphere.collision_result_tree();
 		}
 
 		bool collision = false;

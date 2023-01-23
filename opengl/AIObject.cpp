@@ -66,7 +66,7 @@ void AIObject::AStarFindPath() {
 	glm::vec2 startPos = maze->GetMyCoordinate(position);
 	glm::vec2 targetPos = maze->GetMyCoordinate(player->position + player->translation);
 
-	if (maze->isThisWall(targetPos)) {
+	if (maze->isThisWall(targetPos) || targetPos.x < 0 || targetPos.y < 0) {
 		path_findable = false;
 		return;
 	}

@@ -43,7 +43,7 @@ private:
 	std::chrono::steady_clock sc;
 	std::chrono::steady_clock::time_point start_astar;
 	double allowedTimeSpanAStar = 3.0f;
-	double allowedTimeSpanArrows = 7.0f;
+	double allowedTimeSpanArrows = 3.0f;
 	bool first=true;
 	std::chrono::steady_clock::time_point start_arrows;
 	bool path_findable = true;
