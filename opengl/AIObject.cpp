@@ -267,7 +267,7 @@ void AIObject::FireArrows() {
 		
 		Model* arrow = new Model("s.obj");
 		arrows.push_back(arrow);
-		arrows_translation.push_back(bounding_sphere_center - glm::vec3(0.0f, 1.2f, 0.0f));
+		arrows_translation.push_back(bounding_sphere_center - glm::vec3(0.0f, 1.1f, 0.0f));
 		arrows_orientation.push_back(glm::normalize(player->position + player->translation - position));
 		start_arrows = sc.now();
 	}
@@ -329,10 +329,13 @@ void AIObject::sphere_bounding_box() {
 
 }
 void AIObject::transportation(glm::vec3 new_pos) {
+	float old_y = position.y;
 	bounding_sphere_center -= position;
 	position = new_pos;
 	
 	bounding_sphere_center += position;
+	bounding_sphere_center.y = old_y;
+	position.y = old_y;
 	
 }
 void AIObject::arrow_hit() {
@@ -345,6 +348,8 @@ void AIObject::arrow_hit() {
 		}
 		glm::vec3 new_3d = maze->MazeToWorldCoordinate(new_2d);
 		lives = 5;
+		std::vector<glm::vec2> pathNew;
+		path = pathNew;
 		transportation(new_3d);
 		
 	}

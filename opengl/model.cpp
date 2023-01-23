@@ -206,17 +206,7 @@ void Model::Inputs_movement(GLFWwindow* window, glm::vec3& pos, Camera camera)
 			
 			//std::cout << "sphere moovemet" << bounding_sphere_center.x << "   " << bounding_sphere_center.y << "   " << bounding_sphere_center.z << "   " <<"\n";
 		}
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		{
-			acc = -glm::normalize(glm::cross(orient, camera.Up)) * acc_magnitude;
-			glm::vec3 speedChange = time_delta * acc;
-
-			new_speed += speedChange;
-			float newSpeedSize = glm::length(new_speed);
-			new_speed = glm::normalize(new_speed) * glm::min(newSpeedSize, max_speed);
-
-		}
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		{
 			acc = -orient * acc_magnitude;
 			glm::vec3 speedChange = acc * time_delta;
@@ -230,7 +220,18 @@ void Model::Inputs_movement(GLFWwindow* window, glm::vec3& pos, Camera camera)
 			//bounding_sphere_center += speed * -camera.Orientation;
 			//bounding_sphere_center.y = bounding_y;
 		}
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			acc = -glm::normalize(glm::cross(orient, camera.Up)) * acc_magnitude;
+			glm::vec3 speedChange = time_delta * acc;
+
+			new_speed += speedChange;
+			float newSpeedSize = glm::length(new_speed);
+			new_speed = glm::normalize(new_speed) * glm::min(newSpeedSize, max_speed);
+
+		}
+		
+		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		{
 			acc = glm::normalize(glm::cross(orient, camera.Up)) * acc_magnitude;
 			glm::vec3 speedChange = acc * time_delta;
@@ -718,7 +719,7 @@ void Model::fire_arrow_draw(Shader shader, Camera camera, Texture& Texture, glm:
 	glm::mat4 view = glm::mat4(1.0f);
 	float pos =Model::position.y;
 	// Assigns different transformations to each matrix
-	float speed = 3.5f;
+	float speed = 1.5f;
 	
 	glm::vec3 bounding_pos = bounding_sphere_center;
 	
@@ -772,6 +773,7 @@ void Model::translate(glm::vec3 translation) {
 	Model::translation = translation;
 }
 void Model::transportation(glm::vec3 new_trans) {
+	float old_y = translation.y;
 	bounding_sphere_center -= position;
 	bounding_sphere_center -= translation;
 	bounding_sphere_center += new_trans;
@@ -779,6 +781,8 @@ void Model::transportation(glm::vec3 new_trans) {
 	position = glm::vec3(0);
 
 	translation = new_trans;
+	translation.y = old_y;
+	bounding_sphere_center.y = old_y;
 	std::cout << "moving pos: " << position.x+translation.x << " "<< position.y + translation.y << " " << position.z + translation.z<< std::endl;
 }
 void Model::Draw_rotate(Shader shader, Camera camera, Texture& Texture, glm::vec3 trans) {

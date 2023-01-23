@@ -47,6 +47,7 @@ private:
 	bool first=true;
 	std::chrono::steady_clock::time_point start_arrows;
 	bool path_findable = true;
+	float min_y = 0.0f;
 
 public:
 	enum MOVE { RANDOM, STOP, ASTARMOVE, STRAIGHTLINE, CLOSEBY };

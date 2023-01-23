@@ -518,8 +518,8 @@ struct Leader {
 	int order;
 };
 int point = 0;
-void you_win(GLFWwindow* window, int&lives, auto time_span, int &total_time) {
-	while (true)
+void you_win(GLFWwindow* window, int&lives, auto time_span, int &total_time,Model player,glm::vec3 trans) {
+	while (true&& !glfwWindowShouldClose(window))
 	{
 		int new_score = point + lives * 100 + (total_time - int(time_span.count()));
 		glClearColor(0.1f, 1.0f, 0.4f, 0.08f);
@@ -567,13 +567,14 @@ void you_win(GLFWwindow* window, int&lives, auto time_span, int &total_time) {
 				outfile << leader.user_name << " " << leader.finish_time << " " << leader.score << " " << leader.order << "\n";
 			}
 			outfile.close();
+			//player.transportation(trans);
 			break;
 		}
 
 	}
 }
 void game_over(GLFWwindow* window,int &lives) {
-	while (true)
+	while (true&& !glfwWindowShouldClose(window))
 	{
 		glClearColor(0.2f, 0.2f, 0.9f, 0.08f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -779,8 +780,9 @@ int main()
 	Text.Load("arial.ttf", 60);
 
 	//Translates
-	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.724f, -0.4f * scaleXZ * (mHeight - 1));
-	glm::vec3 translateToend = glm::vec3(0.4f * scaleXZ * mWidth, 0.6f, 0.4f * scaleXZ * (mHeight - 1));
+	//glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.724f, -0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateToEntrance = glm::vec3(0.4f * scaleXZ * (mWidth-1), 0.724f, 0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateToend = glm::vec3(0.4f * scaleXZ * mWidth, 0.724f, 0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
 	glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
@@ -823,12 +825,10 @@ int main()
 	for (int i = 0; i < low_trees.size(); i++) {
 		glm::vec3 translate_L = tree_transfers[i];
 
-		low_trees[i]->translate(translate_L);
-		low_trees[i]->box_bounding_box();
-		middle_trees[i]->translate(translate_L);
-		middle_trees[i]->box_bounding_box();
+		
 		high_trees[i]->translate(translate_L);
 		high_trees[i]->box_bounding_box();
+		
 
 
 	}
@@ -984,6 +984,11 @@ int main()
 
 		AI.drawObject(shaderProgram_obj, camera, redTex);
 		AI.sphere_bounding_box();
+		
+		bone_of_ais_sword = AI.arrows;
+		bone_of_ais_sword_translation = AI.arrows_translation;
+		bone_of_ais_sword_orientation = AI.arrows_orientation;
+
 		if (sphere.detect_collision_sphere(AI.bounding_sphere_center, AI.bounding_sphere_radius)) {
 			lives = 0;
 		}
@@ -1007,16 +1012,43 @@ int main()
 			//first = false;
 
 		}
-		/*	if(arrows)
-			{
-				stall.fire_arrow_draw(shaderProgram_kup, camera, brickTex, position2, sphere.bounding_sphere_center);
-				if(first)
-				{
-					stall.sphere_bounding_box();
-					first = false;
-				}
+		//for (int e = 0; e < bone_of_my_sword.size(); e++) {
+		//	for (int i = 0; i < bone_of_ais_sword.size(); i++) {
+		//		if(bone_of_my_sword[e]->detect_collision_sphere(bone_of_ais_sword[i]->bounding_sphere_center, bone_of_ais_sword[i]->bounding_sphere_radius)) {
+		//			Model* s = bone_of_my_sword[e];
+		//			std::cout << "point to object" << endl;
+		//			//bone_of_my_sword[e]->delete_object();
+		//			bone_of_my_sword.erase(bone_of_my_sword.begin() + e);
+		//			std::cout << "\ndeleted from bones \n";
+		//			s->delete_object();
+		//			delete s;
+		//			std::cout << "\ndeleted fully \n";
+		//			std::cout << "new size after deletion" << bone_of_my_sword.size() << endl;
+		//			bone_of_my_sword_translation.erase(bone_of_my_sword_translation.begin() + e);
+		//			bone_of_my_sword_orientation.erase(bone_of_my_sword_orientation.begin() + e);
+		//			std::cout << "what2" << endl;
+		//			e--;
+					
+		//			s = bone_of_ais_sword[e];
+		//			std::cout << "point to object" << endl;
+		//			bone_of_ais_sword.erase(bone_of_ais_sword.begin() + i);
+		//			std::cout << "\ndeleted from bones \n";
+		//			s->delete_object();
+		//			delete s;
+		//			std::cout << "\ndeleted fully \n";
+		//			std::cout << "new size after deletion" << bone_of_ais_sword.size() << endl;
+		//			bone_of_ais_sword_translation.erase(bone_of_ais_sword_translation.begin() + i);
+		//			bone_of_ais_sword_orientation.erase(bone_of_ais_sword_orientation.begin() + i);
+		//			std::cout << "what2" << endl;
+		//			i--;
+		//			break;
+				
 
-			}*/
+		//		}
+
+		//	}
+		//}
+
 		if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
 			auto end_arrow_time = arrow_time.now();
 			auto is_it_less = static_cast<chrono::duration<double>>(end_arrow_time - start_arrow);
@@ -1033,9 +1065,6 @@ int main()
 
 		}
 
-		bone_of_ais_sword = AI.arrows;
-		bone_of_ais_sword_translation = AI.arrows_translation;
-		bone_of_ais_sword_orientation = AI.arrows_orientation;
 
 		//tree.Draw(shaderProgram_tree, camera, boxTex, 0.2f, glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(10.4f, 10.4f, 10.4f));
 
@@ -1063,45 +1092,9 @@ int main()
 				glm::vec3 normalRaw = sphereCoordinate - wallCoordinate;
 				//sphere.collision_result_tree();
 				sphere.collision_result_wall(normalRaw);
-				//sphere.collision_result_tree();
-				//collision = true;
-
-				//move_direction = sphere.position + sphere.translation;
-
-				//glm::vec3 wallCoordinate = adjacentWalls[i]->translation;
-				//glm::vec3 sphereCoordinate = maze.MazeToWorldCoordinate(maze.GetMyCoordinate(sphere.old_pos + sphere.translation));
-				//glm::vec3 normalRaw = sphereCoordinate - wallCoordinate;
-
-				//float lenToWall = glm::length(wallCoordinate - move_direction);
-				//float lenToOther = glm::length(sphereCoordinate - move_direction);
-
-				//if (lenToWall <= lenToOther) {
-				//	sphere.movable = false;
-				//	std::cout << "true hmm\n";
-				//}
-				//
-				//if (collision_over) {
-				//	sphere.collision_result_wall(normalRaw);
-				//}	
 			}
 		}
 
-		//if (collision == false) {
-		//	collision_over = true;
-		//}
-		//else {
-		//	collision_over = false;
-		//}
-
-		//
-		//if (arrows && stall.detect_collision_sphere_box(cubes[i])) {
-		//	std::cout << "it happened" << "\n";
-		//	stall.delete_object();
-		//	arrows = false;
-
-		//
-		//	//break;
-		//}
 		for (int e = 0; e < bone_of_my_sword.size(); e++) {
 			if (bone_of_my_sword[e]->detect_collision_sphere(AI.bounding_sphere_center, AI.bounding_sphere_radius)) {
 				AI.arrow_hit();
@@ -1330,11 +1323,13 @@ int main()
 
 		}
 		if (sphere.detect_collision_sphere_box(finish_pole_high)) {
-			you_win(window, lives, time_span, total_time);
+			you_win(window, lives, time_span, total_time,sphere,translateToEntrance);
+			sphere.transportation(translateToEntrance);
 
 		}
 		if ((total_time - int(time_span.count())==0||lives<=0)) {
 			game_over(window,lives);
+			sphere.transportation(translateToEntrance);
 
 
 		}

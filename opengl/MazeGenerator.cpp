@@ -143,7 +143,7 @@ void MazeGenerator::CreateModels(const char* objPath) {
 				}
 				if (irand == 1) {
 					//glm::vec3 translate_loop = glm::vec3( (j - mWidth), (0.4f / 2) * scale_y,  (i - mHeight));
-					glm::vec3 translate_loop_tree = glm::vec3(0.4f * scale_xz * (j - mWidth)-0.15f*scale_xz, 2.1, 0.4f * scale_xz * (i - mHeight)+ 0.15f * scale_xz);
+					glm::vec3 translate_loop_tree = glm::vec3(0.4f * scale_xz * (j - mWidth)-0.15f*scale_xz, 1.8, 0.4f * scale_xz * (i - mHeight)+ 0.15f * scale_xz);
 					tree_translates.push_back(translate_loop_tree);
 
 					Model* treeModel = new Model(tree.ScaleModel(1,1,1));
