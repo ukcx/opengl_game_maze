@@ -780,8 +780,8 @@ int main()
 	Text.Load("arial.ttf", 60);
 
 	//Translates
-	//glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.724f, -0.4f * scaleXZ * (mHeight - 1));
-	glm::vec3 translateToEntrance = glm::vec3(0.4f * scaleXZ * (mWidth-1), 0.724f, 0.4f * scaleXZ * (mHeight - 1));
+	glm::vec3 translateToEntrance = glm::vec3(-0.4f * scaleXZ * mWidth, 0.724f, -0.4f * scaleXZ * (mHeight - 1));
+	//glm::vec3 translateToEntrance = glm::vec3(0.4f * scaleXZ * (mWidth-1), 0.724f, 0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translateToend = glm::vec3(0.4f * scaleXZ * mWidth, 0.724f, 0.4f * scaleXZ * (mHeight - 1));
 	glm::vec3 translate = glm::vec3(0.5f, 0.0f, 0.0f);
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
