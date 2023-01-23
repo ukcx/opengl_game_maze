@@ -630,8 +630,9 @@ int main()
 
 	srand(time(0));
 	//maze parameters
-	int seeds[8] = { 42, 24, 68, 11, 52, 35, 76, 18 };
-	int mWidth = 15, mHeight = 15, scaleXZ = 40, scaleY = 32, seedIndex = (rand() % 8);
+	//int seeds[8] = { 42, 24, 68, 11, 52, 35, 76, 18 };
+	int seeds[2] = { 42, 68 };
+	int mWidth = 15, mHeight = 15, scaleXZ = 40, scaleY = 32, seedIndex = (rand() % 2);
 
 	//Paths
 	const char* path_2_ = "s.obj";
@@ -787,7 +788,7 @@ int main()
 	glm::vec3 translate2 = glm::vec3(0.0f, -0.001f, 0.0f);
 	glm::vec3 translate3 = glm::vec3(1.5f, 0.3f, 0.0f);
 	//glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(10, 10), glm::vec2(mWidth * 2, mHeight * 2)));
-	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(1,1), glm::vec2(5, 5)));
+	glm::vec3 translateAI = maze.MazeToWorldCoordinate(maze.GetRandomEmptyCoordinates(glm::vec2(2,2), glm::vec2(5, 5)));
 	translateAI.y = 0;
 	std::cout << "AI coordinates: (" << maze.GetMyCoordinate(translateAI).x << ", " << maze.GetMyCoordinate(translateAI).y << ")\n";
 
@@ -1377,6 +1378,17 @@ int main()
 		Model littleSquare = scaledSquare.ScaleModel(1.0f / (2 * mWidth + 1), 1.0f / (2 * mHeight + 1), 1.0f);
 		glm::vec2 coords = maze.GetMyCoordinate(sphere.position + sphere.translation);
 		glm::vec2 AIcoords = maze.GetMyCoordinate(AI.position);
+
+		//YENI GELEN BASLANGIC
+		for (int i = 0; i < (2 * mHeight + 1); i++) {
+			for (int j = 0; j < (2 * mWidth + 1); j++) {
+				if (visitedCoords[i][j] == 'X' || visitedCoords[i][j] == 'Z')
+					visitedCoords[i][j] = 'X';
+				else
+					visitedCoords[i][j] = 'O';
+			}
+		}
+		//YENI GELEN BITIS
 
 		int xCoord = coords.x, yCoord = coords.y;
 		for (int i = -1; i <= 1; i++) {
