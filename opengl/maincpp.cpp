@@ -736,6 +736,8 @@ int main()
 	grayTex.texUnit(shaderProgram_obj, "tex0", 0);
 	Texture greenTex("green.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	greenTex.texUnit(shaderProgram_obj, "tex0", 0);
+	Texture ball8Tex("black-ball.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	ball8Tex.texUnit(shaderProgram_obj, "tex0", 0);
 
 	//glEnable(GL_DEPTH_CLAMP);
 	// Enables the Depth Buffer
@@ -786,7 +788,7 @@ int main()
 	//AI Objects
 	//Object playerObject(&sphere, translateToEntrance, glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, true);
 	Model scaledAISphere = AIsphere.ScaleModel(3.0f, 3.0f, 3.0f);
-	AIObject AI(&scaledAISphere, translateAI, glm::vec3(1.0f), 0.0f, true, & maze, &sphere);
+	AIObject AI(&scaledAISphere, translateAI, glm::vec3(1.0f), 0.0f, true, &maze, &sphere);
 
 
 	//Initialize visited coords matrix for the minimap
@@ -1036,6 +1038,7 @@ int main()
 		}
 
 		bool collision = false;
+		glm::vec3 move_direction;
 		std::vector<Model*> adjacentWalls = maze.GetNeighboringWalls(sphere.position + sphere.translation);
 		//std::cout << adjacentWalls.size() << "\n";
 		for (int i = 0; i < adjacentWalls.size(); i++) {
@@ -1043,22 +1046,35 @@ int main()
 				std::cout << "boundi " << sphere.bounding_sphere_center.x << " " << sphere.bounding_sphere_center.y << " " << sphere.bounding_sphere_center.z << endl;
 				std::cout << "sphere " << sphere.position.x + sphere.translation.x << " " << sphere.position.y + sphere.translation.y << " " << sphere.position.z + sphere.translation.z << endl;
 
-				glm::vec3 wallCoordinate = adjacentWalls[i]->translation;
-				glm::vec3 sphereCoordinate = maze.MazeToWorldCoordinate(maze.GetMyCoordinate(sphere.old_pos + sphere.translation));
-				glm::vec3 normalRaw = sphereCoordinate - wallCoordinate;
+				sphere.collision_result_tree();
+				//collision = true;
 
-				collision = true;
-				if(collision_over)
-					sphere.collision_result_wall(normalRaw);
+				//move_direction = sphere.position + sphere.translation;
+
+				//glm::vec3 wallCoordinate = adjacentWalls[i]->translation;
+				//glm::vec3 sphereCoordinate = maze.MazeToWorldCoordinate(maze.GetMyCoordinate(sphere.old_pos + sphere.translation));
+				//glm::vec3 normalRaw = sphereCoordinate - wallCoordinate;
+
+				//float lenToWall = glm::length(wallCoordinate - move_direction);
+				//float lenToOther = glm::length(sphereCoordinate - move_direction);
+
+				//if (lenToWall <= lenToOther) {
+				//	sphere.movable = false;
+				//	std::cout << "true hmm\n";
+				//}
+				//
+				//if (collision_over) {
+				//	sphere.collision_result_wall(normalRaw);
+				//}	
 			}
 		}
 
-		if (collision == false) {
-			collision_over = true;
-		}
-		else {
-			collision_over = false;
-		}
+		//if (collision == false) {
+		//	collision_over = true;
+		//}
+		//else {
+		//	collision_over = false;
+		//}
 
 		//
 		//if (arrows && stall.detect_collision_sphere_box(cubes[i])) {

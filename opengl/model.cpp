@@ -355,9 +355,6 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 proj = glm::mat4(1.0f);
 	glm::mat4 view = glm::mat4(1.0f);
-
-	// Assigns different transformations to each matrix
-	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 	
 	float posY = position.y;
 	old_pos = position;
@@ -383,11 +380,25 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 	bounding_sphere_center += accel_speed * time_delta + (0.5f * acc * time_delta * time_delta);
 	bounding_sphere_center.y = bounding_y;
 
+	//Calculate angle change and new angular position
+	angular_speed = accel_speed / 2.0f; //bounding_sphere_radius;
+	glm::vec3 angular_pos_change = angular_speed * time_delta;// + (0.5f * acc * time_delta * time_delta);
+	angular_position += angular_pos_change;
+	//int ang_x = angular_position.x / (M_PI * 2);
+	//angular_position.x = angular_position.x - ang_x * 2 * M_PI;
+	//int ang_z = angular_position.z / (M_PI * 2);
+	//angular_position.z = angular_position.z - ang_z * 2 * M_PI;
+
 	//Update speed and accleration
 	accel_speed = new_speed;
 	acc = glm::vec3(0.0f, 0.0f, 0.0f);
+	
+	//Rotate the object with respect to its current angular position
+	model = glm::rotate(model, angular_position.x, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::rotate(model, angular_position.z, glm::vec3(1.0f, 0.0f, 0.0f));
 
-
+	//model = glm::rotate(model, angular_pos_change.x, glm::vec3(0.0f, 0.0f, 1.0f));
+	//model = glm::rotate(model, angular_pos_change.z, glm::vec3(1.0f, 0.0f, 0.0f));
 	view = glm::translate(view, position);
 	view = glm::translate(view, translation);
 	//change center

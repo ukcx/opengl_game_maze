@@ -207,6 +207,9 @@
     <Image Include="wowfire.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+    <Image Include="black-ball.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Object Include="s.obj">

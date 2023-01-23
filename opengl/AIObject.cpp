@@ -62,11 +62,17 @@ struct StarSearch {
 
 void AIObject::AStarFindPath() {
 	//std::cout << "here\n";
-	std::vector<glm::vec2> pathNew;
-	path = pathNew;
 
 	glm::vec2 startPos = maze->GetMyCoordinate(position);
 	glm::vec2 targetPos = maze->GetMyCoordinate(player->position + player->translation);
+
+	if (maze->isThisWall(targetPos)) {
+		path_findable = false;
+		return;
+	}
+	
+	std::vector<glm::vec2> pathNew;
+	path = pathNew;
 
 	if (startPos == targetPos)
 		return;
@@ -115,6 +121,7 @@ void AIObject::AStarFindPath() {
 				if (it->second != NULL)
 					delete it->second;
 			}
+			path_findable = true;
 			return;
 		}
 
@@ -175,15 +182,21 @@ AIObject::MOVE AIObject::MonsterGetMove() {
 			}*/
 			start_astar = sc.now();
 		}
-		if (areWeAdjacent()) {
-			return CLOSEBY;
-		}
-		else if (isPathStraightLine()) {
-			return STRAIGHTLINE;
+		if (path_findable) {
+			if (areWeAdjacent()) {
+				return CLOSEBY;
+			}
+			else if (isPathStraightLine()) {
+				return STRAIGHTLINE;
+			}
+			else {
+				return ASTARMOVE;
+			}
 		}
 		else {
 			return ASTARMOVE;
 		}
+
 	}
 }
 

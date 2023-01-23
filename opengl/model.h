@@ -1,13 +1,15 @@
 #ifndef MODEL_CLASS_H
 #define MODEL_CLASS_H
 
+#define _USE_MATH_DEFINES
 #include"Mesh.h"
 #include "shaderClass.h"
 #include "Camera.h"
 #include <vector>
 #include "texture.h"
 #include "common.h"
-#include <string> 
+#include <string>
+#include <cmath>
 struct box {
 	float minX = 0;
 	float minY = 0;
@@ -23,14 +25,17 @@ private:
 	void Inputs_movement(GLFWwindow* window, glm::vec3& position, Camera camera);
 	
 public:
+	float elast_coefficient = 1.0f;
+
 	float acc_magnitude = 0.02f;
 	glm::vec3 acc = glm::vec3(0.0f, 0.0f, 0.0f);
-	float mass = 50.0f;
+	float mass = 100.0f;
 	float max_speed = 0.4f;
 	float frict_coefficient = 0.01f;
-	float elast_coefficient = 0.7f;
 	glm::vec3 accel_speed = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 new_speed = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 angular_speed = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 angular_position = glm::vec3(0.0f, 0.0f, 0.0f);
 	float time_delta = 1.0f;
 	
 	std::vector <Vertex> vertices_model;

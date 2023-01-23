@@ -48,6 +48,11 @@ MazeGenerator::~MazeGenerator() {
 		}
 	}
 }
+bool MazeGenerator::isThisWall(glm::vec2 mazeCoord) {
+	if (maze[mazeCoord.y][mazeCoord.x] == '#')
+		return true;
+	return false;
+}
 glm::vec2 MazeGenerator::GetMyCoordinate(glm::vec3 pos) {
 
 	//std::cout << pos.x << "\n";

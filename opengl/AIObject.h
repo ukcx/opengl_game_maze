@@ -46,6 +46,7 @@ private:
 	double allowedTimeSpanArrows = 7.0f;
 	bool first=true;
 	std::chrono::steady_clock::time_point start_arrows;
+	bool path_findable = true;
 
 public:
 	enum MOVE { RANDOM, STOP, ASTARMOVE, STRAIGHTLINE, CLOSEBY };

@@ -66,6 +66,7 @@ public:
 	std::vector<Model*> GetNeighboringWalls(glm::vec3 myPos);
 	std::vector<Model*> GetNeighboringCoins(glm::vec3 myPos, ModelInfo::modelLoad ml = ModelInfo::LOW);
 	std::vector<Model*> GetNeighboringTrees(glm::vec3 myPos, ModelInfo::modelLoad ml = ModelInfo::LOW);
+	bool isThisWall(glm::vec2 mazeCoord);
 	~MazeGenerator();
 	int mWidth;
 	int mHeight;
