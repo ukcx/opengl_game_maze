@@ -821,6 +821,8 @@ void Model::increase_speed(float increament) {
 	max_speed += increament;
 }
 void Model::collision_result_wall(glm::vec3 normal_raw) {
+	bounding_sphere_center += old_pos - position;
+	position = old_pos;
 	glm::vec3 normal = glm::normalize(normal_raw);
 
 	glm::vec3 reflected_speed = accel_speed - 2.0f * glm::dot(accel_speed, normal) * normal;

@@ -1058,8 +1058,12 @@ int main()
 			if (sphere.detect_collision_sphere_box((*adjacentWalls[i]))) {
 				std::cout << "boundi " << sphere.bounding_sphere_center.x << " " << sphere.bounding_sphere_center.y << " " << sphere.bounding_sphere_center.z << endl;
 				std::cout << "sphere " << sphere.position.x + sphere.translation.x << " " << sphere.position.y + sphere.translation.y << " " << sphere.position.z + sphere.translation.z << endl;
-
-				sphere.collision_result_tree();
+				glm::vec3 wallCoordinate = adjacentWalls[i]->translation;
+				glm::vec3 sphereCoordinate = maze.MazeToWorldCoordinate(maze.GetMyCoordinate(sphere.old_pos + sphere.translation));
+				glm::vec3 normalRaw = sphereCoordinate - wallCoordinate;
+				//sphere.collision_result_tree();
+				sphere.collision_result_wall(normalRaw);
+				//sphere.collision_result_tree();
 				//collision = true;
 
 				//move_direction = sphere.position + sphere.translation;
