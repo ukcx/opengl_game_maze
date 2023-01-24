@@ -26,12 +26,12 @@ private:
 	
 public:
 	float elast_coefficient = 1.0f;
-
+	float gravity_coefficient = 10.0f;
 	float acc_magnitude = 0.02f;
 	glm::vec3 acc = glm::vec3(0.0f, 0.0f, 0.0f);
 	float mass = 100.0f;
 	float max_speed = 0.4f;
-	float frict_coefficient = 0.01f;
+	float frict_coefficient = 0.001f;
 	glm::vec3 accel_speed = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 new_speed = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 angular_speed = glm::vec3(0.0f, 0.0f, 0.0f);

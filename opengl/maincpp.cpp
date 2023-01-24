@@ -687,7 +687,7 @@ int main()
 	//Materials
 	Material mat_pry(0.9f, 0.8f, 0.8f);
 	Material mat_maze(0.5f, 0.5f, 0.5f);
-	Material mat_2(0.1f, 0.1f, 0.1f);
+	Material mat_2(0.5f, 0.5f, 0.5f);
 	Material mat_3(0.9f, 0.9f, 0.9f);
 	mat_maze.sendToShader(shaderProgram_box);
 	mat_2.sendToShader(shaderProgram);
@@ -1247,7 +1247,7 @@ int main()
 		float pol_dist = Distance_Calculate(camera.Position, finish_pole_low.translation);
 		if(pol_dist>100)
 			finish_pole_low.Draw(shaderProgram_box, camera, thunderTex, 0, translateToend);
-		else if(pol_dist > 30) {
+		else if(pol_dist > 60) {
 			finish_pole_middle.Draw(shaderProgram_box, camera, thunderTex, 0, translateToend);
 		}
 		else {

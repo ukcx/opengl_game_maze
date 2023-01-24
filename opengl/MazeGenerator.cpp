@@ -108,7 +108,7 @@ void MazeGenerator::CreateModels(const char* objPath) {
 					Model* coinModel = new Model(coin.ScaleModel(1, 1, 1));
 					Model* coinModelMiddle = new Model(coin_middle.ScaleModel(1, 1, 1));
 					Model* coinModelLow = new Model(coin_low.ScaleModel(1, 1, 1));
-					int rand_coin = rand() % 4 + 1;
+					int rand_coin = rand() % 5 + 1;
 					switch (rand_coin)
 					{
 					case(1):
@@ -131,6 +131,12 @@ void MazeGenerator::CreateModels(const char* objPath) {
 						coinModelMiddle->coin_type = coins::timer;
 						coinModelLow->coin_type = coins::timer;
 						break;
+					case(5):
+						coinModel->coin_type = coins::teleport;
+						coinModelMiddle->coin_type = coins::teleport;
+						coinModelLow->coin_type = coins::teleport;
+						break;
+
 
 					default:
 						break;

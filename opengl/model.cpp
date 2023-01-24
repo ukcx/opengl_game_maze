@@ -362,7 +362,7 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 	float bounding_y = bounding_sphere_center.y;
 	
 	//Friction
-	float delta_speed = frict_coefficient * time_delta;
+	float delta_speed = frict_coefficient * time_delta * gravity_coefficient;
 	float speedLen = glm::length(accel_speed);
 	if (speedLen > 0) {
 		if ((glm::length(accel_speed) - delta_speed) > 0)
