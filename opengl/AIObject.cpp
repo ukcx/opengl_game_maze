@@ -169,7 +169,7 @@ AIObject::MOVE AIObject::MonsterGetMove() {
 	float distance = sqrt(glm::dot(distanceVec, distanceVec));
 	//std::cout << "distance: " << distance << "\n";
 
-	if (distance > 1.0f * maze->mHeight * maze->scale_xz) {
+	if (distance > 2.0f * maze->mHeight * maze->scale_xz) {
 		return STOP;
 	}
 	else {

@@ -360,7 +360,7 @@ void Model::moving_obj_draw(Shader shader, Camera camera, Texture& Texture, GLFW
 	float posY = position.y;
 	old_pos = position;
 	float bounding_y = bounding_sphere_center.y;
-	
+
 	//Friction
 	float delta_speed = frict_coefficient * time_delta * gravity_coefficient;
 	float speedLen = glm::length(accel_speed);
