@@ -53,6 +53,7 @@ The game, "Monster Chase in a Maze," challenges players to navigate through a ma
    - Enhanced gameplay realism with collision detection between:
      - Player and monster
      - Monster and arrows
+     - Arrows and arrows
      - Player and arrows
      - Any moving object with walls
      - Random objects (like trees, other decoratives) that exist in the maze with the moving objects
